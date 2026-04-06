@@ -43,6 +43,7 @@ export default async function RootLayout({
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
   const premium = playerSession ? await isPlayerPremium(playerSession.user.id) : false;
   const adsenseClientId = premium ? undefined : process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  const nitroHref = playerSession ? "/account" : "/login?from=/account";
 
   async function logoutPlayer() {
     "use server";
@@ -85,52 +86,69 @@ export default async function RootLayout({
           <AdBlockProvider>
           <PageAnalyticsTracker />
           <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
-            <nav className="px-4 py-2.5 flex items-center justify-between gap-4">
-                <Link href="/" className="flex items-center gap-3">
+            <nav className="relative flex w-full items-center gap-4 px-4 py-2.5">
+              <div className="flex shrink-0 items-center gap-4 lg:gap-6">
+                <Link href="/" className="flex shrink-0 items-center gap-3">
                   <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-purple-500 via-fuchsia-500 to-cyan-400 shadow-[0_0_25px_rgba(168,85,247,0.8)]" />
                   <div className="flex flex-col leading-tight">
-                    <span className="font-semibold text-lg tracking-tight">
+                    <span className="text-lg font-semibold tracking-tight text-white">
                       Arcade Nexus
                     </span>
-                    <span className="text-[11px] text-slate-400">
+                    <span className="hidden text-[11px] text-slate-400 sm:block">
                       Portal de jogos HTML5
                     </span>
                   </div>
                 </Link>
 
-              <div className="hidden md:flex items-center gap-1 text-xs font-medium text-slate-300">
-                  <Link href="/" className="px-3 py-1.5 rounded-md hover:text-white hover:bg-slate-800/60 transition-all duration-150">
-                  Início
+                <div className="hidden md:flex items-center gap-1 text-xs font-medium text-slate-300">
+                  <Link href="/" className="rounded-md px-3 py-1.5 transition-all duration-150 hover:bg-slate-800/60 hover:text-white">
+                    Início
                   </Link>
-                  <Link href="/#catalogo" className="px-3 py-1.5 rounded-md hover:text-white hover:bg-slate-800/60 transition-all duration-150">
-                  Categorias
+                  <Link href="/blog" className="rounded-md px-3 py-1.5 transition-all duration-150 hover:bg-slate-800/60 hover:text-white">
+                    Blog
                   </Link>
-                  <Link href="/blog" className="px-3 py-1.5 rounded-md hover:text-white hover:bg-slate-800/60 transition-all duration-150">
-                  Blog
-                  </Link>
-                  <Link href="/#catalogo" className="px-3 py-1.5 rounded-md hover:text-white hover:bg-slate-800/60 transition-all duration-150">
-                  Todos os jogos
-                  </Link>
+                </div>
               </div>
 
-              <div className="flex-1 md:flex-none flex items-center justify-end gap-3">
-                  <form action="/#catalogo" className="hidden sm:block relative w-full max-w-xs">
+              <div className="pointer-events-none absolute left-1/2 top-1/2 hidden w-full max-w-[360px] -translate-x-1/2 -translate-y-1/2 xl:block">
+                <form action="/#catalogo" className="pointer-events-auto relative w-full">
                   <input
-                      name="q"
+                    name="q"
                     type="text"
                     placeholder="Buscar jogos..."
-                    className="w-full rounded-full bg-slate-900/80 border border-slate-700/70 px-4 py-1.5 pr-9 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500/70 focus:border-purple-400/70 shadow-inner shadow-black/60"
+                    className="h-9 w-full rounded-full border border-slate-700/70 bg-slate-900/80 px-4 pr-16 text-xs text-slate-100 placeholder:text-slate-500 shadow-inner shadow-black/60 focus:border-purple-400/70 focus:outline-none focus:ring-2 focus:ring-purple-500/70"
                   />
-                  <span className="absolute inset-y-0 right-3 flex items-center text-slate-500 text-xs">
-                    ⌕
+                  <button
+                    type="submit"
+                    className="absolute right-1 top-1 inline-flex h-7 items-center rounded-full bg-cyan-400/15 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition-colors hover:bg-cyan-400/25"
+                  >
+                    Buscar
+                  </button>
+                </form>
+              </div>
+
+              <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+                <Link
+                  href={nitroHref}
+                  className="group relative inline-flex shrink-0 items-center gap-2 overflow-hidden rounded-full border border-indigo-200/70 bg-[linear-gradient(135deg,#5865F2_0%,#6973FF_48%,#8B5CF6_100%)] px-3 py-1.5 text-white shadow-[0_12px_26px_rgba(88,101,242,0.34)] transition-all duration-200 hover:-translate-y-0.5 hover:border-white/80 hover:shadow-[0_16px_34px_rgba(88,101,242,0.48)]"
+                >
+                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.28),transparent_38%),linear-gradient(120deg,transparent_20%,rgba(255,255,255,0.14)_48%,transparent_72%)] opacity-90 transition-opacity duration-200 group-hover:opacity-100" />
+                  <span className="relative flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-white/10 text-[10px] font-black shadow-inner shadow-white/10">
+                    N
                   </span>
-                  </form>
-                <LanguageSwitcher />
+                  <span className="relative flex flex-col leading-none">
+                    <span className="text-[9px] font-black tracking-[0.14em] text-indigo-100/90">ASSINAR NITRO</span>
+                    <span className="mt-0.5 text-[11px] font-semibold text-indigo-50">R$ 8,90</span>
+                  </span>
+                </Link>
+                <div className="shrink-0">
+                  <LanguageSwitcher />
+                </div>
                 {playerSession ? (
                   <div className="hidden sm:flex items-center gap-2">
                     <Link
                       href="/account"
-                      className="inline-flex items-center gap-1 text-[11px] px-3 py-1 rounded-full border border-cyan-400/40 bg-cyan-500/10 hover:border-cyan-300/70 hover:bg-cyan-500/15 text-cyan-100 transition-colors max-w-[140px]"
+                      className="inline-flex max-w-[140px] items-center gap-1 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-3 py-1 text-[11px] text-cyan-100 transition-colors hover:border-cyan-300/70 hover:bg-cyan-500/15"
                     >
                       {premium && <span className="text-amber-400">★</span>}
                       <span className="truncate">{playerSession.user.displayName}</span>
@@ -138,7 +156,7 @@ export default async function RootLayout({
                     <form action={logoutPlayer}>
                       <button
                         type="submit"
-                        className="inline-flex items-center text-[11px] px-3 py-1 rounded-full border border-slate-700/80 bg-slate-950/80 hover:border-red-500/80 hover:bg-red-950/40 text-slate-200 hover:text-white transition-colors"
+                        className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-950/80 px-3 py-1 text-[11px] text-slate-200 transition-colors hover:border-red-500/80 hover:bg-red-950/40 hover:text-white"
                       >
                         Sair
                       </button>
@@ -147,17 +165,11 @@ export default async function RootLayout({
                 ) : (
                   <Link
                     href="/login"
-                    className="hidden sm:inline-flex items-center text-[11px] px-3 py-1 rounded-full border border-cyan-500/50 bg-cyan-500/10 hover:border-cyan-400 hover:bg-cyan-500/15 text-cyan-100 transition-colors"
+                    className="hidden sm:inline-flex items-center rounded-full border border-cyan-500/50 bg-cyan-500/10 px-3 py-1 text-[11px] text-cyan-100 transition-colors hover:border-cyan-400 hover:bg-cyan-500/15"
                   >
                     Entrar
                   </Link>
                 )}
-                  <Link
-                    href="/admin/login"
-                  className="hidden sm:inline-flex items-center text-[11px] px-3 py-1 rounded-full border border-slate-700/80 bg-slate-950/80 hover:border-purple-500/80 hover:bg-purple-950/50 text-slate-200 hover:text-white transition-colors"
-                >
-                  Admin
-                  </Link>
               </div>
             </nav>
           </header>

@@ -23,7 +23,7 @@ import {
 } from "@/lib/gamification";
 import { getHomeTexts } from "@/lib/home-content";
 import { getRecommendedReason, resolveHeroGame } from "@/lib/home-feed";
-import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
+import { getLocaleContentLocale, LOCALE_COOKIE_NAME, resolveLocale, type Locale } from "@/lib/locale";
 import { getSingleQueryValue } from "@/lib/pagination";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 
@@ -77,61 +77,69 @@ function getLeaderboardBannerGradient(profileTheme: string, categories: string[]
   return "from-sky-500/80 via-indigo-400/45 to-slate-950";
 }
 
-function getLeaderboardProfileTag(locale: string, categories: string[]) {
+function getLeaderboardProfileTag(locale: Locale, categories: string[]) {
   const primaryCategory = categories[0];
+  const contentLocale = getLocaleContentLocale(locale);
 
   if (primaryCategory) {
     return primaryCategory;
   }
 
-  if (locale === "en") return "Top player";
-  if (locale === "es") return "Jugador top";
+  if (contentLocale === "en") return "Top player";
+  if (contentLocale === "es") return "Jugador top";
   return "Destaque";
 }
 
-function getLeaderboardStatLabel(locale: string, type: "achievements" | "friends") {
+function getLeaderboardStatLabel(locale: Locale, type: "achievements" | "friends") {
+  const contentLocale = getLocaleContentLocale(locale);
+
   if (type === "achievements") {
-    if (locale === "en") return "Achievements";
-    if (locale === "es") return "Logros";
+    if (contentLocale === "en") return "Achievements";
+    if (contentLocale === "es") return "Logros";
     return "Conquistas";
   }
 
-  if (locale === "en") return "Friends";
-  if (locale === "es") return "Amigos";
+  if (contentLocale === "en") return "Friends";
+  if (contentLocale === "es") return "Amigos";
   return "Amigos";
 }
 
-function getLeaderboardStreakLabel(locale: string) {
-  if (locale === "en") return "streak";
-  if (locale === "es") return "racha";
+function getLeaderboardStreakLabel(locale: Locale) {
+  const contentLocale = getLocaleContentLocale(locale);
+
+  if (contentLocale === "en") return "streak";
+  if (contentLocale === "es") return "racha";
   return "sequência";
 }
 
-function getPlayerHubTag(locale: string, categories: string[]) {
+function getPlayerHubTag(locale: Locale, categories: string[]) {
   const primaryCategory = categories[0];
+  const contentLocale = getLocaleContentLocale(locale);
 
   if (primaryCategory) {
     return primaryCategory;
   }
 
-  if (locale === "en") return "Player hub";
-  if (locale === "es") return "Perfil gamer";
+  if (contentLocale === "en") return "Player hub";
+  if (contentLocale === "es") return "Perfil gamer";
   return "Hub do jogador";
 }
 
 function getPlayerSidebarQuickLabel(
-  locale: string,
+  locale: Locale,
   type: "favorites" | "played" | "achievements" | "friends",
 ) {
+  const contentLocale = getLocaleContentLocale(locale);
+
   if (type === "favorites") {
-    if (locale === "en") return "Favorites";
-    if (locale === "es") return "Favoritos";
+    if (contentLocale === "en") return "Favorites";
+    if (contentLocale === "es") return "Favoritos";
     return "Favoritos";
   }
 
   if (type === "played") {
-    if (locale === "en") return "Played";
-    if (locale === "es") return "Jugados";
+    if (contentLocale === "en") return "Played";
+    if (contentLocale === "es") return "Jugados";
     return "Jogados";
   }
 

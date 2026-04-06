@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 
 import Image from "next/image";
+import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { getBlogPostBySlug } from "@/data/blogPosts";
+import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
 
 import { AdSlot } from "../../components/AdSlot";
 import { BlogViewTracker } from "../../components/BlogAnalyticsTrackers";
@@ -39,6 +41,8 @@ export async function generateMetadata({
 
 export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
+  const cookieStore = await cookies();
+  const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
   const post = await getBlogPostBySlug(slug);
 
   if (!post) {
@@ -59,7 +63,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <span className="rounded-full border border-slate-700/80 bg-slate-900/80 px-2 py-0.5 text-slate-300">
               {post.category}
             </span>
-            <span>{new Date(post.publishedAt).toLocaleDateString("pt-BR")}</span>
+            <span>{new Date(post.publishedAt).toLocaleDateString(locale)}</span>
             <span>{post.readingTime}</span>
           </div>
           <h1 className="text-xl font-semibold tracking-tight text-slate-50 md:text-3xl">

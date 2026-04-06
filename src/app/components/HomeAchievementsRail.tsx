@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 
 import type { AchievementDefinitionRecord } from "@/data/achievementDefinitionsStore";
 import type { AchievementCriteriaType } from "@/lib/gamification";
-import type { Locale } from "@/lib/locale";
+import { getLocaleContentLocale, type Locale } from "@/lib/locale";
 
 import { TrackedLink } from "./TrackedLink";
 
@@ -63,8 +63,9 @@ function getAchievementRequirementLabel(
   locale: Locale,
 ) {
   const number = new Intl.NumberFormat(locale).format(threshold);
+  const contentLocale = getLocaleContentLocale(locale);
 
-  if (locale === "en") {
+  if (contentLocale === "en") {
     switch (criteriaType) {
       case "account_created":
         return "Create account";
@@ -85,7 +86,7 @@ function getAchievementRequirementLabel(
     }
   }
 
-  if (locale === "es") {
+  if (contentLocale === "es") {
     switch (criteriaType) {
       case "account_created":
         return "Crear cuenta";
@@ -130,22 +131,24 @@ function getAchievementUnlockHint(
   item: Pick<HomeAchievementRailItem, "criteriaType" | "currentValue" | "targetValue" | "progressPercent" | "unlocked">,
   locale: Locale,
 ) {
+  const contentLocale = getLocaleContentLocale(locale);
+
   if (item.unlocked) {
-    if (locale === "en") return "Unlocked and already counting toward your profile.";
-    if (locale === "es") return "Desbloqueada y ya forma parte de tu perfil.";
+    if (contentLocale === "en") return "Unlocked and already counting toward your profile.";
+    if (contentLocale === "es") return "Desbloqueada y ya forma parte de tu perfil.";
     return "Conquista desbloqueada e já contabilizada no seu perfil.";
   }
 
   if (item.progressPercent >= 100) {
-    if (locale === "en") return "Ready to unlock on your next tracked action.";
-    if (locale === "es") return "Lista para desbloquearse en tu próxima acción registrada.";
+    if (contentLocale === "en") return "Ready to unlock on your next tracked action.";
+    if (contentLocale === "es") return "Lista para desbloquearse en tu próxima acción registrada.";
     return "Pronta para desbloquear na sua próxima ação registrada.";
   }
 
   const remaining = Math.max(item.targetValue - item.currentValue, 0);
   const number = new Intl.NumberFormat(locale).format(remaining);
 
-  if (locale === "en") {
+  if (contentLocale === "en") {
     switch (item.criteriaType) {
       case "account_created":
         return "Create an account to unlock this badge.";
@@ -166,7 +169,7 @@ function getAchievementUnlockHint(
     }
   }
 
-  if (locale === "es") {
+  if (contentLocale === "es") {
     switch (item.criteriaType) {
       case "account_created":
         return "Crea una cuenta para desbloquear esta insignia.";
@@ -211,32 +214,38 @@ function getAchievementTooltipTitle(
   item: Pick<HomeAchievementRailItem, "unlocked" | "progressPercent">,
   locale: Locale,
 ) {
+  const contentLocale = getLocaleContentLocale(locale);
+
   if (item.unlocked) {
-    if (locale === "en") return "Unlocked";
-    if (locale === "es") return "Conseguida";
+    if (contentLocale === "en") return "Unlocked";
+    if (contentLocale === "es") return "Conseguida";
     return "Conquistada";
   }
 
   if (item.progressPercent >= 100) {
-    if (locale === "en") return "Ready to unlock";
-    if (locale === "es") return "Lista para desbloquear";
+    if (contentLocale === "en") return "Ready to unlock";
+    if (contentLocale === "es") return "Lista para desbloquear";
     return "Pronta para desbloquear";
   }
 
-  if (locale === "en") return "Unlock details";
-  if (locale === "es") return "Detalle de desbloqueo";
+  if (contentLocale === "en") return "Unlock details";
+  if (contentLocale === "es") return "Detalle de desbloqueo";
   return "Como desbloquear";
 }
 
 function getAchievementTooltipActionLabel(locale: Locale) {
-  if (locale === "en") return "View unlock details";
-  if (locale === "es") return "Ver detalle de desbloqueo";
+  const contentLocale = getLocaleContentLocale(locale);
+
+  if (contentLocale === "en") return "View unlock details";
+  if (contentLocale === "es") return "Ver detalle de desbloqueo";
   return "Ver detalhe de desbloqueio";
 }
 
 function getAchievementSealLabel(locale: Locale) {
-  if (locale === "en") return "Done";
-  if (locale === "es") return "Lista";
+  const contentLocale = getLocaleContentLocale(locale);
+
+  if (contentLocale === "en") return "Done";
+  if (contentLocale === "es") return "Lista";
   return "OK";
 }
 

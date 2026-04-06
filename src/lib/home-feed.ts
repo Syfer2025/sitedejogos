@@ -1,6 +1,6 @@
 import type { GameRecord } from "@/data/gamesStore";
 import type { PlayerProfile } from "@/data/playerStore";
-import type { Locale } from "@/lib/locale";
+import { getLocaleContentLocale, type Locale } from "@/lib/locale";
 
 export type HomeFeedGame = Pick<
   GameRecord,
@@ -53,8 +53,9 @@ export function resolveHeroGame(input: {
 }
 
 export function buildDailyMission(input: DailyMissionInput) {
+  const contentLocale = getLocaleContentLocale(input.locale);
   const copy =
-    input.locale === "en"
+    contentLocale === "en"
       ? {
           guestTitle: "Create your account to save progress.",
           guestDescription:
@@ -87,7 +88,7 @@ export function buildDailyMission(input: DailyMissionInput) {
           xpProgressLabel: "Remaining",
           xpProgressValue: (value: number) => `${value} XP`,
         }
-      : input.locale === "es"
+      : contentLocale === "es"
       ? {
           guestTitle: "Crea tu cuenta para guardar progreso.",
           guestDescription:

@@ -1,7 +1,9 @@
-import type { Locale } from "@/lib/locale";
+import { getLocaleContentLocale, type Locale } from "@/lib/locale";
 
 export function getHomeTexts(locale: Locale) {
-  if (locale === "en") {
+  const contentLocale = getLocaleContentLocale(locale);
+
+  if (contentLocale === "en") {
     return {
       heroKicker: "Curated HTML5 Picks",
       heroTitle: "Launch premium browser games instantly.",
@@ -72,7 +74,7 @@ export function getHomeTexts(locale: Locale) {
     } as const;
   }
 
-  if (locale === "es") {
+  if (contentLocale === "es") {
     return {
       heroKicker: "Selección HTML5",
       heroTitle: "Juega títulos premium al instante en el navegador.",

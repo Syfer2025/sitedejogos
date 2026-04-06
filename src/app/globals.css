@@ -57,6 +57,31 @@ body {
   background: rgba(100, 116, 139, 0.45);
 }
 
+.scrollbar-locale {
+  scrollbar-width: auto;
+  scrollbar-color: rgba(34, 211, 238, 0.78) rgba(15, 23, 42, 0.92);
+}
+
+.scrollbar-locale::-webkit-scrollbar {
+  width: 11px;
+}
+
+.scrollbar-locale::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.92);
+  border-left: 1px solid rgba(51, 65, 85, 0.7);
+}
+
+.scrollbar-locale::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(15, 23, 42, 0.92);
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(103, 232, 249, 0.92), rgba(59, 130, 246, 0.82));
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.22);
+}
+
+.scrollbar-locale::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, rgba(165, 243, 252, 0.98), rgba(34, 211, 238, 0.94));
+}
+
 /* ── Animations ── */
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(12px); }

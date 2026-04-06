@@ -3,14 +3,16 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 
 import { listPublishedBlogPosts } from "@/data/blogPosts";
-import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
+import { getLocaleContentLocale, LOCALE_COOKIE_NAME, resolveLocale, type Locale } from "@/lib/locale";
 
 import { AdSlot } from "../components/AdSlot";
 import { BlogImpressionTracker } from "../components/BlogAnalyticsTrackers";
 import { TrackedLink } from "../components/TrackedLink";
 
-function getBlogTexts(locale: string) {
-  if (locale === "en") {
+function getBlogTexts(locale: Locale) {
+  const contentLocale = getLocaleContentLocale(locale);
+
+  if (contentLocale === "en") {
     return {
       kicker: "Arcade Nexus Blog",
       title: "Content to grow your HTML5 gaming portal.",
@@ -24,7 +26,7 @@ function getBlogTexts(locale: string) {
     } as const;
   }
 
-  if (locale === "es") {
+  if (contentLocale === "es") {
     return {
       kicker: "Blog Arcade Nexus",
       title: "Contenido para hacer crecer tu portal HTML5.",
@@ -107,7 +109,7 @@ export default async function BlogPage() {
                   <span className="rounded-full border border-slate-700/80 bg-slate-900/70 px-2 py-0.5 text-slate-300">
                     {post.category}
                   </span>
-                  <span>{t.publishedAt}: {new Date(post.publishedAt).toLocaleDateString("pt-BR")}</span>
+                  <span>{t.publishedAt}: {new Date(post.publishedAt).toLocaleDateString(locale)}</span>
                   <span>{t.readingTime}: {post.readingTime}</span>
                 </div>
                 <h2 className="text-lg font-semibold text-slate-50 transition-colors group-hover:text-white">

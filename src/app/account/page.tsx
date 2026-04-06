@@ -92,13 +92,13 @@ export default async function AccountPage() {
   const playerUserId = session.user.id;
 
   const playerInitials = getPlayerInitials(profile.displayName);
-  const memberSince = new Date(profile.createdAt).toLocaleDateString("pt-BR", {
+  const memberSince = new Date(profile.createdAt).toLocaleDateString(locale, {
     month: "long",
     year: "numeric",
   });
   const dailyMissionCard = gamification
     ? buildDailyMissionCard({
-        locale: "pt-BR",
+        locale,
         isAuthenticated: true,
         mission: gamification.dailyMission,
       })
@@ -114,7 +114,7 @@ export default async function AccountPage() {
       )
     : 0;
   const nextDailyMissionLabel = gamification
-    ? new Date(gamification.nextDailyMissionAt).toLocaleString("pt-BR", {
+    ? new Date(gamification.nextDailyMissionAt).toLocaleString(locale, {
         day: "2-digit",
         month: "2-digit",
         hour: "2-digit",
@@ -301,7 +301,7 @@ export default async function AccountPage() {
                         key={entry.name}
                         className="rounded-full border border-fuchsia-400/30 bg-fuchsia-500/10 px-3 py-1 text-[11px] text-fuchsia-100"
                       >
-                        {entry.name} • {entry.share.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
+                        {entry.name} • {entry.share.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
                       </span>
                     ))
                   ) : (
@@ -514,7 +514,7 @@ export default async function AccountPage() {
                             {getMissionHistoryTitle(mission)}
                           </p>
                           <p className="mt-1 text-[11px] text-slate-500">
-                            {new Date(`${mission.dayToken}T00:00:00.000Z`).toLocaleDateString("pt-BR")} • {mission.progressCount}/{mission.targetCount} • +{mission.rewardXp} XP
+                            {new Date(`${mission.dayToken}T00:00:00.000Z`).toLocaleDateString(locale)} • {mission.progressCount}/{mission.targetCount} • +{mission.rewardXp} XP
                           </p>
                         </div>
                         <div className="flex flex-col items-end gap-2">
@@ -582,7 +582,7 @@ export default async function AccountPage() {
                           <p className="mt-1 text-[12px] text-slate-400">{notification.message}</p>
                         </div>
                         <span className="text-[10px] text-slate-500">
-                          {new Date(notification.createdAt).toLocaleDateString("pt-BR")}
+                          {new Date(notification.createdAt).toLocaleDateString(locale)}
                         </span>
                       </div>
                       {notification.link ? (
@@ -655,7 +655,7 @@ export default async function AccountPage() {
                     <div className="mt-2 flex items-center gap-2 text-[10px] text-slate-500">
                       <span>{entry.game.category}</span>
                       <span>•</span>
-                      <span>{entry.createdAt.toLocaleDateString("pt-BR")}</span>
+                      <span>{entry.createdAt.toLocaleDateString(locale)}</span>
                     </div>
                   </div>
                 </Link>
@@ -699,7 +699,7 @@ export default async function AccountPage() {
                     <div className="mt-2 flex items-center gap-2 text-[10px] text-slate-500">
                       <span>{entry.playCount} partida(s)</span>
                       <span>•</span>
-                      <span>{entry.lastPlayedAt.toLocaleString("pt-BR")}</span>
+                      <span>{entry.lastPlayedAt.toLocaleString(locale)}</span>
                     </div>
                   </div>
                 </Link>

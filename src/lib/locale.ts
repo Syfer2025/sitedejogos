@@ -1,14 +1,279 @@
-export const SUPPORTED_LOCALES = ["pt-BR", "en", "es"] as const;
-export type Locale = (typeof SUPPORTED_LOCALES)[number];
+export const LOCALE_MARKETS = [
+  {
+    value: "en-US",
+    short: "EN",
+    flag: "🇺🇸",
+    label: "English (United States)",
+    country: "Estados Unidos",
+    rank: 1,
+    note: "Lider absoluto em trafego de Poki e CrazyGames.",
+    contentLocale: "en",
+  },
+  {
+    value: "zh-CN",
+    short: "中文",
+    flag: "🇨🇳",
+    label: "Jianti Zhongwen",
+    country: "China",
+    rank: 2,
+    note: "Maior mercado de H5 games do mundo, incluindo ecossistemas como WeChat.",
+    contentLocale: "en",
+  },
+  {
+    value: "hi-IN",
+    short: "हि",
+    flag: "🇮🇳",
+    label: "Hindi",
+    country: "India",
+    rank: 3,
+    note: "Crescimento explosivo com alto volume e forte base mobile.",
+    contentLocale: "en",
+  },
+  {
+    value: "pt-BR",
+    short: "PT",
+    flag: "🇧🇷",
+    label: "Portugues (Brasil)",
+    country: "Brasil",
+    rank: 4,
+    note: "Mercado muito forte nas plataformas de browser games.",
+    contentLocale: "pt-BR",
+  },
+  {
+    value: "tr-TR",
+    short: "TR",
+    flag: "🇹🇷",
+    label: "Turkce",
+    country: "Turquia",
+    rank: 5,
+    note: "Top 2 a 3 em trafego dentro do Poki.",
+    contentLocale: "en",
+  },
+  {
+    value: "id-ID",
+    short: "ID",
+    flag: "🇮🇩",
+    label: "Bahasa Indonesia",
+    country: "Indonesia",
+    rank: 6,
+    note: "Alto trafego em CrazyGames e uso mobile muito forte.",
+    contentLocale: "en",
+  },
+  {
+    value: "vi-VN",
+    short: "VI",
+    flag: "🇻🇳",
+    label: "Tieng Viet",
+    country: "Vietna",
+    rank: 7,
+    note: "Mercado forte em varias plataformas de jogos no navegador.",
+    contentLocale: "en",
+  },
+  {
+    value: "de-DE",
+    short: "DE",
+    flag: "🇩🇪",
+    label: "Deutsch",
+    country: "Alemanha",
+    rank: 8,
+    note: "Um dos mercados mais fortes da Europa para browser games.",
+    contentLocale: "en",
+  },
+  {
+    value: "fil-PH",
+    short: "FIL",
+    flag: "🇵🇭",
+    label: "Filipino",
+    country: "Filipinas",
+    rank: 9,
+    note: "Altissima penetracao de browser games.",
+    contentLocale: "en",
+  },
+  {
+    value: "es-MX",
+    short: "ES",
+    flag: "🇲🇽",
+    label: "Espanol (Mexico)",
+    country: "Mexico",
+    rank: 10,
+    note: "Mercado latino muito forte para jogos casuais.",
+    contentLocale: "es",
+  },
+  {
+    value: "en-GB",
+    short: "UK",
+    flag: "🇬🇧",
+    label: "English (United Kingdom)",
+    country: "Reino Unido",
+    rank: 11,
+    note: "Bom trafego em plataformas ocidentais.",
+    contentLocale: "en",
+  },
+  {
+    value: "fr-FR",
+    short: "FR",
+    flag: "🇫🇷",
+    label: "Francais",
+    country: "Franca",
+    rank: 12,
+    note: "Mercado europeu relevante para crescimento organico.",
+    contentLocale: "en",
+  },
+  {
+    value: "th-TH",
+    short: "TH",
+    flag: "🇹🇭",
+    label: "Thai",
+    country: "Tailandia",
+    rank: 13,
+    note: "Sudeste Asiatico muito forte em jogos casuais.",
+    contentLocale: "en",
+  },
+  {
+    value: "ur-PK",
+    short: "UR",
+    flag: "🇵🇰",
+    label: "Urdu",
+    country: "Paquistao",
+    rank: 14,
+    note: "Mercado mobile emergente com crescimento alto.",
+    contentLocale: "en",
+  },
+  {
+    value: "en-NG",
+    short: "NG",
+    flag: "🇳🇬",
+    label: "English (Nigeria)",
+    country: "Nigeria",
+    rank: 15,
+    note: "Maior volume de trafego browser game na Africa.",
+    contentLocale: "en",
+  },
+  {
+    value: "ar-EG",
+    short: "AR",
+    flag: "🇪🇬",
+    label: "Al Arabiya (Misr)",
+    country: "Egito",
+    rank: 16,
+    note: "Mercado MENA forte em casual games.",
+    contentLocale: "en",
+  },
+  {
+    value: "ms-MY",
+    short: "MS",
+    flag: "🇲🇾",
+    label: "Bahasa Melayu",
+    country: "Malasia",
+    rank: 17,
+    note: "Sudeste Asiatico com bom mix de browser e mobile.",
+    contentLocale: "en",
+  },
+  {
+    value: "es-CO",
+    short: "CO",
+    flag: "🇨🇴",
+    label: "Espanol (Colombia)",
+    country: "Colombia",
+    rank: 18,
+    note: "Mercado latino importante para expansao regional.",
+    contentLocale: "es",
+  },
+  {
+    value: "ru-RU",
+    short: "RU",
+    flag: "🇷🇺",
+    label: "Russkiy",
+    country: "Russia",
+    rank: 19,
+    note: "Mercado historicamente forte em browser games.",
+    contentLocale: "en",
+  },
+  {
+    value: "es-AR",
+    short: "AR",
+    flag: "🇦🇷",
+    label: "Espanol (Argentina)",
+    country: "Argentina",
+    rank: 20,
+    note: "Mercado latino com boa afinidade para jogos casuais.",
+    contentLocale: "es",
+  },
+  {
+    value: "es-ES",
+    short: "ES",
+    flag: "🇪🇸",
+    label: "Espanol (Espana)",
+    country: "Espanha",
+    rank: 21,
+    note: "Mercado europeu consolidado em lingua espanhola.",
+    contentLocale: "es",
+  },
+  {
+    value: "en-CA",
+    short: "CA",
+    flag: "🇨🇦",
+    label: "English (Canada)",
+    country: "Canada",
+    rank: 22,
+    note: "America do Norte com bom volume para plataformas premium.",
+    contentLocale: "en",
+  },
+  {
+    value: "pl-PL",
+    short: "PL",
+    flag: "🇵🇱",
+    label: "Polski",
+    country: "Polonia",
+    rank: 23,
+    note: "Europa Central e Oriental com bom alcance de browser games.",
+    contentLocale: "en",
+  },
+  {
+    value: "ar-SA",
+    short: "SA",
+    flag: "🇸🇦",
+    label: "Al Arabiya (Saudiya)",
+    country: "Arabia Saudita",
+    rank: 24,
+    note: "Mercado MENA em crescimento acelerado.",
+    contentLocale: "en",
+  },
+  {
+    value: "bn-BD",
+    short: "BN",
+    flag: "🇧🇩",
+    label: "Bangla",
+    country: "Bangladesh",
+    rank: 25,
+    note: "Alto volume mobile em mercado emergente.",
+    contentLocale: "en",
+  },
+] as const;
+
+export type Locale = (typeof LOCALE_MARKETS)[number]["value"];
+export type LocaleContentLocale = "pt-BR" | "en" | "es";
+export type LocaleMarket = (typeof LOCALE_MARKETS)[number];
+
+export const SUPPORTED_LOCALES = LOCALE_MARKETS.map((market) => market.value) as Locale[];
 
 export const DEFAULT_LOCALE: Locale = "pt-BR";
 export const LOCALE_STORAGE_KEY = "arcade_locale";
 export const LOCALE_COOKIE_NAME = "arcade_locale";
 
 export function isSupportedLocale(value: string | null | undefined): value is Locale {
-  return Boolean(value && SUPPORTED_LOCALES.includes(value as Locale));
+  return Boolean(value && SUPPORTED_LOCALES.some((locale) => locale === value));
 }
 
 export function resolveLocale(value: string | null | undefined): Locale {
   return isSupportedLocale(value) ? value : DEFAULT_LOCALE;
+}
+
+export function getLocaleDefinition(value: Locale | string | null | undefined): LocaleMarket {
+  const resolved = resolveLocale(value);
+  return LOCALE_MARKETS.find((market) => market.value === resolved) ?? LOCALE_MARKETS[3];
+}
+
+export function getLocaleContentLocale(locale: Locale): LocaleContentLocale {
+  return getLocaleDefinition(locale).contentLocale;
 }

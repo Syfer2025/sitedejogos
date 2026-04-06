@@ -62,7 +62,7 @@ export function LocaleProvider({
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
-    document.documentElement.lang = locale === "pt-BR" ? "pt-BR" : locale;
+    document.documentElement.lang = locale;
     document.cookie = `${LOCALE_COOKIE_NAME}=${encodeURIComponent(locale)}; path=/; max-age=31536000; samesite=lax`;
   }, [locale]);
 

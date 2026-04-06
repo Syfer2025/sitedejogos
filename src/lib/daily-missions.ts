@@ -1,5 +1,5 @@
 import type { GamificationEventType } from "@/lib/gamification";
-import type { Locale } from "@/lib/locale";
+import { getLocaleContentLocale, type Locale } from "@/lib/locale";
 
 export const DAILY_MISSION_KINDS = ["favorite_add", "profile_update", "game_play"] as const;
 export type DailyMissionKind = (typeof DAILY_MISSION_KINDS)[number];
@@ -93,8 +93,9 @@ export function missionMatchesEvent(kind: DailyMissionKind, event: GamificationE
 }
 
 export function buildDailyMission(input: DailyMissionPresentationInput) {
+  const contentLocale = getLocaleContentLocale(input.locale);
   const copy =
-    input.locale === "en"
+    contentLocale === "en"
       ? {
           guestTitle: "Create your account to save progress.",
           guestDescription:
@@ -122,7 +123,7 @@ export function buildDailyMission(input: DailyMissionPresentationInput) {
           accountCta: "Open profile",
           completedCta: "View account",
         }
-      : input.locale === "es"
+      : contentLocale === "es"
       ? {
           guestTitle: "Crea tu cuenta para guardar progreso.",
           guestDescription:
