@@ -3,6 +3,7 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { listAchievementDefinitions } from "@/data/achievementDefinitionsStore";
 import {
   getPlayerGamificationOverview,
   markAllPlayerNotificationsAsRead,
@@ -12,6 +13,12 @@ import {
   buildDailyMission as buildDailyMissionCard,
   getDailyMissionHref,
 } from "@/lib/daily-missions";
+import {
+  DEFAULT_ACHIEVEMENT_DEFINITIONS,
+  getAchievementProgress,
+} from "@/lib/gamification";
+import { getHomeTexts } from "@/lib/home-content";
+import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
 import {
   getPlayerProfile,
   getPlayerTasteProfile,
@@ -23,11 +30,16 @@ import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 import { AccountProfileForm } from "../components/AccountProfileForm";
 import { FriendsPanel } from "../components/FriendsPanel";
 import { CoinsPanel } from "../components/CoinsPanel";
+import { AchievementCollection } from "../components/HomeAchievementsRail";
 
 type FavoriteEntry = Awaited<ReturnType<typeof listFavoriteGames>>[number];
 type HistoryEntry = Awaited<ReturnType<typeof listRecentlyPlayed>>[number];
 type GamificationOverview = NonNullable<Awaited<ReturnType<typeof getPlayerGamificationOverview>>>;
 type DailyMissionEntry = NonNullable<GamificationOverview["dailyMission"]>;
+
+const ACHIEVEMENT_SHOWCASE_ORDER = new Map(
+  DEFAULT_ACHIEVEMENT_DEFINITIONS.map((definition, index) => [definition.key, index]),
+);
 
 function getPlayerInitials(name: string) {
   return name
@@ -54,6 +66,8 @@ function getMissionHistoryTitle(mission: DailyMissionEntry) {
 
 export default async function AccountPage() {
   const cookieStore = await cookies();
+  const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
+  const homeTexts = getHomeTexts(locale);
   const token = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
   const session = token ? await getPlayerSession(token) : null;
 
@@ -61,13 +75,14 @@ export default async function AccountPage() {
     redirect("/login?from=/account");
   }
 
-  const [favorites, history, profile, categories, gamification, tasteProfile] = await Promise.all([
+  const [favorites, history, profile, categories, gamification, tasteProfile, achievementDefinitions] = await Promise.all([
     listFavoriteGames(session.user.id, 12),
     listRecentlyPlayed(session.user.id, 12),
     getPlayerProfile(session.user.id),
     listCategories(),
     getPlayerGamificationOverview(session.user.id),
     getPlayerTasteProfile(session.user.id),
+    listAchievementDefinitions(),
   ]);
 
   if (!profile) {
@@ -110,6 +125,31 @@ export default async function AccountPage() {
     ? gamification.dailyMissionHistory
         .filter((mission) => mission.id !== gamification.dailyMission?.id)
         .slice(0, 4)
+    : [];
+  const unlockedAchievementKeys = new Set(gamification?.unlockedAchievementKeys ?? []);
+  const achievementItems = gamification
+    ? [...achievementDefinitions]
+        .sort((left, right) => {
+          const leftOrder = ACHIEVEMENT_SHOWCASE_ORDER.get(left.key) ?? Number.MAX_SAFE_INTEGER;
+          const rightOrder = ACHIEVEMENT_SHOWCASE_ORDER.get(right.key) ?? Number.MAX_SAFE_INTEGER;
+
+          if (leftOrder !== rightOrder) {
+            return leftOrder - rightOrder;
+          }
+
+          return left.createdAt.localeCompare(right.createdAt);
+        })
+        .map((definition) => {
+          const progress = getAchievementProgress(definition, gamification.achievementSnapshot);
+
+          return {
+            ...definition,
+            unlocked: unlockedAchievementKeys.has(definition.key),
+            currentValue: progress.currentValue,
+            targetValue: progress.targetValue,
+            progressPercent: progress.progressPercent,
+          };
+        })
     : [];
 
   async function markNotificationsRead() {
@@ -355,49 +395,30 @@ export default async function AccountPage() {
             </div>
 
             <div className="rounded-[28px] border border-slate-800 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(2,6,23,0.45)]">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-slate-50">Conquistas recentes</h2>
+              <div className="mb-4 flex items-start justify-between gap-3">
+                <div>
+                  <h2 className="text-sm font-semibold text-slate-50">Trilha de conquistas</h2>
+                  <p className="mt-1 text-xs text-slate-500">
+                    O mesmo painel da home, agora com visão completa da sua progressão e detalhes por conquista.
+                  </p>
+                </div>
                 <span className="text-xs text-slate-500">
-                  {gamification.achievements.length} desbloqueada(s)
+                  {gamification.achievementCount}/{achievementItems.length} desbloqueada(s)
                 </span>
               </div>
 
-              {gamification.achievements.length === 0 ? (
+              {achievementItems.length === 0 ? (
                 <p className="rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-6 text-sm text-slate-400">
                   Jogue, favorite e volte em dias consecutivos para começar sua trilha de conquistas.
                 </p>
               ) : (
-                <div className="grid gap-3 md:grid-cols-2">
-                  {gamification.achievements.map((achievement) => (
-                    <div
-                      key={achievement.id}
-                      className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4"
-                    >
-                      <div className="flex items-start gap-3">
-                        {achievement.imageUrl ? (
-                          <div
-                            className="h-12 w-12 rounded-2xl border border-amber-400/30 bg-slate-950 bg-cover bg-center"
-                            style={{ backgroundImage: `url("${achievement.imageUrl}")` }}
-                          />
-                        ) : (
-                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-400/30 bg-amber-500/10 text-xl">
-                            {achievement.icon}
-                          </div>
-                        )}
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-medium text-slate-100">{achievement.title}</p>
-                          <p className="mt-1 text-[12px] text-slate-400">{achievement.description}</p>
-                          <div className="mt-2 flex items-center justify-between text-[11px] text-slate-500">
-                            <span>+{achievement.xpReward} XP</span>
-                            <span>
-                              {new Date(achievement.unlockedAt).toLocaleDateString("pt-BR")}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <AchievementCollection
+                  items={achievementItems}
+                  locale={locale}
+                  lockedLabel={homeTexts.achievementsLockedLabel}
+                  unlockedLabel={homeTexts.achievementsUnlockedLabel}
+                  layout="grid"
+                />
               )}
             </div>
           </div>

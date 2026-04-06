@@ -1,5 +1,7 @@
 "use client";
 
+import type { CSSProperties } from "react";
+
 import { useCallback, useEffect, useState } from "react";
 
 type Friend = {
@@ -38,6 +40,28 @@ function timeAgo(dateStr: string) {
   const hours = Math.floor(mins / 60);
   if (hours < 24) return `${hours}h`;
   return `${Math.floor(hours / 24)}d`;
+}
+
+function AvatarBadge({
+  name,
+  imageUrl,
+}: {
+  name: string;
+  imageUrl?: string;
+}) {
+  const style = imageUrl
+    ? ({ backgroundImage: `url("${imageUrl}")` } satisfies CSSProperties)
+    : undefined;
+
+  return (
+    <div
+      className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 bg-cover bg-center text-xs font-semibold text-slate-200"
+      style={style}
+      aria-label={name}
+    >
+      {imageUrl ? null : getInitials(name)}
+    </div>
+  );
 }
 
 export function FriendsPanel() {
@@ -160,17 +184,7 @@ export function FriendsPanel() {
                 key={req.id}
                 className="flex items-center gap-3 rounded-2xl border border-amber-400/20 bg-amber-500/5 p-3"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 text-xs font-semibold text-slate-200">
-                  {req.senderAvatar ? (
-                    <img
-                      src={req.senderAvatar}
-                      alt=""
-                      className="h-full w-full rounded-xl object-cover"
-                    />
-                  ) : (
-                    getInitials(req.senderName)
-                  )}
-                </div>
+                <AvatarBadge name={req.senderName} imageUrl={req.senderAvatar} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-100 truncate">
                     {req.senderName}
@@ -218,17 +232,7 @@ export function FriendsPanel() {
                 key={friend.id}
                 className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/55 p-3 transition-colors hover:border-cyan-400/30"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-800 text-xs font-semibold text-slate-200">
-                  {friend.avatarUrl ? (
-                    <img
-                      src={friend.avatarUrl}
-                      alt=""
-                      className="h-full w-full rounded-xl object-cover"
-                    />
-                  ) : (
-                    getInitials(friend.displayName)
-                  )}
-                </div>
+                <AvatarBadge name={friend.displayName} imageUrl={friend.avatarUrl} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1.5">
                     <p className="text-sm font-medium text-slate-100 truncate">

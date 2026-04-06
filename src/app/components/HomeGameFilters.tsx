@@ -41,10 +41,8 @@ export function dispatchCatalogFilter(category: string) {
 }
 
 export function HomeGameFilters({
-  categories,
   initialCategory,
 }: {
-  categories: string[];
   initialCategory?: string;
 }) {
   const [category, setCategory] = useState(initialCategory ?? "");
@@ -118,11 +116,6 @@ export function HomeGameFilters({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  function handleCategoryChange(cat: string) {
-    setCategory(cat === category ? "" : cat);
-    setPage(1);
-  }
 
   const totalPages = pagination?.totalPages ?? 1;
 

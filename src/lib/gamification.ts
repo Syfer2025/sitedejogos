@@ -40,7 +40,7 @@ export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
     title: "Boas-vindas ao Nexus",
     description: "Criou sua conta e entrou no portal pela primeira vez.",
     icon: "✨",
-    imageUrl: "",
+    imageUrl: "/achievements/nexus-welcome.gif",
     criteriaType: "account_created",
     threshold: 1,
     xpReward: 25,
@@ -69,6 +69,28 @@ export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
     isActive: true,
   },
   {
+    key: "catalogScout",
+    title: "Scout do catálogo",
+    description: "Experimentou 10 jogos diferentes dentro do portal.",
+    icon: "🛰️",
+    imageUrl: "",
+    criteriaType: "unique_games_played",
+    threshold: 10,
+    xpReward: 55,
+    isActive: true,
+  },
+  {
+    key: "catalogLegend",
+    title: "Mapa completo",
+    description: "Passou por 25 jogos diferentes e virou referência do catálogo.",
+    icon: "🗺️",
+    imageUrl: "",
+    criteriaType: "unique_games_played",
+    threshold: 25,
+    xpReward: 110,
+    isActive: true,
+  },
+  {
     key: "firstFavorite",
     title: "Colecionador iniciante",
     description: "Salvou seu primeiro jogo nos favoritos.",
@@ -88,6 +110,28 @@ export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
     criteriaType: "favorites_total",
     threshold: 5,
     xpReward: 40,
+    isActive: true,
+  },
+  {
+    key: "premiumShelf",
+    title: "Prateleira premium",
+    description: "Montou uma seleção com 12 jogos favoritos.",
+    icon: "💎",
+    imageUrl: "",
+    criteriaType: "favorites_total",
+    threshold: 12,
+    xpReward: 70,
+    isActive: true,
+  },
+  {
+    key: "personalMuseum",
+    title: "Museu pessoal",
+    description: "Guardou 25 jogos na sua vitrine de favoritos.",
+    icon: "🏛️",
+    imageUrl: "",
+    criteriaType: "favorites_total",
+    threshold: 25,
+    xpReward: 125,
     isActive: true,
   },
   {
@@ -113,6 +157,17 @@ export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
     isActive: true,
   },
   {
+    key: "streak14",
+    title: "Quinzena elétrica",
+    description: "Voltou ao portal por 14 dias seguidos.",
+    icon: "⚡",
+    imageUrl: "",
+    criteriaType: "current_streak",
+    threshold: 14,
+    xpReward: 95,
+    isActive: true,
+  },
+  {
     key: "profileComplete",
     title: "Perfil calibrado",
     description: "Preencheu avatar, bio ou categorias favoritas.",
@@ -134,6 +189,50 @@ export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
     xpReward: 50,
     isActive: true,
   },
+  {
+    key: "extendedSession",
+    title: "Sessão prolongada",
+    description: "Registrou 25 partidas e mostrou fôlego no portal.",
+    icon: "🕹️",
+    imageUrl: "",
+    criteriaType: "games_played_total",
+    threshold: 25,
+    xpReward: 80,
+    isActive: true,
+  },
+  {
+    key: "xp250",
+    title: "Motor ligado",
+    description: "Acumulou 250 XP em ações dentro do hub.",
+    icon: "💠",
+    imageUrl: "",
+    criteriaType: "xp_total",
+    threshold: 250,
+    xpReward: 65,
+    isActive: true,
+  },
+  {
+    key: "level5",
+    title: "Piloto do Nexus",
+    description: "Alcançou o nível 5 e entrou no ritmo do portal.",
+    icon: "👑",
+    imageUrl: "",
+    criteriaType: "level_reached",
+    threshold: 5,
+    xpReward: 90,
+    isActive: true,
+  },
+  {
+    key: "level10",
+    title: "Lenda do hub",
+    description: "Alcançou o nível 10 e cravou presença entre os veteranos.",
+    icon: "🌟",
+    imageUrl: "",
+    criteriaType: "level_reached",
+    threshold: 10,
+    xpReward: 160,
+    isActive: true,
+  },
 ];
 
 export type AchievementKey = (typeof DEFAULT_ACHIEVEMENT_DEFINITIONS)[number]["key"];
@@ -147,6 +246,13 @@ export type AchievementEvaluationSnapshot = {
   hasProfileSetup: boolean;
   totalXp: number;
   level: number;
+};
+
+export type AchievementProgress = {
+  currentValue: number;
+  targetValue: number;
+  progressPercent: number;
+  isComplete: boolean;
 };
 
 export function matchesAchievementCriteria(
@@ -173,6 +279,55 @@ export function matchesAchievementCriteria(
     default:
       return false;
   }
+}
+
+export function getAchievementProgress(
+  definition: Pick<AchievementDefinitionInput, "criteriaType" | "threshold">,
+  snapshot: AchievementEvaluationSnapshot,
+): AchievementProgress {
+  let currentValue = 0;
+  let targetValue = Math.max(definition.threshold, 1);
+
+  switch (definition.criteriaType) {
+    case "account_created":
+      currentValue = snapshot.accountCreated ? 1 : 0;
+      targetValue = 1;
+      break;
+    case "games_played_total":
+      currentValue = snapshot.totalGamesPlayed;
+      break;
+    case "unique_games_played":
+      currentValue = snapshot.uniqueGamesPlayed;
+      break;
+    case "favorites_total":
+      currentValue = snapshot.totalFavorites;
+      break;
+    case "current_streak":
+      currentValue = snapshot.currentStreak;
+      break;
+    case "profile_completed":
+      currentValue = snapshot.hasProfileSetup ? 1 : 0;
+      targetValue = 1;
+      break;
+    case "xp_total":
+      currentValue = snapshot.totalXp;
+      break;
+    case "level_reached":
+      currentValue = snapshot.level;
+      break;
+  }
+
+  const boundedCurrentValue = Math.min(Math.max(currentValue, 0), targetValue);
+
+  return {
+    currentValue: boundedCurrentValue,
+    targetValue,
+    progressPercent: Math.min(
+      100,
+      Math.max(0, Math.round((boundedCurrentValue / targetValue) * 100)),
+    ),
+    isComplete: currentValue >= targetValue,
+  };
 }
 
 export type GamificationEventType =

@@ -63,6 +63,12 @@ export function getHomeTexts(locale: Locale) {
       topClicksLabel: "Hot right now",
       playInstantly: "Play instantly in your browser",
       readPost: "Read",
+      achievementsLabel: "Achievement wall",
+      achievementsSubtitle: "Unlocked badges stay lit. Dim ones mark the next goals to chase.",
+      achievementsLockedLabel: "Locked",
+      achievementsUnlockedLabel: "Unlocked",
+      achievementsGuestCta: "Unlock with account",
+      achievementsAccountCta: "Open profile",
     } as const;
   }
 
@@ -128,6 +134,12 @@ export function getHomeTexts(locale: Locale) {
       topClicksLabel: "En alta ahora",
       playInstantly: "Juega al instante en tu navegador",
       readPost: "Leer",
+      achievementsLabel: "Muro de conquistas",
+      achievementsSubtitle: "Las insignias encendidas ya son tuyas. Las opacas marcan el siguiente objetivo.",
+      achievementsLockedLabel: "Bloqueada",
+      achievementsUnlockedLabel: "Conseguida",
+      achievementsGuestCta: "Desbloquear con cuenta",
+      achievementsAccountCta: "Abrir perfil",
     } as const;
   }
 
@@ -192,5 +204,11 @@ export function getHomeTexts(locale: Locale) {
     topClicksLabel: "Em alta agora",
     playInstantly: "Jogue instantaneamente no navegador",
     readPost: "Ler",
+    achievementsLabel: "Mural de conquistas",
+    achievementsSubtitle: "As insígnias acesas já são suas. As opacas mostram o próximo alvo da jornada.",
+    achievementsLockedLabel: "Bloqueada",
+    achievementsUnlockedLabel: "Conquistada",
+    achievementsGuestCta: "Desbloquear com conta",
+    achievementsAccountCta: "Abrir perfil",
   } as const;
 }

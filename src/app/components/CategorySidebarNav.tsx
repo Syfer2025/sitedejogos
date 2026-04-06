@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { dispatchCatalogFilter } from "./HomeGameFilters";
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -76,12 +78,12 @@ export function CategorySidebarNav({
         <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-2">
           Blog
         </p>
-        <a
+        <Link
           href="/blog"
           className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] text-slate-500 hover:text-slate-200 hover:bg-slate-800/40 transition-colors"
         >
           📰 {blogLabel}
-        </a>
+        </Link>
       </div>
     </>
   );

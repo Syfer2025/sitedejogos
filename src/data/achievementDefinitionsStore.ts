@@ -9,6 +9,10 @@ import {
 } from "@/lib/gamification";
 import { slugify } from "@/lib/game-schema";
 
+const DEFAULT_ACHIEVEMENT_DEFINITION_BY_KEY = new Map(
+  DEFAULT_ACHIEVEMENT_DEFINITIONS.map((definition) => [definition.key, definition]),
+);
+
 export type AchievementDefinitionRecord = {
   id: string;
   key: string;
@@ -38,13 +42,15 @@ function mapAchievementDefinition(definition: {
   createdAt: Date;
   updatedAt: Date;
 }): AchievementDefinitionRecord {
+  const defaultDefinition = DEFAULT_ACHIEVEMENT_DEFINITION_BY_KEY.get(definition.key);
+
   return {
     id: definition.id,
     key: definition.key,
     title: definition.title,
     description: definition.description,
-    icon: definition.icon,
-    imageUrl: definition.imageUrl,
+    icon: definition.icon || defaultDefinition?.icon || "",
+    imageUrl: definition.imageUrl || defaultDefinition?.imageUrl || "",
     criteriaType: definition.criteriaType as AchievementCriteriaType,
     threshold: definition.threshold,
     xpReward: definition.xpReward,

@@ -3,6 +3,7 @@ import { addCoins, COIN_REWARDS } from "@/data/monetizationStore";
 import { prisma } from "@/lib/prisma";
 import {
   EVENT_XP_REWARDS,
+  type AchievementEvaluationSnapshot,
   getCalendarDayDiff,
   getCalendarDayToken,
   getLevelFromXp,
@@ -60,6 +61,45 @@ function mapNotification(notification: {
     isRead: notification.isRead,
     createdAt: notification.createdAt.toISOString(),
   };
+}
+
+function createAchievementSnapshot(input: {
+  xp: number;
+  level: number;
+  currentStreak: number;
+  avatarUrl: string;
+  bio: string;
+  preferredCategories: string;
+  favoriteCount: number;
+  uniqueGamesPlayed: number;
+  totalGamesPlayed: number;
+}): AchievementEvaluationSnapshot {
+  return {
+    accountCreated: true,
+    totalGamesPlayed: input.totalGamesPlayed,
+    uniqueGamesPlayed: input.uniqueGamesPlayed,
+    totalFavorites: input.favoriteCount,
+    currentStreak: input.currentStreak,
+    hasProfileSetup: Boolean(
+      input.avatarUrl || input.bio || normalizePreferredCategories(input.preferredCategories).length,
+    ),
+    totalXp: input.xp,
+    level: input.level,
+  };
+}
+
+export async function listPlayerAchievements(userId: string, options?: { limit?: number }) {
+  const achievements = await prisma.playerAchievement.findMany({
+    where: {
+      userId,
+    },
+    orderBy: {
+      unlockedAt: "desc",
+    },
+    ...(options?.limit ? { take: options.limit } : {}),
+  });
+
+  return achievements.map(mapAchievement);
 }
 
 function isDailyMissionKind(value: string): value is DailyMissionKind {
@@ -510,19 +550,17 @@ async function evaluateAchievements(userId: string) {
 
   const unlocked: string[] = [];
   const totalPlays = playedGamesAgg._sum.playCount ?? 0;
-  const hasProfileSetup = Boolean(
-    user.avatarUrl || user.bio || normalizePreferredCategories(user.preferredCategories).length,
-  );
-  const snapshot = {
-    accountCreated: true,
-    totalGamesPlayed: totalPlays,
-    uniqueGamesPlayed: playedGamesCount,
-    totalFavorites: favoriteCount,
-    currentStreak: user.currentStreak,
-    hasProfileSetup,
-    totalXp: user.xp,
+  const snapshot = createAchievementSnapshot({
+    xp: user.xp,
     level: user.level,
-  };
+    currentStreak: user.currentStreak,
+    avatarUrl: user.avatarUrl,
+    bio: user.bio,
+    preferredCategories: user.preferredCategories,
+    favoriteCount,
+    uniqueGamesPlayed: playedGamesCount,
+    totalGamesPlayed: totalPlays,
+  });
 
   for (const definition of definitions) {
     if (!matchesAchievementCriteria(definition, snapshot)) {
@@ -570,7 +608,7 @@ export async function applyGamificationEvent(
   }
 
   const unlockedAchievements = await evaluateAchievements(userId);
-  for (const _key of unlockedAchievements) {
+  for (let index = 0; index < unlockedAchievements.length; index += 1) {
     await addCoins(userId, COIN_REWARDS.achievement_unlock, "achievement_unlock");
   }
 
@@ -597,7 +635,16 @@ export async function markAllPlayerNotificationsAsRead(userId: string) {
 
 export async function getPlayerGamificationOverview(userId: string) {
   const dailyMission = await ensureTodayDailyMission(userId);
-  const [user, achievements, notifications, unreadNotifications, dailyMissionHistory] = await Promise.all([
+  const [
+    user,
+    achievements,
+    notifications,
+    unreadNotifications,
+    dailyMissionHistory,
+    favoriteCount,
+    uniqueGamesPlayed,
+    totalGamesPlayedAgg,
+  ] = await Promise.all([
     prisma.playerUser.findUnique({
       where: {
         id: userId,
@@ -609,17 +656,12 @@ export async function getPlayerGamificationOverview(userId: string) {
         currentStreak: true,
         longestStreak: true,
         lastEngagedAt: true,
+        avatarUrl: true,
+        bio: true,
+        preferredCategories: true,
       },
     }),
-    prisma.playerAchievement.findMany({
-      where: {
-        userId,
-      },
-      orderBy: {
-        unlockedAt: "desc",
-      },
-      take: 8,
-    }),
+    listPlayerAchievements(userId),
     prisma.playerNotification.findMany({
       where: {
         userId,
@@ -654,11 +696,41 @@ export async function getPlayerGamificationOverview(userId: string) {
         completedAt: true,
       },
     }),
+    prisma.favoriteGame.count({
+      where: {
+        userId,
+      },
+    }),
+    prisma.recentlyPlayed.count({
+      where: {
+        userId,
+      },
+    }),
+    prisma.recentlyPlayed.aggregate({
+      where: {
+        userId,
+      },
+      _sum: {
+        playCount: true,
+      },
+    }),
   ]);
 
   if (!user) {
     return null;
   }
+
+  const achievementSnapshot = createAchievementSnapshot({
+    xp: user.xp,
+    level: user.level,
+    currentStreak: user.currentStreak,
+    avatarUrl: user.avatarUrl,
+    bio: user.bio,
+    preferredCategories: user.preferredCategories,
+    favoriteCount,
+    uniqueGamesPlayed,
+    totalGamesPlayed: totalGamesPlayedAgg._sum.playCount ?? 0,
+  });
 
   return {
     id: user.id,
@@ -671,8 +743,11 @@ export async function getPlayerGamificationOverview(userId: string) {
       user.lastEngagedAt !== null &&
       getCalendarDayToken(user.lastEngagedAt) === getCalendarDayToken(new Date()),
     progress: getLevelProgress(user.xp),
+    achievementSnapshot,
     unreadNotifications,
-    achievements: achievements.map(mapAchievement),
+    achievementCount: achievements.length,
+    unlockedAchievementKeys: achievements.map((achievement) => achievement.key),
+    achievements: achievements.slice(0, 8),
     notifications: notifications.map(mapNotification),
     dailyMission,
     dailyMissionHistory: dailyMissionHistory.map(mapDailyMission),

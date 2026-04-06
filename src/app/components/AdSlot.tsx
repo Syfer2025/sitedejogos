@@ -55,8 +55,18 @@ const NATIVE_PROMOS = [
   },
 ];
 
-function NativePromo({ minHeight }: { minHeight: number }) {
-  const promo = NATIVE_PROMOS[Math.floor(Math.random() * NATIVE_PROMOS.length)];
+function getPromoIndex(seed: string) {
+  let hash = 0;
+
+  for (const char of seed) {
+    hash = (hash * 31 + char.charCodeAt(0)) >>> 0;
+  }
+
+  return hash % NATIVE_PROMOS.length;
+}
+
+function NativePromo({ minHeight, label }: { minHeight: number; label: string }) {
+  const promo = NATIVE_PROMOS[getPromoIndex(`${label}:${minHeight}`)];
 
   return (
     <Link
@@ -121,7 +131,7 @@ export function AdSlot({ label, slot, minHeight = 160 }: AdSlotProps) {
         )}
 
         {showNativeFallback ? (
-          <NativePromo minHeight={minHeight} />
+          <NativePromo minHeight={minHeight} label={label} />
         ) : canRenderAds ? (
           <ins
             ref={insRef}

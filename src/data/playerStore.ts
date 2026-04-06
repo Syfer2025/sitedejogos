@@ -58,6 +58,9 @@ export type LeaderboardPlayer = {
   level: number;
   currentStreak: number;
   preferredCategories: string[];
+  profileTheme: string;
+  achievementCount: number;
+  friendCount: number;
 };
 
 function mapRecommendedGame(game: RecommendedGame) {
@@ -101,6 +104,9 @@ function mapLeaderboardPlayer(user: {
   level: number;
   currentStreak: number;
   preferredCategories: string;
+  profileTheme: string;
+  achievementCount: number;
+  friendCount: number;
 }): LeaderboardPlayer {
   return {
     id: user.id,
@@ -110,6 +116,9 @@ function mapLeaderboardPlayer(user: {
     level: user.level,
     currentStreak: user.currentStreak,
     preferredCategories: normalizePreferredCategories(user.preferredCategories),
+    profileTheme: user.profileTheme,
+    achievementCount: user.achievementCount,
+    friendCount: user.friendCount,
   };
 }
 
@@ -578,10 +587,76 @@ export async function listTopPlayers(limit = 5) {
       level: true,
       currentStreak: true,
       preferredCategories: true,
+      profileTheme: true,
     },
   });
 
-  return players.map(mapLeaderboardPlayer);
+  const playerIds = players.map((player) => player.id);
+  const playerIdsSet = new Set(playerIds);
+
+  const [achievementCounts, friendships] = await Promise.all([
+    prisma.playerAchievement.groupBy({
+      by: ["userId"],
+      where: {
+        userId: {
+          in: playerIds,
+        },
+      },
+      _count: {
+        _all: true,
+      },
+    }),
+    prisma.friendship.findMany({
+      where: {
+        status: "accepted",
+        OR: [
+          {
+            senderId: {
+              in: playerIds,
+            },
+          },
+          {
+            receiverId: {
+              in: playerIds,
+            },
+          },
+        ],
+      },
+      select: {
+        senderId: true,
+        receiverId: true,
+      },
+    }),
+  ]);
+
+  const achievementCountByUserId = new Map(
+    achievementCounts.map((entry) => [entry.userId, entry._count._all]),
+  );
+  const friendCountByUserId = new Map<string, number>();
+
+  friendships.forEach((friendship) => {
+    if (playerIdsSet.has(friendship.senderId)) {
+      friendCountByUserId.set(
+        friendship.senderId,
+        (friendCountByUserId.get(friendship.senderId) ?? 0) + 1,
+      );
+    }
+
+    if (playerIdsSet.has(friendship.receiverId)) {
+      friendCountByUserId.set(
+        friendship.receiverId,
+        (friendCountByUserId.get(friendship.receiverId) ?? 0) + 1,
+      );
+    }
+  });
+
+  return players.map((player) =>
+    mapLeaderboardPlayer({
+      ...player,
+      achievementCount: achievementCountByUserId.get(player.id) ?? 0,
+      friendCount: friendCountByUserId.get(player.id) ?? 0,
+    }),
+  );
 }
 
 export async function getPlayerLeaderboardPosition(userId: string) {
