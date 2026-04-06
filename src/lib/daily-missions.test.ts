@@ -45,7 +45,7 @@ describe("daily missions", () => {
 
     expect(mission).toMatchObject({
       variant: "completed",
-      href: "/games",
+      href: "/#catalogo",
       ctaLabel: "Ver conta",
       isCompleted: true,
     });

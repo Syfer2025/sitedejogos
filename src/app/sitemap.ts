@@ -1,19 +1,17 @@
 import type { MetadataRoute } from "next";
 
 import { listPublishedBlogPosts } from "@/data/blogPosts";
-import { listCategories, listGames } from "@/data/gamesStore";
-import { slugify } from "@/lib/game-schema";
+import { listGames } from "@/data/gamesStore";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [games, categories, blogPosts] = await Promise.all([
+  const [games, blogPosts] = await Promise.all([
     listGames({ publishedOnly: true }),
-    listCategories(),
     listPublishedBlogPosts(),
   ]);
 
-  const staticRoutes = ["", "/games", "/blog"];
+  const staticRoutes = ["", "/blog"];
 
   return [
     ...staticRoutes.map((path) => ({
@@ -21,12 +19,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: path === "" ? 1 : 0.8,
-    })),
-    ...categories.map((category) => ({
-      url: `${SITE_URL}/category/${slugify(category)}`,
-      lastModified: new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
     })),
     ...games.map((game) => ({
       url: `${SITE_URL}/games/${game.slug}`,

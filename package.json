@@ -11,6 +11,7 @@
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
+    "games:import:gamemonetize": "tsx scripts/import-gamemonetize-feed.ts",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",

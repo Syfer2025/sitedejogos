@@ -2,6 +2,7 @@ import type { Game } from "@prisma/client";
 import type { Prisma } from "@prisma/client";
 
 import { DEFAULT_GAMES } from "@/data/defaultGames";
+import { sortCatalogCategories, type CatalogCategoryOrderMode } from "@/lib/catalog-category-order";
 import type { CreateGameInput, UpdateGameInput } from "@/lib/game-schema";
 import { buildPaginationMeta } from "@/lib/pagination";
 import { slugify } from "@/lib/game-schema";
@@ -38,6 +39,21 @@ type ListGamesOptions = {
 export type PaginatedGamesResult = {
   items: GameRecord[];
   pagination: ReturnType<typeof buildPaginationMeta>;
+};
+
+export type CategoryShowcaseRecord = {
+  category: string;
+  totalGames: number;
+  games: GameRecord[];
+};
+
+export type PaginatedCategoryShowcasesResult = {
+  items: CategoryShowcaseRecord[];
+  offset: number;
+  limit: number;
+  totalCategories: number;
+  hasMore: boolean;
+  nextOffset: number | null;
 };
 
 function normalizeTags(tags: string) {
@@ -172,7 +188,7 @@ export async function listGamesPage(
   };
 }
 
-export async function listCategories() {
+export async function listCategories(options: { order?: CatalogCategoryOrderMode } = {}) {
   const categories = await prisma.game.findMany({
     where: { isPublished: true, category: { not: "" } },
     select: { category: true },
@@ -180,7 +196,97 @@ export async function listCategories() {
     orderBy: { category: "asc" },
   });
 
-  return categories.map((entry) => entry.category);
+  return sortCatalogCategories(
+    categories.map((entry) => entry.category),
+    {
+      mode: options.order ?? "alphabetical",
+    },
+  );
+}
+
+async function listPublishedCategoryCounts() {
+  const groupedCategories = await prisma.game.groupBy({
+    by: ["category"],
+    where: {
+      isPublished: true,
+      category: {
+        not: "",
+      },
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  return groupedCategories
+    .filter((entry) => entry.category)
+    .map((entry) => ({
+      category: entry.category,
+      totalGames: entry._count._all,
+    }));
+}
+
+export async function listCategoryShowcasesPage(
+  options: {
+    offset?: number;
+    limit?: number;
+    gamesPerCategory?: number;
+    sortBy?: "newest" | "popular";
+    categoryOrder?: CatalogCategoryOrderMode;
+  } = {},
+): Promise<PaginatedCategoryShowcasesResult> {
+  const offset = Math.max(options.offset ?? 0, 0);
+  const limit = Math.min(Math.max(options.limit ?? 8, 1), 16);
+  const gamesPerCategory = Math.min(Math.max(options.gamesPerCategory ?? 8, 1), 18);
+  const categoryCounts = await listPublishedCategoryCounts();
+  const countMap = new Map(categoryCounts.map((entry) => [entry.category, entry.totalGames]));
+
+  const orderedCategories = sortCatalogCategories(
+    categoryCounts.map((entry) => entry.category),
+    {
+      mode: options.categoryOrder ?? "editorial",
+      counts: countMap,
+    },
+  );
+
+  const selectedCategories = orderedCategories.slice(offset, offset + limit);
+
+  const items = await Promise.all(
+    selectedCategories.map(async (category) => ({
+      category,
+      totalGames: countMap.get(category) ?? 0,
+      games: await listGames({
+        category,
+        publishedOnly: true,
+        limit: gamesPerCategory,
+        sortBy: options.sortBy ?? "popular",
+      }),
+    })),
+  );
+
+  const visibleItems = items.filter((entry) => entry.games.length > 0);
+  const nextOffset = offset + selectedCategories.length;
+
+  return {
+    items: visibleItems,
+    offset,
+    limit,
+    totalCategories: orderedCategories.length,
+    hasMore: nextOffset < orderedCategories.length,
+    nextOffset: nextOffset < orderedCategories.length ? nextOffset : null,
+  };
+}
+
+export async function listCategoryShowcases(
+  options: {
+    limit?: number;
+    gamesPerCategory?: number;
+    sortBy?: "newest" | "popular";
+    categoryOrder?: CatalogCategoryOrderMode;
+  } = {},
+): Promise<CategoryShowcaseRecord[]> {
+  const result = await listCategoryShowcasesPage(options);
+  return result.items;
 }
 
 export async function getGameById(id: string) {

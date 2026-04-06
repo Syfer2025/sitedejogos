@@ -102,19 +102,19 @@ export default async function RootLayout({
                   <Link href="/" className="px-3 py-1.5 rounded-md hover:text-white hover:bg-slate-800/60 transition-all duration-150">
                   Início
                   </Link>
-                  <Link href="/games" className="px-3 py-1.5 rounded-md hover:text-white hover:bg-slate-800/60 transition-all duration-150">
+                  <Link href="/#catalogo" className="px-3 py-1.5 rounded-md hover:text-white hover:bg-slate-800/60 transition-all duration-150">
                   Categorias
                   </Link>
                   <Link href="/blog" className="px-3 py-1.5 rounded-md hover:text-white hover:bg-slate-800/60 transition-all duration-150">
                   Blog
                   </Link>
-                  <Link href="/games" className="px-3 py-1.5 rounded-md hover:text-white hover:bg-slate-800/60 transition-all duration-150">
+                  <Link href="/#catalogo" className="px-3 py-1.5 rounded-md hover:text-white hover:bg-slate-800/60 transition-all duration-150">
                   Todos os jogos
                   </Link>
               </div>
 
               <div className="flex-1 md:flex-none flex items-center justify-end gap-3">
-                  <form action="/games" className="hidden sm:block relative w-full max-w-xs">
+                  <form action="/#catalogo" className="hidden sm:block relative w-full max-w-xs">
                   <input
                       name="q"
                     type="text"

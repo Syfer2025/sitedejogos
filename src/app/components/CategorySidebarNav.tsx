@@ -2,34 +2,8 @@
 
 import Link from "next/link";
 
-import { dispatchCatalogFilter } from "./HomeGameFilters";
-
-const CATEGORY_ICONS: Record<string, string> = {
-  ação: "⚔️", action: "⚔️",
-  aventura: "🗺️", adventure: "🗺️",
-  puzzle: "🧩", "quebra-cabeça": "🧩", quebra_cabeça: "🧩",
-  corrida: "🏎️", racing: "🏎️",
-  esporte: "⚽", esportes: "⚽", sports: "⚽",
-  estrategia: "♟️", estratégia: "♟️", strategy: "♟️",
-  tiro: "🎯", shooter: "🎯",
-  plataforma: "🕹️", platformer: "🕹️",
-  rpg: "🐉",
-  simulação: "🏗️", simulacao: "🏗️", simulation: "🏗️",
-  arcade: "👾", casual: "🎲",
-  luta: "🥊", fighting: "🥊",
-  terror: "👻", horror: "👻",
-  música: "🎵", music: "🎵",
-  educativo: "📚", educational: "📚",
-  multiplayer: "👥",
-  card: "🃏", cartas: "🃏",
-  board: "🎲", tabuleiro: "🎲",
-  idle: "⏳", clicker: "⏳",
-};
-
-function getCategoryIcon(category: string): string {
-  const key = category.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  return CATEGORY_ICONS[key] ?? CATEGORY_ICONS[category.toLowerCase()] ?? "🎮";
-}
+import { dispatchCatalogFilter } from "./HomeThemeCatalog";
+import { getCategoryEmoji } from "@/lib/catalog-category-emoji";
 
 export function CategorySidebarNav({
   categories,
@@ -62,10 +36,10 @@ export function CategorySidebarNav({
               key={cat}
               type="button"
               onClick={() => dispatchCatalogFilter(cat)}
-              className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] text-slate-400 transition-all duration-150 hover:bg-slate-800/70 hover:text-slate-100 hover:pl-4 text-left"
+              className="group w-full flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] text-slate-400 transition-all duration-150 hover:bg-slate-800/70 hover:text-slate-100 hover:pl-4 text-left"
             >
-              <span className="text-sm flex-none w-5 text-center">
-                {getCategoryIcon(cat)}
+              <span className="text-sm flex-none w-5 text-center transition-transform group-hover:scale-110">
+                {getCategoryEmoji(cat)}
               </span>
               <span className="truncate">{cat}</span>
             </button>

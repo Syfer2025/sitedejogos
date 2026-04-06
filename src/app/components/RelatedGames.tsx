@@ -21,7 +21,7 @@ export function RelatedGamesSection({ games }: { games: RelatedGame[] }) {
           You may also like
         </h2>
         <Link
-          href="/games"
+          href="/#catalogo"
           className="text-[11px] text-slate-400 hover:text-slate-200 transition-colors"
         >
           View more

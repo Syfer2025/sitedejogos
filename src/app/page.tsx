@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 
 import { listAchievementDefinitions } from "@/data/achievementDefinitionsStore";
 import { listPublishedBlogPosts, type BlogPostRecord } from "@/data/blogPosts";
-import { listGames, listCategories, type GameRecord } from "@/data/gamesStore";
+import { listGames, listCategories, listCategoryShowcasesPage, type GameRecord } from "@/data/gamesStore";
 import { getPlayerGamificationOverview } from "@/data/gamificationStore";
 import { listFriendLeaderboard } from "@/data/socialStore";
 import {
@@ -24,13 +24,14 @@ import {
 import { getHomeTexts } from "@/lib/home-content";
 import { getRecommendedReason, resolveHeroGame } from "@/lib/home-feed";
 import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
+import { getSingleQueryValue } from "@/lib/pagination";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 
 import { AdSlot } from "./components/AdSlot";
 import { BlogImpressionTracker } from "./components/BlogAnalyticsTrackers";
 import { CategorySidebarNav } from "./components/CategorySidebarNav";
 import { HomeAchievementsRail } from "./components/HomeAchievementsRail";
-import { HomeGameFilters } from "./components/HomeGameFilters";
+import { HomeThemeCatalog } from "./components/HomeThemeCatalog";
 import { TrackedLink } from "./components/TrackedLink";
 
 type HomeGame = Pick<
@@ -317,9 +318,11 @@ function BlogCard({ post, locale, featured = false }: { post: BlogPostRecord; lo
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string | string[]; q?: string | string[] }>;
 }) {
-  const { category: initialCategory } = await searchParams;
+  const resolvedSearchParams = await searchParams;
+  const initialCategory = getSingleQueryValue(resolvedSearchParams.category)?.trim() ?? "";
+  const initialQuery = getSingleQueryValue(resolvedSearchParams.q)?.trim() ?? "";
   const cookieStore = await cookies();
   const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
   const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
@@ -331,6 +334,7 @@ export default async function Home({
     newGames,
     popularGames,
     categories,
+    themeSectionsPage,
     blogPosts,
     topPlayers,
     profile,
@@ -346,7 +350,13 @@ export default async function Home({
     listGames({ publishedOnly: true, featured: true, limit: 12, sortBy: "popular" }),
     listGames({ publishedOnly: true, limit: 12, sortBy: "newest" }),
     listGames({ publishedOnly: true, limit: 12, sortBy: "popular" }),
-    listCategories(),
+    listCategories({ order: "editorial" }),
+    listCategoryShowcasesPage({
+      limit: 4,
+      gamesPerCategory: 14,
+      sortBy: "popular",
+      categoryOrder: "editorial",
+    }),
     listPublishedBlogPosts(4),
     listTopPlayers(TARGET_LEADERBOARD_SIZE),
     playerSession ? getPlayerProfile(playerSession.user.id) : Promise.resolve(null),
@@ -418,6 +428,7 @@ export default async function Home({
   const playerHubTag = getPlayerHubTag(locale, profile?.preferredCategories ?? []);
   const sidebarFriendCount = playerSession ? Math.max(friendLeaderboard.length - 1, 0) : 0;
   const recommendedReason = getRecommendedReason(profile, recommendedGames);
+  const homeThemeSections = themeSectionsPage.items;
   const heroTitle =
     hero.mode === "continue"
       ? t.heroPersonalizedContinue
@@ -431,7 +442,7 @@ export default async function Home({
         <section className="rounded-xl border border-slate-800 bg-slate-900/60 p-8">
           <h1 className="text-2xl font-bold text-slate-50">{t.heroTitle}</h1>
           <p className="mt-2 text-sm text-slate-400">{t.empty}</p>
-          <TrackedLink href="/games" trackingPath="/home/section-header/popular" className="mt-4 inline-flex rounded-lg bg-cyan-400 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-cyan-300">
+          <TrackedLink href="/#catalogo" trackingPath="/home/section-header/popular" className="mt-4 inline-flex rounded-lg bg-cyan-400 px-4 py-2 text-sm font-bold text-slate-950 hover:bg-cyan-300">
             {t.readAll}
           </TrackedLink>
         </section>
@@ -527,9 +538,17 @@ export default async function Home({
             </section>
           ) : null}
 
+          <HomeThemeCatalog
+            initialSections={homeThemeSections}
+            initialHasMore={themeSectionsPage.hasMore}
+            initialNextOffset={themeSectionsPage.nextOffset}
+            initialCategory={initialCategory}
+            initialQuery={initialQuery}
+          />
+
           {/* Featured — first 2 large, rest normal */}
           <section>
-            <SectionTitle title={t.featuredLabel} actionHref="/games" actionLabel={t.readAll} trackingPath="/home/section-header/featured" count={featuredGames.length} />
+            <SectionTitle title={t.featuredLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/featured" count={featuredGames.length} />
             <div className="grid grid-cols-2 gap-3 mb-3 stagger-children">
               {featuredGames.slice(0, 2).map((game) => (
                 <GameCard key={game.id} game={game} trackingPath={`/home/section/featured/${game.slug}`} locale={locale} size="large" />
@@ -546,7 +565,7 @@ export default async function Home({
 
           {/* Popular */}
           <section>
-            <SectionTitle title={t.popularLabel} actionHref="/games?sort=popular" actionLabel={t.readAll} trackingPath="/home/section-header/popular" count={popularGames.length} />
+            <SectionTitle title={t.popularLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/popular" count={popularGames.length} />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 stagger-children">
               {popularGames.map((game) => (
                 <GameCard key={game.id} game={game} trackingPath={`/home/section/popular/${game.slug}`} locale={locale} />
@@ -561,7 +580,7 @@ export default async function Home({
 
           {/* New releases */}
           <section>
-            <SectionTitle title={t.newLabel} actionHref="/games?sort=newest" actionLabel={t.readAll} trackingPath="/home/section-header/new" count={newGames.length} />
+            <SectionTitle title={t.newLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/new" count={newGames.length} />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 stagger-children">
               {newGames.map((game) => (
                 <GameCard key={game.id} game={game} trackingPath={`/home/section/new/${game.slug}`} locale={locale} />
@@ -571,9 +590,6 @@ export default async function Home({
 
           {/* Pre-blog ad */}
           <AdSlot label="Conteúdo" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_CONTENT} minHeight={100} />
-
-          {/* Full catalog with filters */}
-          <HomeGameFilters initialCategory={initialCategory} />
 
           {/* Blog */}
           {blogPosts.length > 0 ? (
@@ -714,27 +730,18 @@ export default async function Home({
             )}
           </div>
 
-          {/* Daily mission */}
-          <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-3 animate-fade-in-up transition-all duration-200 hover:border-emerald-400/20 animate-shimmer">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <p className="text-[10px] uppercase tracking-widest text-emerald-300/80 font-bold">{t.missionLabel}</p>
-            </div>
-            <h3 className="text-sm font-semibold text-slate-100">{missionCard.title}</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">{missionCard.description}</p>
-            <div className="space-y-1.5">
-              <div className="flex justify-between text-[10px] text-slate-500">
-                <span>{missionCard.progressLabel}</span>
-                <span>{missionCard.progressValue}</span>
-              </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
-                <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400" />
-              </div>
-            </div>
-            <TrackedLink href={missionCard.href} trackingPath={missionCard.variant === "guest" ? "/home/guest/action" : "/home/mission/action"} className="block w-full rounded-lg bg-emerald-400/10 border border-emerald-400/20 py-2 text-center text-xs font-semibold text-emerald-200 transition-all duration-200 hover:bg-emerald-400/20 hover:shadow-[0_0_16px_rgba(52,211,153,0.15)] hover:scale-[1.01] active:scale-[0.98]">
-              {missionCard.ctaLabel}
-            </TrackedLink>
-          </div>
+          <HomeAchievementsRail
+            items={achievementRailItems}
+            locale={locale}
+            isAuthenticated={Boolean(playerSession)}
+            unlockedCount={achievementRailItems.filter((achievement) => achievement.unlocked).length}
+            title={t.achievementsLabel}
+            subtitle={t.achievementsSubtitle}
+            lockedLabel={t.achievementsLockedLabel}
+            unlockedLabel={t.achievementsUnlockedLabel}
+            guestCtaLabel={t.achievementsGuestCta}
+            accountCtaLabel={t.achievementsAccountCta}
+          />
 
           {/* Ranking */}
           <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-3 animate-fade-in-up">
@@ -925,18 +932,28 @@ export default async function Home({
             <AdSlot label="Sidebar" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR} minHeight={250} />
           </div>
 
-          <HomeAchievementsRail
-            items={achievementRailItems}
-            locale={locale}
-            isAuthenticated={Boolean(playerSession)}
-            unlockedCount={achievementRailItems.filter((achievement) => achievement.unlocked).length}
-            title={t.achievementsLabel}
-            subtitle={t.achievementsSubtitle}
-            lockedLabel={t.achievementsLockedLabel}
-            unlockedLabel={t.achievementsUnlockedLabel}
-            guestCtaLabel={t.achievementsGuestCta}
-            accountCtaLabel={t.achievementsAccountCta}
-          />
+          {playerSession ? (
+            <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-3 animate-fade-in-up transition-all duration-200 hover:border-emerald-400/20 animate-shimmer">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                <p className="text-[10px] uppercase tracking-widest text-emerald-300/80 font-bold">{t.missionLabel}</p>
+              </div>
+              <h3 className="text-sm font-semibold text-slate-100">{missionCard.title}</h3>
+              <p className="text-xs text-slate-400 leading-relaxed">{missionCard.description}</p>
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-[10px] text-slate-500">
+                  <span>{missionCard.progressLabel}</span>
+                  <span>{missionCard.progressValue}</span>
+                </div>
+                <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
+                  <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400" />
+                </div>
+              </div>
+              <TrackedLink href={missionCard.href} trackingPath="/home/mission/action" className="block w-full rounded-lg bg-emerald-400/10 border border-emerald-400/20 py-2 text-center text-xs font-semibold text-emerald-200 transition-all duration-200 hover:bg-emerald-400/20 hover:shadow-[0_0_16px_rgba(52,211,153,0.15)] hover:scale-[1.01] active:scale-[0.98]">
+                {missionCard.ctaLabel}
+              </TrackedLink>
+            </div>
+          ) : null}
 
           {/* Friend leaderboard */}
           {friendLeaderboard.length > 1 && (

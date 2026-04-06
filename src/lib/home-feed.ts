@@ -172,7 +172,7 @@ export function buildDailyMission(input: DailyMissionInput) {
       description: copy.streakDescription,
       progressLabel: copy.streakProgressLabel,
       progressValue: copy.streakProgressValue(input.gamification.currentStreak),
-      href: "/games",
+      href: "/#catalogo",
     };
   }
 
@@ -183,7 +183,7 @@ export function buildDailyMission(input: DailyMissionInput) {
       description: copy.favoriteDescription,
       progressLabel: copy.favoriteProgressLabel,
       progressValue: copy.favoriteProgressValue,
-      href: "/games",
+      href: "/#catalogo",
     };
   }
 
@@ -219,7 +219,7 @@ export function buildDailyMission(input: DailyMissionInput) {
     description: copy.xpDescription,
     progressLabel: copy.xpProgressLabel,
     progressValue: copy.xpProgressValue(xpToNextLevel),
-    href: input.continuePlayingCount > 0 ? "/account" : "/games",
+    href: input.continuePlayingCount > 0 ? "/account" : "/#catalogo",
   };
 }
 

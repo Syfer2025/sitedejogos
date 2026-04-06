@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -12,13 +14,27 @@ type NavItem = {
 
 const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Início", icon: "🏠", activeIcon: "🏠" },
-  { href: "/games", label: "Jogos", icon: "🎮", activeIcon: "🎮" },
+  { href: "/#catalogo", label: "Jogos", icon: "🎮", activeIcon: "🎮" },
   { href: "/blog", label: "Blog", icon: "📝", activeIcon: "📝" },
   { href: "/account", label: "Perfil", icon: "👤", activeIcon: "👤" },
 ];
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const [hash, setHash] = useState("");
+
+  useEffect(() => {
+    function syncHash() {
+      setHash(window.location.hash);
+    }
+
+    syncHash();
+    window.addEventListener("hashchange", syncHash);
+
+    return () => {
+      window.removeEventListener("hashchange", syncHash);
+    };
+  }, [pathname]);
 
   // Hide on admin pages
   if (pathname.startsWith("/admin")) return null;
@@ -29,7 +45,9 @@ export function MobileBottomNav() {
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.href === "/"
-              ? pathname === "/"
+              ? pathname === "/" && hash !== "#catalogo"
+              : item.href === "/#catalogo"
+              ? pathname === "/" && hash === "#catalogo"
               : pathname.startsWith(item.href);
 
           return (

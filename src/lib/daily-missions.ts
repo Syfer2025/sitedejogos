@@ -27,9 +27,9 @@ type DailyMissionPresentationInput = {
 };
 
 const DAILY_MISSION_LINKS: Record<DailyMissionKind, string> = {
-  favorite_add: "/games",
+  favorite_add: "/#catalogo",
   profile_update: "/account",
-  game_play: "/games",
+  game_play: "/#catalogo",
 };
 
 export function getDailyMissionHref(kind: DailyMissionKind) {
@@ -198,7 +198,7 @@ export function buildDailyMission(input: DailyMissionPresentationInput) {
       description: copy.gamePlayDescription,
       progressLabel: copy.progressLabel,
       progressValue: copy.progressValue(0, 1),
-      href: "/games",
+      href: "/#catalogo",
       ctaLabel: copy.actionCta,
       isCompleted: false,
     };

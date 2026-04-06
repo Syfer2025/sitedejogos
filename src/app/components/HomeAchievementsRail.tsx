@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useId, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 
@@ -398,8 +397,6 @@ function AchievementCard({
   const tooltipTitle = getAchievementTooltipTitle(item, locale);
   const isComplete = item.progressPercent >= 100;
   const isReadyToUnlock = isComplete && !item.unlocked;
-  const isAnimatedImage = /\.gif($|\?)/i.test(item.imageUrl);
-
   return (
     <article
       className={`${layout === "rail" ? "min-w-[216px] max-w-[216px] snap-start" : "w-full"} relative rounded-[22px] border p-4 transition-all duration-200 ${
@@ -414,13 +411,11 @@ function AchievementCard({
 
           {item.imageUrl ? (
             <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-white/10 bg-slate-950">
-              <Image
-                src={item.imageUrl}
-                alt={item.title}
-                fill
-                sizes="48px"
-                unoptimized={isAnimatedImage}
-                className="object-cover"
+              <div
+                role="img"
+                aria-label={item.title}
+                className="h-full w-full bg-cover bg-center"
+                style={{ backgroundImage: `url("${item.imageUrl}")` }}
               />
             </div>
           ) : (

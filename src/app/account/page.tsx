@@ -621,7 +621,7 @@ export default async function AccountPage() {
         <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold text-slate-50">Favoritos</h2>
-            <Link href="/games" className="text-xs text-cyan-300 hover:text-cyan-200">
+            <Link href="/#catalogo" className="text-xs text-cyan-300 hover:text-cyan-200">
               Explorar mais jogos
             </Link>
           </div>

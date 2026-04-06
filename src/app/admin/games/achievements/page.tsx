@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import {
@@ -274,11 +273,21 @@ export default function AdminAchievementsPage() {
     try {
       const url = await uploadAchievementMedia(file);
 
-      setForm((current) => ({ ...current, imageUrl: url }));
-      setFeedback({
-        type: "success",
-        message: "Mídia enviada. Salve a conquista para confirmar.",
-      });
+      if (form.id) {
+        await patchAchievementMedia(form.id, url);
+        await refreshItems();
+        setForm((current) => ({ ...current, imageUrl: url }));
+        setFeedback({
+          type: "success",
+          message: "GIF da conquista atualizado imediatamente.",
+        });
+      } else {
+        setForm((current) => ({ ...current, imageUrl: url }));
+        setFeedback({
+          type: "success",
+          message: "Mídia enviada. Salve a nova conquista para confirmar.",
+        });
+      }
     } catch (error) {
       setFeedback({
         type: "error",
@@ -535,7 +544,7 @@ export default function AdminAchievementsPage() {
               <label className="inline-flex cursor-pointer items-center rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1.5 transition-colors hover:border-amber-500/60 hover:text-slate-100">
                 <input
                   type="file"
-                  accept="image/gif,image/webp,image/png,image/jpeg,image/svg+xml"
+                  accept=".gif,.webp,.png,.jpg,.jpeg,.svg,image/gif,image/webp,image/png,image/jpeg,image/svg+xml"
                   className="hidden"
                   onChange={handleImageUpload}
                 />
@@ -553,6 +562,9 @@ export default function AdminAchievementsPage() {
                 Conquista ativa
               </label>
             </div>
+            <p className="mt-2 text-[11px] text-slate-500">
+              Ao editar uma conquista existente, o GIF enviado aqui já é aplicado na hora. Em uma conquista nova, a mídia fica preparada no campo e entra junto no cadastro.
+            </p>
           </div>
 
           {feedback ? (
@@ -713,13 +725,11 @@ export default function AdminAchievementsPage() {
                   <div className="flex items-start gap-4">
                     <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-slate-800 bg-slate-950">
                       {mediaUrl ? (
-                        <Image
-                          src={mediaUrl}
-                          alt={item.title}
-                          fill
-                          sizes="64px"
-                          unoptimized={isAnimatedGif}
-                          className="object-cover"
+                        <div
+                          role="img"
+                          aria-label={item.title}
+                          className="h-full w-full bg-cover bg-center"
+                          style={{ backgroundImage: `url("${mediaUrl}")` }}
                         />
                       ) : (
                         <div className="flex h-full w-full items-center justify-center text-2xl text-slate-300">
@@ -775,7 +785,7 @@ export default function AdminAchievementsPage() {
                       <label className="inline-flex cursor-pointer items-center rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1.5 transition-colors hover:border-cyan-500/60 hover:text-slate-100">
                         <input
                           type="file"
-                          accept="image/gif,image/webp,image/png,image/jpeg,image/svg+xml"
+                          accept=".gif,.webp,.png,.jpg,.jpeg,.svg,image/gif,image/webp,image/png,image/jpeg,image/svg+xml"
                           className="hidden"
                           onChange={(event) => void handleMediaUpload(item.id, event)}
                         />
@@ -800,6 +810,9 @@ export default function AdminAchievementsPage() {
                         Remover mídia
                       </button>
                     </div>
+                    <p className="text-[11px] text-slate-500">
+                      Nesta aba o upload ou a URL são gravados diretamente na conquista, então você pode testar GIFs sem voltar ao editor principal.
+                    </p>
                   </div>
                 </article>
               );

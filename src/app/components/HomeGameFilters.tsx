@@ -24,22 +24,6 @@ type PaginationMeta = {
   hasNextPage: boolean;
 };
 
-/* ── Custom event for sidebar → catalog communication ── */
-const CATALOG_FILTER_EVENT = "catalog:filter";
-
-type CatalogFilterDetail = { category: string };
-
-export function dispatchCatalogFilter(category: string) {
-  window.dispatchEvent(
-    new CustomEvent<CatalogFilterDetail>(CATALOG_FILTER_EVENT, {
-      detail: { category },
-    }),
-  );
-  // Scroll to the catalog section
-  const el = document.getElementById("catalogo");
-  if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
 export function HomeGameFilters({
   initialCategory,
 }: {
@@ -52,7 +36,6 @@ export function HomeGameFilters({
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-  const sectionRef = useRef<HTMLElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const fetchGames = useCallback(
@@ -79,17 +62,6 @@ export function HomeGameFilters({
     [],
   );
 
-  /* Listen for sidebar category click events */
-  useEffect(() => {
-    function onFilter(e: Event) {
-      const detail = (e as CustomEvent<CatalogFilterDetail>).detail;
-      setCategory(detail.category);
-      setPage(1);
-    }
-    window.addEventListener(CATALOG_FILTER_EVENT, onFilter);
-    return () => window.removeEventListener(CATALOG_FILTER_EVENT, onFilter);
-  }, []);
-
   /* fetch on filter/sort/page change */
   useEffect(() => {
     fetchGames({ category, query, sort, page });
@@ -109,18 +81,10 @@ export function HomeGameFilters({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [query]);
 
-  /* scroll to section when opened via category link */
-  useEffect(() => {
-    if (initialCategory && sectionRef.current) {
-      sectionRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const totalPages = pagination?.totalPages ?? 1;
 
   return (
-    <section ref={sectionRef} id="catalogo" className="animate-fade-in-up">
+    <section id="catalogo" className="animate-fade-in-up">
       {/* Header */}
       <div className="flex items-center gap-2 mb-4">
         <div className="h-4 w-1 rounded-full bg-gradient-to-b from-cyan-400 to-purple-500" />
