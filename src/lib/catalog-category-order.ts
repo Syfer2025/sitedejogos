@@ -25,7 +25,7 @@ const EDITORIAL_CATEGORY_PRIORITY = [
   "stickman",
 ] as const;
 
-const EDITORIAL_PRIORITY_INDEX = new Map(
+const EDITORIAL_PRIORITY_INDEX: Map<string, number> = new Map(
   EDITORIAL_CATEGORY_PRIORITY.map((category, index) => [category, index]),
 );
 

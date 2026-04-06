@@ -71,7 +71,7 @@ export default async function GamePage({ params }: GamePageProps) {
       <PlayerHistoryTracker gameId={game.id} />
 
       <div className="flex flex-col gap-6 md:flex-row md:items-start">
-        <div className="flex-1 min-w-0">
+        <div className="flex-[1.4] min-w-0">
           <div className="mb-3 flex items-center gap-2 text-[11px] text-slate-400">
             {game.category && (
               <span className="px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-200 border border-purple-500/40">
@@ -87,19 +87,19 @@ export default async function GamePage({ params }: GamePageProps) {
             {game.title}
           </h1>
 
-          <AdSlot
-            label="Banner superior - Página de jogo"
-            slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAME_TOP}
-          />
-
           <p className="text-sm text-slate-400 max-w-2xl mb-4">
             {game.description}
           </p>
 
           <GamePlayer iframeUrl={game.iframeUrl} title={game.title} />
 
+          <AdSlot
+            label="Banner superior - Página de jogo"
+            slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAME_TOP}
+          />
+
           {/* Quick actions */}
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <FavoriteButton
               gameId={game.id}
               gameSlug={game.slug}
@@ -121,40 +121,6 @@ export default async function GamePage({ params }: GamePageProps) {
           </div>
         </div>
 
-        <aside className="w-full md:w-64 lg:w-72 space-y-3">
-          <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-3">
-            <h2 className="text-xs font-semibold text-slate-200 mb-2">
-              Game Info
-            </h2>
-            <ul className="text-[11px] text-slate-400 space-y-1.5">
-              <li>
-                <span className="text-slate-500">Status:</span>{" "}
-                {game.isPublished ? "Published" : "Draft"}
-              </li>
-              <li>
-                <span className="text-slate-500">Plataforma:</span> Jogos
-                online HTML5, direto no navegador
-              </li>
-              <li>
-                <span className="text-slate-500">Modo:</span> Single Player
-              </li>
-              <li>
-                <span className="text-slate-500">Views:</span> {game.views}
-              </li>
-            </ul>
-          </div>
-          <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-3">
-            <h2 className="text-xs font-semibold text-slate-200 mb-2">
-              Sobre este portal de jogos
-            </h2>
-            <p className="text-[11px] text-slate-400">
-              Arcade Nexus é um portal de jogos HTML5 focado em desempenho,
-              SEO e monetização com anúncios. Todos os títulos são carregados
-              em segundos, sem download, com espaços otimizados para Google
-              Adsense e campanhas de mídia programática.
-            </p>
-          </div>
-        </aside>
       </div>
 
       <AdSlot

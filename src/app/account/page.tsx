@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 import Image from "next/image";
 import Link from "next/link";
 import { cookies } from "next/headers";
@@ -36,10 +38,37 @@ type FavoriteEntry = Awaited<ReturnType<typeof listFavoriteGames>>[number];
 type HistoryEntry = Awaited<ReturnType<typeof listRecentlyPlayed>>[number];
 type GamificationOverview = NonNullable<Awaited<ReturnType<typeof getPlayerGamificationOverview>>>;
 type DailyMissionEntry = NonNullable<GamificationOverview["dailyMission"]>;
+type PanelTone = "cyan" | "amber" | "emerald" | "fuchsia";
 
 const ACHIEVEMENT_SHOWCASE_ORDER = new Map(
   DEFAULT_ACHIEVEMENT_DEFINITIONS.map((definition, index) => [definition.key, index]),
 );
+
+const PANEL_TONE_STYLES: Record<
+  PanelTone,
+  { dot: string; eyebrow: string; badge: string }
+> = {
+  cyan: {
+    dot: "bg-cyan-400",
+    eyebrow: "text-cyan-300/80",
+    badge: "border-cyan-400/20 bg-cyan-500/10 text-cyan-100",
+  },
+  amber: {
+    dot: "bg-amber-400",
+    eyebrow: "text-amber-300/80",
+    badge: "border-amber-400/20 bg-amber-500/10 text-amber-100",
+  },
+  emerald: {
+    dot: "bg-emerald-400",
+    eyebrow: "text-emerald-300/80",
+    badge: "border-emerald-400/20 bg-emerald-500/10 text-emerald-100",
+  },
+  fuchsia: {
+    dot: "bg-fuchsia-400",
+    eyebrow: "text-fuchsia-300/80",
+    badge: "border-fuchsia-400/20 bg-fuchsia-500/10 text-fuchsia-100",
+  },
+};
 
 function getPlayerInitials(name: string) {
   return name
@@ -62,6 +91,71 @@ function getMissionHistoryTitle(mission: DailyMissionEntry) {
   return mission.targetCount > 1
     ? `Jogar ${mission.targetCount} partidas`
     : "Jogar hoje";
+}
+
+function getTasteModeLabel(mode: string) {
+  if (mode === "focused") {
+    return "Focado";
+  }
+
+  if (mode === "hybrid") {
+    return "Híbrido";
+  }
+
+  return "Explorador";
+}
+
+function CollapsiblePanel({
+  title,
+  subtitle,
+  badge,
+  tone = "cyan",
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  badge?: string;
+  tone?: PanelTone;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  const toneStyles = PANEL_TONE_STYLES[tone];
+
+  return (
+    <details
+      open={defaultOpen}
+      className="group rounded-2xl border border-slate-800/70 bg-slate-950/85 shadow-[0_16px_40px_rgba(2,6,23,0.28)]"
+    >
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3.5 [&::-webkit-details-marker]:hidden">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className={`h-2 w-2 rounded-full ${toneStyles.dot}`} />
+            <p className={`text-[10px] font-bold uppercase tracking-[0.22em] ${toneStyles.eyebrow}`}>
+              {title}
+            </p>
+          </div>
+          {subtitle ? (
+            <p className="mt-1 text-xs text-slate-500">{subtitle}</p>
+          ) : null}
+        </div>
+
+        <div className="flex items-center gap-2 pl-3">
+          {badge ? (
+            <span className={`rounded-full border px-2.5 py-1 text-[10px] font-medium ${toneStyles.badge}`}>
+              {badge}
+            </span>
+          ) : null}
+          <span className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-slate-400 transition-colors group-open:border-slate-500 group-open:text-slate-100">
+            <span className="group-open:hidden">+</span>
+            <span className="hidden group-open:inline">−</span>
+          </span>
+        </div>
+      </summary>
+
+      <div className="border-t border-slate-800/70 px-4 py-4">{children}</div>
+    </details>
+  );
 }
 
 export default async function AccountPage() {
@@ -181,414 +275,585 @@ export default async function AccountPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 md:py-10 space-y-6">
-      <section className="rounded-[28px] border border-slate-800 bg-[linear-gradient(135deg,rgba(8,145,178,0.18),rgba(15,23,42,0.92),rgba(8,47,73,0.65))] p-6 shadow-[0_0_70px_rgba(2,6,23,0.65)]">
-        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div className="flex items-center gap-4">
-            <div
-              className="flex h-20 w-20 items-center justify-center rounded-[26px] border border-cyan-300/30 bg-slate-950/50 text-2xl font-semibold text-slate-50 shadow-[0_0_35px_rgba(8,145,178,0.18)]"
-              style={
-                profile.avatarUrl
-                  ? {
-                      backgroundImage: `url("${profile.avatarUrl}")`,
-                      backgroundPosition: "center",
-                      backgroundSize: "cover",
-                    }
-                  : undefined
-              }
-            >
-              {profile.avatarUrl ? null : playerInitials}
-            </div>
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-200/80">
-                Minha conta
-              </p>
-              <h1 className="mt-2 text-2xl font-semibold tracking-tight text-slate-50">
-                {profile.displayName}
-              </h1>
-              <p className="mt-1 text-sm text-slate-300">{profile.email}</p>
-              <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
-                <span className="rounded-full border border-slate-700/80 bg-slate-950/50 px-2 py-1">
-                  Membro desde {memberSince}
-                </span>
-                {profile.preferredCategories.length > 0 ? (
-                  profile.preferredCategories.map((category) => (
-                    <span
-                      key={category}
-                      className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2 py-1 text-cyan-100"
-                    >
-                      {category}
-                    </span>
-                  ))
-                ) : (
-                  <span className="rounded-full border border-slate-700/80 bg-slate-950/50 px-2 py-1">
-                    Sem preferências definidas
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap gap-3 text-xs">
-            <div className="rounded-2xl border border-cyan-400/30 bg-slate-950/35 px-4 py-3">
-              <p className="text-slate-400">Favoritos</p>
-              <p className="mt-1 text-lg font-semibold text-slate-50">{favorites.length}</p>
-            </div>
-            <div className="rounded-2xl border border-cyan-400/30 bg-slate-950/35 px-4 py-3">
-              <p className="text-slate-400">Recentes</p>
-              <p className="mt-1 text-lg font-semibold text-slate-50">{history.length}</p>
-            </div>
-            <form action={logout}>
-              <button
-                type="submit"
-                className="inline-flex items-center rounded-full border border-slate-700 bg-slate-950/70 px-4 py-2 text-xs font-medium text-slate-200 transition-colors hover:border-red-500/70 hover:text-red-200"
-              >
-                Sair
-              </button>
-            </form>
-          </div>
-        </div>
-      </section>
-
-      <AccountProfileForm initialProfile={profile} categories={categories} />
-
-      {tasteProfile ? (
-        <section className="rounded-[28px] border border-slate-800 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(2,6,23,0.45)]">
-          <div className="grid gap-6 xl:grid-cols-[1.1fr,0.9fr]">
-            <div>
-              <p className="text-[11px] uppercase tracking-[0.18em] text-fuchsia-300/80">
-                Radar de gosto
-              </p>
-              <h2 className="mt-2 text-lg font-semibold tracking-tight text-slate-50">
-                Perfil em modo {tasteProfile.mode === "focused" ? "focado" : tasteProfile.mode === "hybrid" ? "híbrido" : "explorador"}
-              </h2>
-              <p className="mt-2 max-w-2xl text-sm text-slate-400">
-                {tasteProfile.recommendationSummary}
-              </p>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-                  <p className="text-[11px] text-slate-500">Favoritos usados</p>
-                  <p className="mt-2 text-2xl font-semibold text-fuchsia-200">
-                    {tasteProfile.favoriteCount}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-                  <p className="text-[11px] text-slate-500">Jogos recentes</p>
-                  <p className="mt-2 text-2xl font-semibold text-cyan-300">
-                    {tasteProfile.recentGameCount}
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-                  <p className="text-[11px] text-slate-500">Partidas somadas</p>
-                  <p className="mt-2 text-2xl font-semibold text-emerald-300">
-                    {tasteProfile.totalPlayCount}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-slate-50">Categorias dominantes</h3>
-                  <span className="text-[11px] text-slate-500">Peso atual</span>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {tasteProfile.topCategories.length > 0 ? (
-                    tasteProfile.topCategories.map((entry) => (
-                      <span
-                        key={entry.name}
-                        className="rounded-full border border-fuchsia-400/30 bg-fuchsia-500/10 px-3 py-1 text-[11px] text-fuchsia-100"
-                      >
-                        {entry.name} • {entry.share.toLocaleString(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-xs text-slate-500">
-                      Defina preferências e jogue mais para consolidar sua trilha.
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-slate-50">Tags que mais puxam</h3>
-                  <span className="text-[11px] text-slate-500">Sinais finos</span>
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {tasteProfile.topTags.length > 0 ? (
-                    tasteProfile.topTags.map((entry) => (
-                      <span
-                        key={entry.name}
-                        className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-[11px] text-cyan-100"
-                      >
-                        {entry.name} • {entry.score}
-                      </span>
-                    ))
-                  ) : (
-                    <span className="text-xs text-slate-500">
-                      Ainda faltam sinais suficientes para refinar as tags do feed.
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {gamification ? (
-        <section className="grid gap-6 xl:grid-cols-[1.2fr,1fr]">
-          <div className="space-y-6">
-            <div className="rounded-[28px] border border-slate-800 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(2,6,23,0.45)]">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.18em] text-amber-300/80">
-                    Progresso do jogador
-                  </p>
-                  <h2 className="mt-2 text-lg font-semibold tracking-tight text-slate-50">
-                    Level {gamification.level} • {gamification.xp} XP
-                  </h2>
-                </div>
-                <span className="rounded-full border border-amber-400/30 bg-amber-500/10 px-3 py-1 text-xs text-amber-100">
-                  {gamification.activeToday ? "Ativo hoje" : "Volte hoje para manter a streak"}
-                </span>
-              </div>
-
-              <div className="grid gap-3 md:grid-cols-3">
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-                  <p className="text-[11px] text-slate-500">Streak atual</p>
-                  <p className="mt-2 text-2xl font-semibold text-orange-300">
-                    {gamification.currentStreak} dias
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-                  <p className="text-[11px] text-slate-500">Melhor streak</p>
-                  <p className="mt-2 text-2xl font-semibold text-cyan-300">
-                    {gamification.longestStreak} dias
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-                  <p className="text-[11px] text-slate-500">Próximo nível</p>
-                  <p className="mt-2 text-2xl font-semibold text-emerald-300">
-                    {Math.max(gamification.progress.nextLevelXp - gamification.xp, 0)} XP
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-4 space-y-2">
-                <div className="flex items-center justify-between text-xs text-slate-400">
-                  <span>
-                    {gamification.progress.progressInLevel} / {gamification.progress.neededInLevel} XP neste nível
-                  </span>
-                  <span>{gamification.progress.progressPercent}%</span>
-                </div>
-                <div className="h-3 overflow-hidden rounded-full bg-slate-900">
+    <div className="mx-auto max-w-7xl px-4 py-6 md:py-8">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.25fr)_340px]">
+        <main className="space-y-5">
+          <header className="relative overflow-hidden rounded-2xl border border-slate-800/70 bg-slate-950/90 shadow-[0_20px_50px_rgba(2,6,23,0.32)]">
+            <div className="h-24 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.24),transparent_35%),linear-gradient(90deg,rgba(12,74,110,0.58),rgba(30,41,59,0.94),rgba(88,28,135,0.46))]" />
+            <div className="relative px-5 pb-5 md:px-6 md:pb-6">
+              <div className="-mt-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                <div className="flex min-w-0 items-end gap-4">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-400 via-cyan-400 to-emerald-400"
-                    style={{ width: `${gamification.progress.progressPercent}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[28px] border border-slate-800 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(2,6,23,0.45)]">
-              <div className="mb-4 flex items-start justify-between gap-3">
-                <div>
-                  <h2 className="text-sm font-semibold text-slate-50">Trilha de conquistas</h2>
-                  <p className="mt-1 text-xs text-slate-500">
-                    O mesmo painel da home, agora com visão completa da sua progressão e detalhes por conquista.
-                  </p>
-                </div>
-                <span className="text-xs text-slate-500">
-                  {gamification.achievementCount}/{achievementItems.length} desbloqueada(s)
-                </span>
-              </div>
-
-              {achievementItems.length === 0 ? (
-                <p className="rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-6 text-sm text-slate-400">
-                  Jogue, favorite e volte em dias consecutivos para começar sua trilha de conquistas.
-                </p>
-              ) : (
-                <AchievementCollection
-                  items={achievementItems}
-                  locale={locale}
-                  lockedLabel={homeTexts.achievementsLockedLabel}
-                  unlockedLabel={homeTexts.achievementsUnlockedLabel}
-                  layout="grid"
-                />
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="rounded-[28px] border border-slate-800 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(2,6,23,0.45)]">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[11px] uppercase tracking-[0.18em] text-cyan-300/80">
-                    Missão diária
-                  </p>
-                  <h2 className="mt-2 text-lg font-semibold tracking-tight text-slate-50">
-                    {dailyMissionCard?.title}
-                  </h2>
-                  <p className="mt-2 text-sm text-slate-400">{dailyMissionCard?.description}</p>
-                </div>
-                <span
-                  className={`rounded-full border px-3 py-1 text-xs ${
-                    gamification.dailyMission?.isCompleted
-                      ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-100"
-                      : "border-cyan-400/30 bg-cyan-500/10 text-cyan-100"
-                  }`}
-                >
-                  {gamification.dailyMission?.isCompleted ? "Concluída" : "Em andamento"}
-                </span>
-              </div>
-
-              <div className="mt-4 grid gap-3 md:grid-cols-[1fr,auto] md:items-end">
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-xs text-slate-400">
-                    <span>{dailyMissionCard?.progressLabel}</span>
-                    <span>{dailyMissionCard?.progressValue}</span>
+                    className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl border-4 border-slate-950 bg-gradient-to-br from-cyan-500 via-sky-500 to-fuchsia-500 text-xl font-bold text-white shadow-[0_12px_30px_rgba(8,145,178,0.28)]"
+                    style={
+                      profile.avatarUrl
+                        ? {
+                            backgroundImage: `url("${profile.avatarUrl}")`,
+                            backgroundPosition: "center",
+                            backgroundSize: "cover",
+                          }
+                        : undefined
+                    }
+                  >
+                    {profile.avatarUrl ? null : playerInitials}
                   </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-slate-900">
+
+                  <div className="min-w-0 pb-1">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-cyan-300/80">
+                      Painel do jogador
+                    </p>
+                    <h1 className="mt-1 truncate text-2xl font-semibold tracking-tight text-white">
+                      {profile.displayName}
+                    </h1>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
+                      <span>{profile.email}</span>
+                      <span className="hidden sm:inline">·</span>
+                      <span>Conta desde {memberSince}</span>
+                      {gamification ? (
+                        <>
+                          <span className="hidden sm:inline">·</span>
+                          <span className="font-medium text-amber-300">Lv. {gamification.level}</span>
+                        </>
+                      ) : null}
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {profile.preferredCategories.length > 0 ? (
+                        profile.preferredCategories.map((category) => (
+                          <span
+                            key={category}
+                            className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-0.5 text-[10px] font-medium text-cyan-100"
+                          >
+                            {category}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="rounded-full border border-slate-700/80 bg-slate-900/80 px-2.5 py-0.5 text-[10px] text-slate-400">
+                          Sem categorias favoritas definidas
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <form action={logout}>
+                  <button
+                    type="submit"
+                    className="rounded-xl border border-slate-700 bg-slate-900/70 px-4 py-2 text-xs font-medium text-slate-300 transition-colors hover:border-red-500/50 hover:text-red-300"
+                  >
+                    Sair da conta
+                  </button>
+                </form>
+              </div>
+
+              {gamification ? (
+                <div className="mt-4">
+                  <div className="mb-1 flex items-center justify-between gap-3 text-[10px] text-slate-500">
+                    <span>Progresso do nível atual</span>
+                    <span>
+                      {gamification.progress.progressPercent}% · {gamification.progress.progressInLevel}/
+                      {gamification.progress.neededInLevel} XP
+                    </span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-slate-800">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-sky-400 to-emerald-400"
-                      style={{
-                        width: `${Math.max(
-                          currentMissionProgressPercent,
-                          gamification.dailyMission?.progressCount ? 6 : 0,
-                        )}%`,
-                      }}
+                      className="h-full rounded-full bg-gradient-to-r from-amber-400 via-cyan-400 to-emerald-400"
+                      style={{ width: `${gamification.progress.progressPercent}%` }}
                     />
                   </div>
                 </div>
+              ) : null}
+            </div>
+          </header>
 
-                <div className="rounded-2xl border border-slate-800 bg-slate-900/55 px-4 py-3 text-right">
-                  <p className="text-[10px] uppercase tracking-wide text-slate-500">Recompensa</p>
-                  <p className="mt-1 text-lg font-semibold text-emerald-300">
-                    +{gamification.dailyMission?.rewardXp ?? 0} XP
+          <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-950/85 px-4 py-3 shadow-[0_12px_28px_rgba(2,6,23,0.22)]">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Nível</p>
+              <p className="mt-1 text-2xl font-semibold text-white tabular-nums">{gamification?.level ?? 1}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-950/85 px-4 py-3 shadow-[0_12px_28px_rgba(2,6,23,0.22)]">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">XP total</p>
+              <p className="mt-1 text-2xl font-semibold text-cyan-300 tabular-nums">{gamification?.xp.toLocaleString(locale) ?? "0"}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-950/85 px-4 py-3 shadow-[0_12px_28px_rgba(2,6,23,0.22)]">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Streak</p>
+              <p className="mt-1 text-2xl font-semibold text-orange-300 tabular-nums">{gamification?.currentStreak ?? 0}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-950/85 px-4 py-3 shadow-[0_12px_28px_rgba(2,6,23,0.22)]">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Favoritos</p>
+              <p className="mt-1 text-2xl font-semibold text-fuchsia-200 tabular-nums">{favorites.length}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-800/70 bg-slate-950/85 px-4 py-3 shadow-[0_12px_28px_rgba(2,6,23,0.22)]">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Recentes</p>
+              <p className="mt-1 text-2xl font-semibold text-emerald-300 tabular-nums">{history.length}</p>
+            </div>
+          </section>
+
+          <CollapsiblePanel
+            title="Perfil e preferências"
+            subtitle="Nome, avatar, bio e categorias principais em um único compartimento."
+            badge="Essencial"
+            tone="cyan"
+          >
+            <AccountProfileForm initialProfile={profile} categories={categories} variant="embedded" />
+          </CollapsiblePanel>
+
+          {gamification ? (
+            <CollapsiblePanel
+              title="Missão diária"
+              subtitle={dailyMissionCard?.title ?? "Continue a progressão de hoje."}
+              badge={`${currentMissionProgressPercent}%`}
+              tone="emerald"
+              defaultOpen
+            >
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
+                <div className="space-y-4">
+                  <div>
+                    <h2 className="text-base font-semibold text-slate-50">{dailyMissionCard?.title}</h2>
+                    <p className="mt-1 text-sm leading-relaxed text-slate-400">
+                      {dailyMissionCard?.description}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2 rounded-xl border border-slate-800 bg-slate-900/55 p-3">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span>{dailyMissionCard?.progressLabel}</span>
+                      <span>{dailyMissionCard?.progressValue}</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-slate-800">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-sky-400"
+                        style={{
+                          width: `${Math.max(
+                            currentMissionProgressPercent,
+                            gamification.dailyMission?.progressCount ? 6 : 0,
+                          )}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+                    <span
+                      className={`rounded-full border px-2.5 py-1 ${
+                        gamification.dailyMission?.isCompleted
+                          ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200"
+                          : "border-cyan-400/20 bg-cyan-500/10 text-cyan-200"
+                      }`}
+                    >
+                      {gamification.dailyMission?.isCompleted ? "Concluída" : "Ativa"}
+                    </span>
+                    <span className="rounded-full border border-slate-700 bg-slate-900/70 px-2.5 py-1 text-slate-300">
+                      +{gamification.dailyMission?.rewardXp ?? 0} XP
+                    </span>
+                    <span className="rounded-full border border-slate-700 bg-slate-900/70 px-2.5 py-1 text-slate-300">
+                      {gamification.dailyMission?.isCompleted ? "Próxima janela" : "Renova"} {nextDailyMissionLabel}
+                    </span>
+                  </div>
+
+                  {dailyMissionCard ? (
+                    <div className="flex flex-wrap gap-2">
+                      <Link
+                        href={dailyMissionCard.href}
+                        className="rounded-xl bg-emerald-500/15 px-3 py-2 text-xs font-medium text-emerald-200 transition-colors hover:bg-emerald-500/25"
+                      >
+                        {dailyMissionCard.ctaLabel}
+                      </Link>
+                      {gamification.dailyMission ? (
+                        <Link
+                          href={getDailyMissionHref(gamification.dailyMission.kind)}
+                          className="rounded-xl border border-slate-700 bg-slate-900/70 px-3 py-2 text-xs text-slate-300 transition-colors hover:border-cyan-500/40 hover:text-cyan-200"
+                        >
+                          Abrir objetivo
+                        </Link>
+                      ) : null}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="rounded-xl border border-slate-800 bg-slate-900/55 p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                    Resumo do ciclo
                   </p>
+                  <div className="mt-3 space-y-3 text-sm">
+                    <div className="rounded-lg bg-slate-950/80 px-3 py-2">
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Status</p>
+                      <p className="mt-1 font-medium text-slate-100">
+                        {gamification.activeToday ? "Você já esteve ativo hoje" : "Ainda falta registrar atividade hoje"}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-slate-950/80 px-3 py-2">
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Meta</p>
+                      <p className="mt-1 font-medium text-slate-100">
+                        {gamification.dailyMission?.progressCount ?? 0}/{gamification.dailyMission?.targetCount ?? 0}
+                      </p>
+                    </div>
+                    <div className="rounded-lg bg-slate-950/80 px-3 py-2">
+                      <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Melhor streak</p>
+                      <p className="mt-1 font-medium text-slate-100">{gamification.longestStreak} dias</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="mt-4 rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-3">
-                <p className="text-[10px] uppercase tracking-wide text-slate-500">
-                  {gamification.dailyMission?.isCompleted ? "Próximo ciclo" : "Renovação"}
-                </p>
-                <p className="mt-1 text-sm font-medium text-slate-100">{nextDailyMissionLabel}</p>
-                <p className="mt-1 text-[11px] text-slate-500">
-                  {gamification.dailyMission?.isCompleted
-                    ? "Você fechou o objetivo de hoje. A próxima missão entra automaticamente no ciclo seguinte."
-                    : "Ainda dá tempo de concluir a missão atual antes da virada do próximo ciclo."}
-                </p>
-              </div>
+              {recentMissionHistory.length > 0 ? (
+                <details className="group mt-4 rounded-xl border border-slate-800 bg-slate-900/45">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">
+                        Últimos ciclos
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">Histórico recente das missões anteriores.</p>
+                    </div>
+                    <span className="text-xs text-slate-400">{recentMissionHistory.length} itens</span>
+                  </summary>
 
-              <div className="mt-4 flex items-center justify-between gap-3">
-                <h3 className="text-sm font-semibold text-slate-50">Histórico recente</h3>
-                {dailyMissionCard ? (
-                  <Link
-                    href={dailyMissionCard.href}
-                    className="inline-flex items-center rounded-full border border-cyan-500/50 bg-cyan-500/10 px-3 py-1.5 text-xs text-cyan-100 transition-colors hover:border-cyan-400 hover:bg-cyan-500/15"
-                  >
-                    {dailyMissionCard.ctaLabel}
-                  </Link>
-                ) : null}
-              </div>
+                  <div className="border-t border-slate-800 px-3 py-3">
+                    <div className="space-y-2">
+                      {recentMissionHistory.map((mission) => (
+                        <div
+                          key={mission.id}
+                          className="flex flex-col gap-2 rounded-xl border border-slate-800 bg-slate-950/70 p-3 sm:flex-row sm:items-center sm:justify-between"
+                        >
+                          <div>
+                            <p className="text-sm font-medium text-slate-100">
+                              {getMissionHistoryTitle(mission)}
+                            </p>
+                            <p className="mt-1 text-[11px] text-slate-500">
+                              {new Date(`${mission.dayToken}T00:00:00.000Z`).toLocaleDateString(locale)} · {mission.progressCount}/
+                              {mission.targetCount} · +{mission.rewardXp} XP
+                            </p>
+                          </div>
 
-              {recentMissionHistory.length === 0 ? (
-                <p className="mt-3 rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-4 text-sm text-slate-400">
-                  Conclua alguns ciclos para começar a montar seu histórico de missões.
-                </p>
-              ) : (
-                <div className="mt-3 space-y-3">
-                  {recentMissionHistory.map((mission) => (
-                    <div
-                      key={mission.id}
-                      className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-medium text-slate-100">
-                            {getMissionHistoryTitle(mission)}
-                          </p>
-                          <p className="mt-1 text-[11px] text-slate-500">
-                            {new Date(`${mission.dayToken}T00:00:00.000Z`).toLocaleDateString(locale)} • {mission.progressCount}/{mission.targetCount} • +{mission.rewardXp} XP
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`rounded-full border px-2.5 py-1 text-[10px] ${
+                                mission.isCompleted
+                                  ? "border-emerald-400/20 bg-emerald-500/10 text-emerald-200"
+                                  : "border-slate-700 bg-slate-900 text-slate-300"
+                              }`}
+                            >
+                              {mission.isCompleted ? "Concluída" : "Incompleta"}
+                            </span>
+                            <Link
+                              href={getDailyMissionHref(mission.kind)}
+                              className="text-[11px] text-cyan-300 transition-colors hover:text-cyan-200"
+                            >
+                              Abrir
+                            </Link>
+                          </div>
                         </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <span
-                            className={`rounded-full border px-2 py-1 text-[10px] ${
-                              mission.isCompleted
-                                ? "border-emerald-400/30 bg-emerald-500/10 text-emerald-100"
-                                : "border-slate-700 bg-slate-950/60 text-slate-300"
-                            }`}
-                          >
-                            {mission.isCompleted ? "Concluída" : "Incompleta"}
-                          </span>
-                          <Link
-                            href={getDailyMissionHref(mission.kind)}
-                            className="text-[10px] text-cyan-300 hover:text-cyan-200"
-                          >
-                            Abrir
-                          </Link>
-                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </details>
+              ) : null}
+            </CollapsiblePanel>
+          ) : null}
+
+          <CollapsiblePanel
+            title="Biblioteca"
+            subtitle="Favoritos e jogos recentes separados em menus próprios."
+            badge={`${favorites.length + history.length} itens`}
+            tone="amber"
+          >
+            <div className="grid gap-3 lg:grid-cols-2">
+              <details open className="group rounded-xl border border-slate-800 bg-slate-900/45">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300/80">Favoritos</p>
+                    <p className="mt-1 text-xs text-slate-500">Jogos salvos para voltar depois.</p>
+                  </div>
+                  <span className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[10px] font-medium text-cyan-100">
+                    {favorites.length}
+                  </span>
+                </summary>
+
+                <div className="border-t border-slate-800 px-3 py-3">
+                  {favorites.length === 0 ? (
+                    <p className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-5 text-sm text-slate-500">
+                      Nenhum favorito salvo ainda. Use o coração nos jogos para montar sua biblioteca.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {favorites.map((entry: FavoriteEntry) => (
+                        <Link
+                          key={entry.id}
+                          href={`/games/${entry.game.slug}`}
+                          className="group/card overflow-hidden rounded-xl border border-slate-800 bg-slate-950/70 transition-colors hover:border-cyan-400/40"
+                        >
+                          <div className="relative aspect-[16/10] overflow-hidden">
+                            <Image
+                              src={entry.game.thumbnail}
+                              alt={entry.game.title}
+                              fill
+                              sizes="180px"
+                              className="object-cover transition-transform group-hover/card:scale-105"
+                            />
+                          </div>
+                          <div className="p-2">
+                            <p className="truncate text-[11px] font-medium text-slate-200 transition-colors group-hover/card:text-cyan-200">
+                              {entry.game.title}
+                            </p>
+                            <p className="mt-0.5 text-[9px] text-slate-500">{entry.game.category}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </details>
+
+              <details className="group rounded-xl border border-slate-800 bg-slate-900/45">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-fuchsia-300/80">Recentes</p>
+                    <p className="mt-1 text-xs text-slate-500">Últimos títulos jogados na conta.</p>
+                  </div>
+                  <span className="rounded-full border border-fuchsia-400/20 bg-fuchsia-500/10 px-2.5 py-1 text-[10px] font-medium text-fuchsia-100">
+                    {history.length}
+                  </span>
+                </summary>
+
+                <div className="border-t border-slate-800 px-3 py-3">
+                  {history.length === 0 ? (
+                    <p className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-5 text-sm text-slate-500">
+                      Abra um jogo com sua conta para começar a montar o histórico.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                      {history.map((entry: HistoryEntry) => (
+                        <Link
+                          key={entry.id}
+                          href={`/games/${entry.game.slug}`}
+                          className="group/card overflow-hidden rounded-xl border border-slate-800 bg-slate-950/70 transition-colors hover:border-fuchsia-400/40"
+                        >
+                          <div className="relative aspect-[16/10] overflow-hidden">
+                            <Image
+                              src={entry.game.thumbnail}
+                              alt={entry.game.title}
+                              fill
+                              sizes="180px"
+                              className="object-cover transition-transform group-hover/card:scale-105"
+                            />
+                            <span className="absolute bottom-1 right-1 rounded bg-black/65 px-1.5 py-0.5 text-[8px] text-slate-300 backdrop-blur-sm">
+                              {entry.playCount}x
+                            </span>
+                          </div>
+                          <div className="p-2">
+                            <p className="truncate text-[11px] font-medium text-slate-200 transition-colors group-hover/card:text-fuchsia-200">
+                              {entry.game.title}
+                            </p>
+                            <p className="mt-0.5 text-[9px] text-slate-500">{entry.game.category}</p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </details>
+            </div>
+          </CollapsiblePanel>
+
+          {tasteProfile ? (
+            <CollapsiblePanel
+              title="Radar de gosto"
+              subtitle="Leitura do seu comportamento para personalização do feed."
+              badge={getTasteModeLabel(tasteProfile.mode)}
+              tone="fuchsia"
+            >
+              <div className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_280px]">
+                <div className="space-y-4">
+                  <p className="text-sm leading-relaxed text-slate-400">
+                    {tasteProfile.recommendationSummary}
+                  </p>
+
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="rounded-xl border border-slate-800 bg-slate-900/55 px-3 py-3 text-center">
+                      <p className="text-lg font-semibold text-fuchsia-200 tabular-nums">{tasteProfile.favoriteCount}</p>
+                      <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-500">Favoritos</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-800 bg-slate-900/55 px-3 py-3 text-center">
+                      <p className="text-lg font-semibold text-cyan-300 tabular-nums">{tasteProfile.recentGameCount}</p>
+                      <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-500">Recentes</p>
+                    </div>
+                    <div className="rounded-xl border border-slate-800 bg-slate-900/55 px-3 py-3 text-center">
+                      <p className="text-lg font-semibold text-emerald-300 tabular-nums">{tasteProfile.totalPlayCount}</p>
+                      <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-500">Partidas</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <details open className="group rounded-xl border border-slate-800 bg-slate-900/45">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-fuchsia-300/80">Categorias</p>
+                        <p className="mt-1 text-xs text-slate-500">Onde seu perfil pesa mais.</p>
+                      </div>
+                      <span className="text-xs text-slate-400">{tasteProfile.topCategories.length}</span>
+                    </summary>
+                    <div className="border-t border-slate-800 px-3 py-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        {tasteProfile.topCategories.length > 0 ? (
+                          tasteProfile.topCategories.map((entry) => (
+                            <span
+                              key={entry.name}
+                              className="rounded-full border border-fuchsia-400/20 bg-fuchsia-500/10 px-2.5 py-1 text-[10px] text-fuchsia-100"
+                            >
+                              {entry.name} · {entry.share.toLocaleString(locale, {
+                                minimumFractionDigits: 1,
+                                maximumFractionDigits: 1,
+                              })}%
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-slate-500">Ainda faltam dados para consolidar categorias.</span>
+                        )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                  </details>
 
-            <div className="rounded-[28px] border border-slate-800 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(2,6,23,0.45)]">
-              <div className="mb-4 flex items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-sm font-semibold text-slate-50">Notificações do portal</h2>
-                  <p className="mt-1 text-xs text-slate-500">
-                    {gamification.unreadNotifications} não lida(s)
-                  </p>
+                  <details className="group rounded-xl border border-slate-800 bg-slate-900/45">
+                    <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-2.5 [&::-webkit-details-marker]:hidden">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-cyan-300/80">Tags</p>
+                        <p className="mt-1 text-xs text-slate-500">Sinais finos que ajudam a recomendar jogos.</p>
+                      </div>
+                      <span className="text-xs text-slate-400">{tasteProfile.topTags.length}</span>
+                    </summary>
+                    <div className="border-t border-slate-800 px-3 py-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        {tasteProfile.topTags.length > 0 ? (
+                          tasteProfile.topTags.map((entry) => (
+                            <span
+                              key={entry.name}
+                              className="rounded-full border border-cyan-400/20 bg-cyan-500/10 px-2.5 py-1 text-[10px] text-cyan-100"
+                            >
+                              {entry.name} · {entry.score}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-slate-500">Ainda não há sinais suficientes para tags.</span>
+                        )}
+                      </div>
+                    </div>
+                  </details>
                 </div>
-                {gamification.unreadNotifications > 0 ? (
-                  <form action={markNotificationsRead}>
-                    <button
-                      type="submit"
-                      className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1.5 text-xs text-slate-200 transition-colors hover:border-cyan-500/60 hover:text-cyan-100"
-                    >
-                      Marcar como lidas
-                    </button>
-                  </form>
-                ) : null}
               </div>
+            </CollapsiblePanel>
+          ) : null}
 
-              {gamification.notifications.length === 0 ? (
-                <p className="rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-6 text-sm text-slate-400">
-                  As próximas ações vão gerar avisos de streak, level up e novas conquistas aqui.
+          {gamification ? (
+            <CollapsiblePanel
+              title="Conquistas"
+              subtitle="Painel completo, mas guardado em um compartimento próprio."
+              badge={`${gamification.achievementCount}/${achievementItems.length}`}
+              tone="amber"
+            >
+              {achievementItems.length === 0 ? (
+                <p className="rounded-xl border border-slate-800 bg-slate-900/55 px-4 py-5 text-sm text-slate-500">
+                  Jogue, favorite e mantenha streak para começar a liberar conquistas.
                 </p>
               ) : (
-                <div className="space-y-3">
+                <div className="max-h-[440px] overflow-y-auto pr-1 scrollbar-thin">
+                  <AchievementCollection
+                    items={achievementItems}
+                    locale={locale}
+                    lockedLabel={homeTexts.achievementsLockedLabel}
+                    unlockedLabel={homeTexts.achievementsUnlockedLabel}
+                    layout="grid"
+                  />
+                </div>
+              )}
+            </CollapsiblePanel>
+          ) : null}
+        </main>
+
+        <aside className="self-start space-y-4 xl:sticky xl:top-24">
+          <section className="rounded-2xl border border-slate-800/70 bg-slate-950/85 p-4 shadow-[0_16px_40px_rgba(2,6,23,0.26)]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-500">Resumo rápido</p>
+            <div className="mt-3 space-y-2">
+              <div className="rounded-xl border border-slate-800 bg-slate-900/55 px-3 py-2.5">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Bio</p>
+                <p className="mt-1 text-sm text-slate-200">
+                  {profile.bio.trim() ? "Perfil com bio preenchida" : "Bio ainda não configurada"}
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-800 bg-slate-900/55 px-3 py-2.5">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Preferências</p>
+                <p className="mt-1 text-sm text-slate-200">
+                  {profile.preferredCategories.length > 0
+                    ? `${profile.preferredCategories.length} categoria(s) selecionada(s)`
+                    : "Nenhuma categoria favorita ainda"}
+                </p>
+              </div>
+              {gamification ? (
+                <div className="rounded-xl border border-slate-800 bg-slate-900/55 px-3 py-2.5">
+                  <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Status de atividade</p>
+                  <p className="mt-1 text-sm text-slate-200">
+                    {gamification.activeToday ? "Conta ativa hoje" : "Ainda sem atividade hoje"}
+                  </p>
+                </div>
+              ) : null}
+            </div>
+          </section>
+
+          {gamification ? (
+            <CollapsiblePanel
+              title="Notificações"
+              subtitle="Recados, alertas e eventos importantes da conta."
+              badge={
+                gamification.unreadNotifications > 0
+                  ? `${gamification.unreadNotifications} novas`
+                  : `${gamification.notifications.length} itens`
+              }
+              tone="cyan"
+              defaultOpen={gamification.unreadNotifications > 0}
+            >
+              {gamification.unreadNotifications > 0 ? (
+                <form action={markNotificationsRead} className="mb-3 flex justify-end">
+                  <button
+                    type="submit"
+                    className="rounded-lg border border-slate-700 bg-slate-900/70 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-cyan-500/50 hover:text-cyan-200"
+                  >
+                    Marcar tudo como lido
+                  </button>
+                </form>
+              ) : null}
+
+              {gamification.notifications.length === 0 ? (
+                <p className="rounded-xl border border-slate-800 bg-slate-900/55 px-4 py-5 text-sm text-slate-500">
+                  Nenhuma notificação ainda. Avisos de level up, streak e conquistas aparecerão aqui.
+                </p>
+              ) : (
+                <div className="max-h-[420px] space-y-2 overflow-y-auto pr-1 scrollbar-thin">
                   {gamification.notifications.map((notification) => (
                     <div
                       key={notification.id}
-                      className={`rounded-2xl border p-4 ${
+                      className={`rounded-xl border p-3 ${
                         notification.isRead
                           ? "border-slate-800 bg-slate-900/45"
-                          : "border-cyan-400/25 bg-cyan-500/10"
+                          : "border-cyan-400/20 bg-cyan-500/10"
                       }`}
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-medium text-slate-100">{notification.title}</p>
-                          <p className="mt-1 text-[12px] text-slate-400">{notification.message}</p>
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-slate-100">
+                            {notification.title}
+                          </p>
+                          <p className="mt-1 text-[12px] leading-relaxed text-slate-400">
+                            {notification.message}
+                          </p>
                         </div>
-                        <span className="text-[10px] text-slate-500">
+                        <span className="shrink-0 text-[10px] text-slate-500">
                           {new Date(notification.createdAt).toLocaleDateString(locale)}
                         </span>
                       </div>
+
                       {notification.link ? (
                         <Link
                           href={notification.link}
-                          className="mt-3 inline-flex text-[11px] text-cyan-300 hover:text-cyan-200"
+                          className="mt-2 inline-flex text-[11px] text-cyan-300 transition-colors hover:text-cyan-200"
                         >
                           Abrir
                         </Link>
@@ -597,117 +862,30 @@ export default async function AccountPage() {
                   ))}
                 </div>
               )}
+            </CollapsiblePanel>
+          ) : null}
+
+          <CollapsiblePanel
+            title="Social"
+            subtitle="Pedidos, lista de amigos e gerenciamento social."
+            tone="cyan"
+          >
+            <div className="max-h-[70vh] overflow-y-auto pr-1 scrollbar-thin">
+              <FriendsPanel />
             </div>
-          </div>
-        </section>
-      ) : null}
+          </CollapsiblePanel>
 
-      {/* ── Social & Economy ── */}
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-[28px] border border-slate-800 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(2,6,23,0.45)]">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-cyan-300/80">Social</p>
-          <h2 className="mt-2 mb-4 text-lg font-semibold tracking-tight text-slate-50">Amigos</h2>
-          <FriendsPanel />
-        </div>
-
-        <div className="rounded-[28px] border border-slate-800 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(2,6,23,0.45)]">
-          <p className="text-[11px] uppercase tracking-[0.18em] text-amber-300/80">Economia</p>
-          <h2 className="mt-2 mb-4 text-lg font-semibold tracking-tight text-slate-50">Moedas & Temas</h2>
-          <CoinsPanel />
-        </div>
-      </section>
-
-      <section className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-50">Favoritos</h2>
-            <Link href="/#catalogo" className="text-xs text-cyan-300 hover:text-cyan-200">
-              Explorar mais jogos
-            </Link>
-          </div>
-
-          {favorites.length === 0 ? (
-            <p className="rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-6 text-sm text-slate-400">
-              Você ainda não salvou nenhum jogo. Abra um título e use o botão de favoritos.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {favorites.map((entry: FavoriteEntry) => (
-                <Link
-                  key={entry.id}
-                  href={`/games/${entry.game.slug}`}
-                  className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/55 p-3 transition-colors hover:border-cyan-400/60"
-                >
-                  <div className="relative h-20 w-28 overflow-hidden rounded-xl">
-                    <Image
-                      src={entry.game.thumbnail}
-                      alt={entry.game.title}
-                      fill
-                      sizes="112px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-slate-100">{entry.game.title}</p>
-                    <p className="mt-1 text-[12px] text-slate-400 line-clamp-2">
-                      {entry.game.description}
-                    </p>
-                    <div className="mt-2 flex items-center gap-2 text-[10px] text-slate-500">
-                      <span>{entry.game.category}</span>
-                      <span>•</span>
-                      <span>{entry.createdAt.toLocaleDateString(locale)}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+          <CollapsiblePanel
+            title="Moedas e temas"
+            subtitle="Saldo, skins de perfil e histórico da economia."
+            tone="amber"
+          >
+            <div className="max-h-[70vh] overflow-y-auto pr-1 scrollbar-thin">
+              <CoinsPanel />
             </div>
-          )}
-        </div>
-
-        <div className="rounded-3xl border border-slate-800 bg-slate-950/80 p-5">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-slate-50">Jogados recentemente</h2>
-            <span className="text-xs text-slate-500">Atualizado automaticamente</span>
-          </div>
-
-          {history.length === 0 ? (
-            <p className="rounded-2xl border border-slate-800 bg-slate-900/50 px-4 py-6 text-sm text-slate-400">
-              Seu histórico aparecerá assim que você abrir um jogo com a conta conectada.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {history.map((entry: HistoryEntry) => (
-                <Link
-                  key={entry.id}
-                  href={`/games/${entry.game.slug}`}
-                  className="flex items-center gap-3 rounded-2xl border border-slate-800 bg-slate-900/55 p-3 transition-colors hover:border-cyan-400/60"
-                >
-                  <div className="relative h-20 w-28 overflow-hidden rounded-xl">
-                    <Image
-                      src={entry.game.thumbnail}
-                      alt={entry.game.title}
-                      fill
-                      sizes="112px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-slate-100">{entry.game.title}</p>
-                    <p className="mt-1 text-[12px] text-slate-400 line-clamp-2">
-                      {entry.game.description}
-                    </p>
-                    <div className="mt-2 flex items-center gap-2 text-[10px] text-slate-500">
-                      <span>{entry.playCount} partida(s)</span>
-                      <span>•</span>
-                      <span>{entry.lastPlayedAt.toLocaleString(locale)}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+          </CollapsiblePanel>
+        </aside>
+      </div>
     </div>
   );
 }

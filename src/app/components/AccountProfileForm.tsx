@@ -15,6 +15,7 @@ type AccountProfileFormProps = {
     preferredCategories: string[];
   };
   categories: string[];
+  variant?: "card" | "embedded";
 };
 
 function getPlayerInitials(name: string) {
@@ -29,6 +30,7 @@ function getPlayerInitials(name: string) {
 export function AccountProfileForm({
   initialProfile,
   categories,
+  variant = "card",
 }: AccountProfileFormProps) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState(initialProfile.displayName);
@@ -45,6 +47,7 @@ export function AccountProfileForm({
   } | null>(null);
 
   const playerInitials = getPlayerInitials(displayName || initialProfile.displayName);
+  const isEmbedded = variant === "embedded";
 
   function toggleCategory(category: string) {
     setFeedback(null);
@@ -180,18 +183,27 @@ export function AccountProfileForm({
   }
 
   return (
-    <section className="grid gap-6 rounded-[28px] border border-slate-800 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(2,6,23,0.5)] lg:grid-cols-[1.15fr,0.85fr]">
+    <section
+      className={
+        isEmbedded
+          ? "grid gap-6 lg:grid-cols-[1.15fr,0.85fr]"
+          : "grid gap-6 rounded-[28px] border border-slate-800 bg-slate-950/80 p-5 shadow-[0_0_60px_rgba(2,6,23,0.5)] lg:grid-cols-[1.15fr,0.85fr]"
+      }
+    >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <p className="text-[11px] uppercase tracking-[0.18em] text-cyan-300/80">
-            Perfil do jogador
+            {isEmbedded ? "Dados principais" : "Perfil do jogador"}
           </p>
           <h2 className="mt-2 text-lg font-semibold tracking-tight text-slate-50">
-            Personalize sua conta e suas recomendações
+            {isEmbedded
+              ? "Edite o que aparece no seu perfil"
+              : "Personalize sua conta e suas recomendações"}
           </h2>
           <p className="mt-1 text-sm text-slate-400">
-            Ajuste nome, avatar, bio curta e até 4 categorias para melhorar a
-            área personalizada do portal.
+            {isEmbedded
+              ? "Nome, avatar, bio e até 4 categorias para ajustar a apresentação da sua conta."
+              : "Ajuste nome, avatar, bio curta e até 4 categorias para melhorar a área personalizada do portal."}
           </p>
         </div>
 
@@ -295,7 +307,7 @@ export function AccountProfileForm({
           <textarea
             value={bio}
             onChange={(event) => setBio(event.target.value.slice(0, 240))}
-            rows={4}
+            rows={isEmbedded ? 3 : 4}
             className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/70"
             placeholder="Conte um pouco sobre os gêneros que você mais curte jogar."
           />
