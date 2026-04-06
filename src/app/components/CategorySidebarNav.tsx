@@ -1,0 +1,88 @@
+"use client";
+
+import { dispatchCatalogFilter } from "./HomeGameFilters";
+
+const CATEGORY_ICONS: Record<string, string> = {
+  ação: "⚔️", action: "⚔️",
+  aventura: "🗺️", adventure: "🗺️",
+  puzzle: "🧩", "quebra-cabeça": "🧩", quebra_cabeça: "🧩",
+  corrida: "🏎️", racing: "🏎️",
+  esporte: "⚽", esportes: "⚽", sports: "⚽",
+  estrategia: "♟️", estratégia: "♟️", strategy: "♟️",
+  tiro: "🎯", shooter: "🎯",
+  plataforma: "🕹️", platformer: "🕹️",
+  rpg: "🐉",
+  simulação: "🏗️", simulacao: "🏗️", simulation: "🏗️",
+  arcade: "👾", casual: "🎲",
+  luta: "🥊", fighting: "🥊",
+  terror: "👻", horror: "👻",
+  música: "🎵", music: "🎵",
+  educativo: "📚", educational: "📚",
+  multiplayer: "👥",
+  card: "🃏", cartas: "🃏",
+  board: "🎲", tabuleiro: "🎲",
+  idle: "⏳", clicker: "⏳",
+};
+
+function getCategoryIcon(category: string): string {
+  const key = category.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  return CATEGORY_ICONS[key] ?? CATEGORY_ICONS[category.toLowerCase()] ?? "🎮";
+}
+
+export function CategorySidebarNav({
+  categories,
+  allLabel,
+  blogLabel,
+}: {
+  categories: string[];
+  allLabel: string;
+  blogLabel: string;
+}) {
+  return (
+    <>
+      <div className="p-4 space-y-1">
+        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-3">
+          Categorias
+        </p>
+
+        <button
+          type="button"
+          onClick={() => dispatchCatalogFilter("")}
+          className="w-full flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium text-cyan-300 bg-cyan-400/10 border border-cyan-400/20 transition-all duration-200 hover:bg-cyan-400/15 hover:shadow-[0_0_12px_rgba(34,211,238,0.15)]"
+        >
+          <span className="text-base">🎮</span>
+          <span>{allLabel}</span>
+        </button>
+
+        <div className="space-y-0.5 mt-1">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              type="button"
+              onClick={() => dispatchCatalogFilter(cat)}
+              className="w-full flex items-center gap-2 rounded-lg px-3 py-2 text-[13px] text-slate-400 transition-all duration-150 hover:bg-slate-800/70 hover:text-slate-100 hover:pl-4 text-left"
+            >
+              <span className="text-sm flex-none w-5 text-center">
+                {getCategoryIcon(cat)}
+              </span>
+              <span className="truncate">{cat}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Blog link at bottom */}
+      <div className="mt-auto border-t border-slate-800/60 p-4 space-y-1">
+        <p className="text-[10px] uppercase tracking-widest text-slate-500 font-semibold mb-2">
+          Blog
+        </p>
+        <a
+          href="/blog"
+          className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[12px] text-slate-500 hover:text-slate-200 hover:bg-slate-800/40 transition-colors"
+        >
+          📰 {blogLabel}
+        </a>
+      </div>
+    </>
+  );
+}

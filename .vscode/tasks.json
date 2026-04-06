@@ -1,0 +1,21 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Dev Server",
+			"type": "shell",
+			"command": "npm",
+			"args": [
+				"run",
+				"dev",
+				"--",
+				"--hostname",
+				"localhost",
+				"--port",
+				"3000"
+			],
+			"isBackground": true,
+			"group": "build"
+		}
+	]
+}
