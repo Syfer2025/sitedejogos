@@ -134,7 +134,7 @@ function detectViaGoogleAds(): boolean {
   const scripts = document.querySelectorAll('script[src*="adsbygoogle"]');
   if (scripts.length > 0) {
     // Script tag exists but check if it was actually loaded
-    const hasAdsByGoogle = !!(window as Record<string, unknown>).adsbygoogle;
+    const hasAdsByGoogle = !!(window as any).adsbygoogle;
     return !hasAdsByGoogle; // If push array doesn't exist, it was blocked
   }
 
@@ -265,13 +265,25 @@ function computeLevel(visitCount: number): AdBlockLevel {
 
 /* ── Provider ── */
 
-export function AdBlockProvider({ children }: { children: ReactNode }) {
+export function AdBlockProvider({
+  children,
+  isPremium = false,
+}: {
+  children: ReactNode;
+  isPremium?: boolean;
+}) {
   const [detected, setDetected] = useState(false);
   const [visitCount, setVisitCount] = useState(0);
   const [gamesPlayedToday, setGamesPlayedToday] = useState(0);
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
+    // If premium, don't even run detection
+    if (isPremium) {
+      setDetected(false);
+      return;
+    }
+
     runDetection().then((blocked) => {
       setDetected(blocked);
       if (blocked) {
@@ -280,15 +292,16 @@ export function AdBlockProvider({ children }: { children: ReactNode }) {
         setGamesPlayedToday(getGamesPlayedToday());
       }
     });
-  }, []);
+  }, [isPremium]);
 
-  const level: AdBlockLevel = detected ? computeLevel(visitCount) : "none";
-  const canPlay = level !== "hard" || gamesPlayedToday < DAILY_GAME_LIMIT;
+  const level: AdBlockLevel = detected && !isPremium ? computeLevel(visitCount) : "none";
+  const canPlay = isPremium || level !== "hard" || gamesPlayedToday < DAILY_GAME_LIMIT;
 
   const registerGamePlay = useCallback(() => {
+    if (isPremium) return;
     const count = addGamePlayed();
     setGamesPlayedToday(count);
-  }, []);
+  }, [isPremium]);
 
   const dismiss = useCallback(() => {
     setDismissed(true);
@@ -297,7 +310,7 @@ export function AdBlockProvider({ children }: { children: ReactNode }) {
   return (
     <AdBlockContext.Provider
       value={{
-        detected,
+        detected: detected && !isPremium,
         level,
         visitCount,
         gamesPlayedToday,

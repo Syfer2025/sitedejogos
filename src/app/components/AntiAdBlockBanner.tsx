@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useAdBlock } from "./AdBlockDetector";
 
 /**
@@ -25,9 +26,9 @@ export function AntiAdBlockBanner() {
           </p>
         </div>
         <div className="aab-banner-actions">
-          <a href="/account" className="aab-banner-premium">
+          <Link href="/nitro" className="aab-banner-premium">
             ⭐ Nitro Premium — sem anúncios
-          </a>
+          </Link>
           <button type="button" onClick={dismiss} className="aab-banner-close" aria-label="Fechar">
             ✕
           </button>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAdBlock } from "./AdBlockDetector";
 
 const COUNTDOWN_SECONDS = 15;
@@ -73,9 +74,9 @@ export function AntiAdBlockModal() {
             </span>
           )}
 
-          <a href="/account" className="aab-modal-premium">
+          <Link href="/nitro" className="aab-modal-premium">
             ⭐ Assinar Nitro — R$ 8,90/mês — Sem espera, sem anúncios
-          </a>
+          </Link>
         </div>
       </div>
     </div>

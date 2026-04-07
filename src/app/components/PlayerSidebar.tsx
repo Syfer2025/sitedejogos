@@ -152,6 +152,25 @@ export async function PlayerSidebar() {
         )}
       </div>
 
+      {/* Nitro Premium CTA */}
+      <div className="relative overflow-hidden rounded-xl border border-purple-500/30 bg-gradient-to-br from-purple-600/20 via-slate-900 to-slate-900 p-4 shadow-[0_8px_32px_rgba(168,85,247,0.15)] animate-fade-in-up">
+        <div className="absolute top-0 right-0 p-2 opacity-20">
+          <span className="text-2xl">⭐</span>
+        </div>
+        <p className="text-[10px] font-bold uppercase tracking-widest text-purple-300">Monetização</p>
+        <h3 className="mt-1 text-sm font-bold text-white">Arcade Nitro</h3>
+        <p className="mt-1 text-[11px] text-slate-400 leading-tight">
+          Remova anúncios, jogue sem limites e ganhe XP em dobro.
+        </p>
+        <TrackedLink
+          href="/nitro"
+          trackingPath="/home/sidebar/nitro"
+          className="mt-3 block w-full rounded-lg bg-gradient-to-r from-purple-500 to-fuchsia-500 py-2 text-center text-xs font-bold text-white transition-all hover:shadow-[0_0_20px_rgba(168,85,247,0.4)] active:scale-95"
+        >
+          Ver Planos ⭐
+        </TrackedLink>
+      </div>
+
       {/* Daily mission */}
       <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-3 animate-fade-in-up transition-all duration-200 hover:border-emerald-400/20 animate-shimmer">
         <div className="flex items-center gap-2">

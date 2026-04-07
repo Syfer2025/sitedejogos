@@ -43,7 +43,7 @@ export default async function RootLayout({
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
   const premium = playerSession ? await isPlayerPremium(playerSession.user.id) : false;
   const adsenseClientId = premium ? undefined : process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
-  const nitroHref = playerSession ? "/account" : "/login?from=/account";
+  const nitroHref = "/nitro";
 
   async function logoutPlayer() {
     "use server";
@@ -83,7 +83,7 @@ export default async function RootLayout({
           />
         ) : null}
         <LocaleProvider initialLocale={initialLocale}>
-          <AdBlockProvider>
+          <AdBlockProvider isPremium={premium}>
           <PageAnalyticsTracker />
           <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
             <nav className="relative flex w-full items-center gap-4 px-4 py-2.5">

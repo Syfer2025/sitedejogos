@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useAdBlock } from "./AdBlockDetector";
 
 const HARD_COUNTDOWN = 30;
@@ -77,9 +78,9 @@ export function AntiAdBlockWall({
               <p className="aab-wall-option-desc">
                 Sem anúncios, sem limites, sem espera. Jogue quanto quiser.
               </p>
-              <a href="/account" className="aab-wall-btn-premium">
+              <Link href="/nitro" className="aab-wall-btn-premium">
                 ⭐ Assinar Nitro — R$ 8,90/mês
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -130,9 +131,9 @@ export function AntiAdBlockWall({
             <span className="aab-wall-countdown-text">{countdown}</span>
           </div>
 
-          <a href="/account" className="aab-wall-btn-premium-small">
+          <Link href="/nitro" className="aab-wall-btn-premium-small">
             ⭐ Pular com Nitro Premium
-          </a>
+          </Link>
         </div>
       </div>
     );
