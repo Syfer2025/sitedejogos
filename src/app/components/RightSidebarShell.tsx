@@ -14,34 +14,29 @@ const HOVER_DELAY_MS = 250;
 const LEAVE_DELAY_MS = 450;
 const STORAGE_KEY = "rightSidebarCollapsed";
 
-/**
- * Read the persisted collapsed state synchronously-ish
- * to avoid a flash of wrong state on mount.
- */
-function getInitialCollapsed(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return localStorage.getItem(STORAGE_KEY) === "true";
-  } catch {
-    return false;
-  }
-}
-
 export function RightSidebarShell({ children }: { children: ReactNode }) {
-  // Initialize directly from localStorage so there's no mismatch flash
-  const [collapsed, setCollapsed] = useState(getInitialCollapsed);
+  // Always start expanded (matches server render)
+  const [collapsed, setCollapsed] = useState(false);
   const [hovering, setHovering] = useState(false);
-  // Disable transitions on first render to avoid animation on page load
+  // Transitions disabled until after hydration + localStorage read
   const [ready, setReady] = useState(false);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Enable transitions after first paint
+  // After hydration: read localStorage, apply state, then enable transitions
   useEffect(() => {
-    const id = requestAnimationFrame(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored === "true") {
+        setCollapsed(true);
+      }
+    } catch {
+      // ignore
+    }
+    // Enable transitions after the state is applied (next frame)
+    requestAnimationFrame(() => {
       setReady(true);
     });
-    return () => cancelAnimationFrame(id);
   }, []);
 
   const toggleCollapsed = useCallback(() => {
