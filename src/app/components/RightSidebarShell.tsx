@@ -9,27 +9,39 @@ import {
 } from "react";
 
 const SIDEBAR_EXPANDED_WIDTH = 320; // px
-const SIDEBAR_COLLAPSED_WIDTH = 48; // thin rail — enough for a visual bar
+const SIDEBAR_COLLAPSED_WIDTH = 48; // thin rail
 const HOVER_DELAY_MS = 250;
 const LEAVE_DELAY_MS = 450;
 const STORAGE_KEY = "rightSidebarCollapsed";
 
+/**
+ * Read the persisted collapsed state synchronously-ish
+ * to avoid a flash of wrong state on mount.
+ */
+function getInitialCollapsed(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(STORAGE_KEY) === "true";
+  } catch {
+    return false;
+  }
+}
+
 export function RightSidebarShell({ children }: { children: ReactNode }) {
-  const [collapsed, setCollapsed] = useState(false);
+  // Initialize directly from localStorage so there's no mismatch flash
+  const [collapsed, setCollapsed] = useState(getInitialCollapsed);
   const [hovering, setHovering] = useState(false);
+  // Disable transitions on first render to avoid animation on page load
+  const [ready, setReady] = useState(false);
   const hoverTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const leaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Load persisted state
+  // Enable transitions after first paint
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored === "true") {
-        setCollapsed(true);
-      }
-    } catch {
-      // ignore
-    }
+    const id = requestAnimationFrame(() => {
+      setReady(true);
+    });
+    return () => cancelAnimationFrame(id);
   }, []);
 
   const toggleCollapsed = useCallback(() => {
@@ -78,7 +90,7 @@ export function RightSidebarShell({ children }: { children: ReactNode }) {
 
   return (
     <div
-      className="rsb-shell hidden xl:block"
+      className={`rsb-shell hidden xl:block ${ready ? "" : "rsb-no-transition"}`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       style={{

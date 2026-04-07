@@ -506,6 +506,14 @@ html {
   z-index: 30;
 }
 
+/* Suppress ALL transitions on first render (page load / navigation) */
+.rsb-no-transition,
+.rsb-no-transition *,
+.rsb-no-transition .rsb-panel,
+.rsb-no-transition .rsb-rail {
+  transition: none !important;
+}
+
 /* ── Rail: the thin visual bar when collapsed ── */
 .rsb-rail {
   position: absolute;
@@ -605,22 +613,27 @@ html {
   overflow: hidden;
   transform: translateX(0);
   opacity: 1;
-  transition:
-    transform 0.45s cubic-bezier(0.22, 0.68, 0.35, 1.0),
-    opacity 0.3s ease;
   will-change: transform, opacity;
 }
 
-.rsb-panel--closed {
-  transform: translateX(100%);
-  opacity: 0;
-  pointer-events: none;
-}
-
+/* Opening: spring-like ease-out, slower for premium feel */
 .rsb-panel--open {
   transform: translateX(0);
   opacity: 1;
   pointer-events: auto;
+  transition:
+    transform 0.45s cubic-bezier(0.22, 0.68, 0.35, 1.0),
+    opacity 0.35s ease;
+}
+
+/* Closing: snappy accelerate-out, faster */
+.rsb-panel--closed {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.3s cubic-bezier(0.4, 0, 1, 1),
+    opacity 0.2s ease;
 }
 
 /* Floating panel: when hovering on collapsed rail */
