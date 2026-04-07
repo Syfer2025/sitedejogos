@@ -201,7 +201,7 @@ function SectionTitle({
   count?: number;
 }) {
   return (
-    <div className="flex items-center justify-between mb-3 animate-fade-in">
+    <div className="flex items-center justify-between mb-1.5 animate-fade-in">
       <div className="flex items-center gap-2">
         <div className="h-5 w-1 rounded-full bg-gradient-to-b from-cyan-400 to-purple-500" />
         <h2 className="text-sm font-bold uppercase tracking-wide text-slate-200">{title}</h2>
@@ -225,7 +225,6 @@ function GameCard({
   trackingPath,
   locale,
   badge,
-  size = "normal",
 }: {
   game: HomeGame;
   trackingPath: string;
@@ -237,38 +236,30 @@ function GameCard({
     <TrackedLink
       href={`/games/${game.slug}`}
       trackingPath={trackingPath}
-      className="group block overflow-hidden rounded-xl border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:bg-slate-800/60 hover:shadow-[0_0_24px_rgba(34,211,238,0.1)] hover:-translate-y-0.5 animate-fade-in-up"
+      className="group block overflow-hidden rounded-md border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:-translate-y-0.5"
     >
-      <div className={`game-card-play relative ${size === "large" ? "aspect-[16/9]" : "aspect-[16/10]"} overflow-hidden bg-slate-950`}>
+      <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950">
         <Image
           src={game.thumbnail}
           alt={game.title}
           fill
-          sizes={size === "large" ? "(max-width: 768px) 100vw, 50vw" : "(max-width: 768px) 50vw, 25vw"}
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+          sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 14vw"
+          className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-200 group-hover:from-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
         {badge ? (
-          <span className="absolute right-2 top-2 rounded bg-cyan-400/90 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-950 shadow-lg shadow-cyan-400/20">
+          <span className="absolute right-1 top-1 rounded bg-cyan-400/90 px-1 py-[1px] text-[8px] font-bold uppercase text-slate-950 shadow-lg">
             {badge}
           </span>
         ) : null}
         {game.featured ? (
-          <span className="absolute left-2 top-2 rounded bg-amber-400/90 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-950 shadow-lg shadow-amber-400/20">
+          <span className="absolute left-1 top-1 rounded bg-amber-400/90 px-1 py-[1px] text-[8px] font-bold uppercase text-slate-950 shadow-lg">
             ★
           </span>
         ) : null}
-        {/* Views badge bottom-right */}
-        <span className="absolute right-2 bottom-2 rounded-md bg-black/60 backdrop-blur-sm px-1.5 py-0.5 text-[9px] text-slate-300 font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          👁 {formatViews(game.views, locale)}
-        </span>
       </div>
-      <div className="p-2.5">
-        <h3 className="truncate text-[13px] font-semibold text-slate-100 transition-colors group-hover:text-cyan-200">{game.title}</h3>
-        <div className="mt-1 flex items-center justify-between text-[10px] text-slate-500">
-          <span className="transition-colors group-hover:text-slate-400">{game.category}</span>
-          <span className="opacity-0 group-hover:opacity-100 text-cyan-400 font-semibold transition-opacity">Jogar →</span>
-        </div>
+      <div className="p-1 px-1.5 bg-slate-900/80">
+        <h3 className="truncate text-[10px] md:text-[11px] font-medium text-slate-300 transition-colors group-hover:text-cyan-200">{game.title}</h3>
       </div>
     </TrackedLink>
   );
@@ -462,7 +453,7 @@ export default async function Home({
     <div className="flex h-[calc(100vh-57px)]">
 
       {/* ████ LEFT SIDEBAR — Categorias ████ */}
-      <aside className="hidden lg:flex w-[200px] flex-none flex-col border-r border-slate-800/60 bg-slate-950/60 overflow-y-auto scrollbar-thin animate-slide-in-left">
+      <aside className="hidden lg:flex w-[160px] flex-none flex-col border-r border-slate-800/60 bg-slate-950/60 overflow-y-auto scrollbar-thin animate-slide-in-left">
         <CategorySidebarNav
           categories={categories}
           allLabel={t.readAll}
@@ -471,53 +462,13 @@ export default async function Home({
       </aside>
 
       {/* ████ CENTER — Jogos ████ */}
-      <main className="flex-1 min-w-0 overflow-y-auto scrollbar-thin">
+      <main className="relative z-[1] flex-1 min-w-0 overflow-y-auto scrollbar-thin">
         {/* Top banner ad */}
         <div className="px-4 pt-3">
           <AdSlot label={t.bannerTop} slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_TOP} />
         </div>
 
-        {/* Hero banner */}
-        <div className="p-4">
-          <section className="relative overflow-hidden rounded-2xl border border-slate-800/60 bg-slate-950 animate-fade-in-up group/hero transition-all duration-500 hover:border-cyan-400/20 hover:shadow-[0_0_40px_rgba(34,211,238,0.06)]">
-            <div className="absolute inset-0">
-              <Image src={heroGame.thumbnail} alt={heroGame.title} fill priority sizes="100vw" className="object-cover opacity-30 blur-sm scale-105 transition-transform duration-[2000ms] group-hover/hero:scale-110" />
-              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-slate-950/30" />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/60" />
-            </div>
-            <div className="relative flex flex-col md:flex-row items-end md:items-center p-5 md:p-8 min-h-[220px] md:min-h-[280px] gap-6">
-              <div className="space-y-3 flex-1 max-w-2xl">
-                <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest">
-                  <span className="rounded-md bg-cyan-400 px-2 py-0.5 font-bold text-slate-950">{t.heroChip}</span>
-                  <span className="text-cyan-200/70">{heroTitle}</span>
-                </div>
-                <h1 className="text-2xl font-bold text-white md:text-3xl lg:text-4xl drop-shadow-lg leading-tight">{heroGame.title}</h1>
-                <p className="text-sm text-slate-300/90 line-clamp-2 leading-relaxed">
-                  {hero.mode === "recommended" && tasteProfile?.recommendationSummary ? tasteProfile.recommendationSummary : heroGame.description}
-                </p>
-                <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                  {heroGame.category ? <span className="rounded-md bg-white/10 px-2 py-0.5 backdrop-blur-sm">{heroGame.category}</span> : null}
-                  <span className="rounded-md bg-white/10 px-2 py-0.5 backdrop-blur-sm">👁 {formatViews(heroGame.views, locale)} views</span>
-                </div>
-                <div className="flex gap-2 pt-2">
-                  <TrackedLink href={`/games/${heroGame.slug}`} trackingPath={`/home/hero/${hero.mode}/${heroGame.slug}`} className="inline-flex items-center gap-1.5 rounded-xl bg-cyan-400 px-6 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-cyan-400/20 transition-all duration-200 hover:bg-cyan-300 hover:shadow-[0_0_24px_rgba(34,211,238,0.4)] hover:scale-[1.03] active:scale-[0.98]">
-                    ▶ {t.ctaPlay}
-                  </TrackedLink>
-                  <TrackedLink href={playerSession ? missionCard.href : "/login?mode=register"} trackingPath={playerSession ? "/home/mission/action" : "/home/cta/register"} className="inline-flex items-center rounded-xl border border-slate-600 bg-slate-900/60 px-4 py-2.5 text-sm text-slate-200 backdrop-blur transition-all duration-200 hover:border-cyan-400/40 hover:text-white hover:bg-slate-800/80 active:scale-[0.98]">
-                    {playerSession ? missionCard.ctaLabel : t.ctaRegister}
-                  </TrackedLink>
-                </div>
-              </div>
-              {/* Hero thumbnail preview */}
-              <div className="hidden md:block relative w-48 aspect-[16/10] rounded-xl overflow-hidden border-2 border-white/10 shadow-xl shadow-black/40 flex-none group-hover/hero:border-cyan-400/30 transition-colors duration-300">
-                <Image src={heroGame.thumbnail} alt={heroGame.title} fill sizes="200px" className="object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover/hero:opacity-100 transition-opacity">
-                  <span className="text-2xl text-white drop-shadow-lg">▶</span>
-                </div>
-              </div>
-            </div>
-          </section>
-        </div>
+        {/* Hero banner removed to save vertical space */}
 
         {/* Game sections */}
         <div className="px-4 pb-6 space-y-6">
@@ -526,7 +477,7 @@ export default async function Home({
           {continuePlayingGames.length > 0 ? (
             <section>
               <SectionTitle title={t.continueLabel} actionHref="/account" actionLabel={t.readAll} trackingPath="/home/section-header/continue" count={continuePlayingGames.length} />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 stagger-children">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
                 {continuePlayingGames.map((game) => (
                   <GameCard key={game.id} game={game} trackingPath={`/home/section/continue/${game.slug}`} locale={locale} />
                 ))}
@@ -538,7 +489,7 @@ export default async function Home({
           {recommendedGames.length > 0 ? (
             <section>
               <SectionTitle title={t.recommendedLabel} actionHref="/account" actionLabel={t.readAll} trackingPath="/home/section-header/recommended" count={recommendedGames.length} />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 stagger-children">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
                 {recommendedGames.map((game) => (
                   <GameCard key={game.id} game={game} trackingPath={`/home/section/recommended/${game.slug}`} locale={locale} badge={recommendedReason ? `${t.recommendedReasonLabel}: ${recommendedReason}` : null} />
                 ))}
@@ -554,27 +505,22 @@ export default async function Home({
             initialQuery={initialQuery}
           />
 
-          {/* Featured — first 2 large, rest normal */}
-          <section>
-            <SectionTitle title={t.featuredLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/featured" count={featuredGames.length} />
-            <div className="grid grid-cols-2 gap-3 mb-3 stagger-children">
-              {featuredGames.slice(0, 2).map((game) => (
-                <GameCard key={game.id} game={game} trackingPath={`/home/section/featured/${game.slug}`} locale={locale} size="large" />
-              ))}
-            </div>
-            {featuredGames.length > 2 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 stagger-children">
-                {featuredGames.slice(2).map((game) => (
+          {/* Featured */}
+          {featuredGames.length > 0 ? (
+            <section>
+              <SectionTitle title={t.featuredLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/featured" count={featuredGames.length} />
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
+                {featuredGames.map((game) => (
                   <GameCard key={game.id} game={game} trackingPath={`/home/section/featured/${game.slug}`} locale={locale} />
                 ))}
               </div>
-            ) : null}
-          </section>
+            </section>
+          ) : null}
 
           {/* Popular */}
           <section>
             <SectionTitle title={t.popularLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/popular" count={popularGames.length} />
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 stagger-children">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
               {popularGames.map((game) => (
                 <GameCard key={game.id} game={game} trackingPath={`/home/section/popular/${game.slug}`} locale={locale} />
               ))}
@@ -589,7 +535,7 @@ export default async function Home({
           {/* New releases */}
           <section>
             <SectionTitle title={t.newLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/new" count={newGames.length} />
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 stagger-children">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
               {newGames.map((game) => (
                 <GameCard key={game.id} game={game} trackingPath={`/home/section/new/${game.slug}`} locale={locale} />
               ))}

@@ -9,7 +9,7 @@ export default function GameLayout({
 }) {
   return (
     <div className="flex h-[calc(100vh-57px)]">
-      <main className="flex-1 min-w-0 overflow-y-auto scrollbar-thin">
+      <main className="relative z-[1] flex-1 min-w-0 overflow-y-auto scrollbar-thin">
         {children}
       </main>
       <HomeRightSidebar />
