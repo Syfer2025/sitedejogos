@@ -28,6 +28,7 @@ import { getSingleQueryValue } from "@/lib/pagination";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 
 import { AdSlot } from "./components/AdSlot";
+import { AntiAdBlockGuard } from "./components/AntiAdBlockGuard";
 import { BlogImpressionTracker } from "./components/BlogAnalyticsTrackers";
 import { CategorySidebarNav } from "./components/CategorySidebarNav";
 import { HomeRightSidebar } from "./components/HomeRightSidebar";
@@ -463,6 +464,9 @@ export default async function Home({
 
       {/* ████ CENTER — Jogos ████ */}
       <main className="relative z-[1] flex-1 min-w-0 overflow-y-auto scrollbar-thin">
+        {/* Anti-AdBlock system */}
+        <AntiAdBlockGuard />
+
         {/* Top banner ad */}
         <div className="px-4 pt-3">
           <AdSlot label={t.bannerTop} slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_TOP} />

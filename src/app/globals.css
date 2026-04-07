@@ -686,3 +686,427 @@ html {
   color: rgba(226, 232, 240, 0.9);
   border-color: rgba(100, 116, 139, 0.35);
 }
+
+/* ═══════════════════════════════════════════
+   Anti-AdBlock System
+   ═══════════════════════════════════════════ */
+
+/* ── Soft Banner ── */
+.aab-banner {
+  padding: 0 16px;
+  animation: aab-slide-down 0.4s cubic-bezier(0.22, 0.68, 0.35, 1.0);
+}
+
+@keyframes aab-slide-down {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.aab-banner-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(234, 179, 8, 0.25);
+  background: linear-gradient(135deg, rgba(234, 179, 8, 0.08), rgba(249, 115, 22, 0.06));
+  backdrop-filter: blur(8px);
+  margin-top: 8px;
+}
+
+.aab-banner-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.aab-banner-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.aab-banner-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(250, 204, 21, 0.95);
+  margin-bottom: 2px;
+}
+
+.aab-banner-desc {
+  font-size: 11px;
+  color: rgba(203, 213, 225, 0.7);
+  line-height: 1.4;
+}
+
+.aab-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.aab-banner-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: rgba(139, 92, 246, 0.15);
+  color: rgba(196, 181, 253, 0.9);
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.aab-banner-premium:hover {
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(139, 92, 246, 0.5);
+  color: #fff;
+}
+
+.aab-banner-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: none;
+  background: rgba(51, 65, 85, 0.3);
+  color: rgba(148, 163, 184, 0.6);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.aab-banner-close:hover {
+  background: rgba(51, 65, 85, 0.5);
+  color: rgba(226, 232, 240, 0.9);
+}
+
+/* ── Moderate Modal ── */
+.aab-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  animation: aab-fade-in 0.3s ease;
+}
+
+@keyframes aab-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.aab-modal {
+  width: 90%;
+  max-width: 440px;
+  border-radius: 20px;
+  border: 1px solid rgba(51, 65, 85, 0.5);
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.99));
+  padding: 28px 24px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  animation: aab-scale-in 0.35s cubic-bezier(0.22, 0.68, 0.35, 1.0);
+}
+
+@keyframes aab-scale-in {
+  from { opacity: 0; transform: scale(0.92) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.aab-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.aab-modal-emoji {
+  font-size: 28px;
+}
+
+.aab-modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.95);
+}
+
+.aab-modal-text {
+  font-size: 13px;
+  color: rgba(148, 163, 184, 0.8);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.aab-modal-benefits {
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(34, 211, 238, 0.15);
+  background: rgba(34, 211, 238, 0.05);
+  margin-bottom: 16px;
+}
+
+.aab-modal-benefits-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(34, 211, 238, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.aab-modal-benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aab-modal-benefits-list li {
+  font-size: 12px;
+  color: rgba(203, 213, 225, 0.8);
+}
+
+.aab-modal-progress-track {
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(51, 65, 85, 0.4);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.aab-modal-progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #22d3ee, #a855f7);
+  transition: width 1s linear;
+}
+
+.aab-modal-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.aab-modal-continue {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.15), rgba(139, 92, 246, 0.1));
+  color: rgba(226, 232, 240, 0.95);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.aab-modal-continue:hover {
+  background: linear-gradient(135deg, rgba(34, 211, 238, 0.25), rgba(139, 92, 246, 0.2));
+  border-color: rgba(34, 211, 238, 0.5);
+}
+
+.aab-modal-countdown {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(148, 163, 184, 0.6);
+  font-variant-numeric: tabular-nums;
+  padding: 10px 0;
+}
+
+.aab-modal-premium {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.2), rgba(139, 92, 246, 0.15));
+  color: rgba(196, 181, 253, 0.9);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.aab-modal-premium:hover {
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.3), rgba(139, 92, 246, 0.25));
+  border-color: rgba(139, 92, 246, 0.5);
+  color: #fff;
+}
+
+/* ── Hard Wall (inside game player) ── */
+.aab-wall {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, rgba(88, 28, 135, 0.1), transparent 60%),
+              linear-gradient(135deg, #020617, #0f172a);
+}
+
+.aab-wall-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 380px;
+  padding: 20px;
+}
+
+.aab-wall-emoji {
+  font-size: 36px;
+  margin-bottom: 10px;
+}
+
+.aab-wall-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.95);
+  margin-bottom: 8px;
+}
+
+.aab-wall-text {
+  font-size: 12px;
+  color: rgba(148, 163, 184, 0.75);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+
+.aab-wall-remaining {
+  color: rgba(250, 204, 21, 0.7);
+  font-weight: 600;
+}
+
+.aab-wall-countdown-ring {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 16px;
+}
+
+.aab-wall-ring-svg {
+  width: 100%;
+  height: 100%;
+  transform: rotate(-90deg);
+}
+
+.aab-wall-ring-progress {
+  transition: stroke-dashoffset 1s linear;
+}
+
+.aab-wall-countdown-text {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: rgba(226, 232, 240, 0.9);
+  font-variant-numeric: tabular-nums;
+}
+
+.aab-wall-btn-premium-small {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.2), rgba(139, 92, 246, 0.15));
+  color: rgba(196, 181, 253, 0.9);
+  font-size: 11px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.aab-wall-btn-premium-small:hover {
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.3), rgba(139, 92, 246, 0.25));
+  color: #fff;
+}
+
+/* Wall options (daily limit reached) */
+.aab-wall-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.aab-wall-option {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(51, 65, 85, 0.4);
+  background: rgba(15, 23, 42, 0.5);
+  text-align: center;
+}
+
+.aab-wall-option-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.9);
+  margin-bottom: 4px;
+}
+
+.aab-wall-option-desc {
+  font-size: 11px;
+  color: rgba(148, 163, 184, 0.65);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.aab-wall-option-divider {
+  font-size: 11px;
+  color: rgba(100, 116, 139, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+}
+
+.aab-wall-btn-reload {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  background: rgba(34, 211, 238, 0.1);
+  color: rgba(34, 211, 238, 0.9);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.aab-wall-btn-reload:hover {
+  background: rgba(34, 211, 238, 0.2);
+  border-color: rgba(34, 211, 238, 0.4);
+}
+
+.aab-wall-btn-premium {
+  display: inline-block;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.25), rgba(139, 92, 246, 0.2));
+  color: rgba(196, 181, 253, 0.95);
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.aab-wall-btn-premium:hover {
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.35), rgba(139, 92, 246, 0.3));
+  color: #fff;
+  border-color: rgba(139, 92, 246, 0.5);
+}
