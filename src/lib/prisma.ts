@@ -40,7 +40,11 @@ const REQUIRED_PRISMA_DELEGATES = [
   "achievementDefinition",
   "blogPost",
   "playerNotification",
-  "playerDailyMission",
+  "friendship",
+  "gameComment",
+  "coinTransaction",
+  "gameRating",
+  "rewardedAdView",
 ] as const;
 
 function createPrismaClient() {

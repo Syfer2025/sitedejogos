@@ -34,6 +34,7 @@ import { CategorySidebarNav } from "./components/CategorySidebarNav";
 import { HomeRightSidebar } from "./components/HomeRightSidebar";
 import { HomeThemeCatalog } from "./components/HomeThemeCatalog";
 import { TrackedLink } from "./components/TrackedLink";
+import { CatalogGameCard } from "./components/CatalogGameCard";
 
 type HomeGame = Pick<
   GameRecord,
@@ -220,49 +221,10 @@ function SectionTitle({
   );
 }
 
-/* ── Game card for the center grid ── */
-function GameCard({
-  game,
-  trackingPath,
-  locale,
-  badge,
-}: {
-  game: HomeGame;
-  trackingPath: string;
-  locale: string;
-  badge?: string | null;
-  size?: "normal" | "large";
-}) {
+/* ── Game card bridge ── */
+function HomeGameCard({ game }: { game: GameRecord }) {
   return (
-    <TrackedLink
-      href={`/games/${game.slug}`}
-      trackingPath={trackingPath}
-      className="group block overflow-hidden rounded-md border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:-translate-y-0.5"
-    >
-      <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950">
-        <Image
-          src={game.thumbnail}
-          alt={game.title}
-          fill
-          sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 14vw"
-          className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-        {badge ? (
-          <span className="absolute right-1 top-1 rounded bg-cyan-400/90 px-1 py-[1px] text-[8px] font-bold uppercase text-slate-950 shadow-lg">
-            {badge}
-          </span>
-        ) : null}
-        {game.featured ? (
-          <span className="absolute left-1 top-1 rounded bg-amber-400/90 px-1 py-[1px] text-[8px] font-bold uppercase text-slate-950 shadow-lg">
-            ★
-          </span>
-        ) : null}
-      </div>
-      <div className="p-1 px-1.5 bg-slate-900/80">
-        <h3 className="truncate text-[10px] md:text-[11px] font-medium text-slate-300 transition-colors group-hover:text-cyan-200">{game.title}</h3>
-      </div>
-    </TrackedLink>
+    <CatalogGameCard game={game} />
   );
 }
 
@@ -329,6 +291,8 @@ export default async function Home({
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
   const t = getHomeTexts(locale);
 
+  const currentUserId = playerSession?.user.id;
+
   const [
     featuredGames,
     newGames,
@@ -347,15 +311,16 @@ export default async function Home({
     friendLeaderboard,
     achievementDefinitions,
   ] = await Promise.all([
-    listGames({ publishedOnly: true, featured: true, limit: 8, sortBy: "popular" }),
-    listGames({ publishedOnly: true, limit: 8, sortBy: "newest" }),
-    listGames({ publishedOnly: true, limit: 8, sortBy: "popular" }),
+    listGames({ publishedOnly: true, featured: true, limit: 8, sortBy: "popular", currentUserId }),
+    listGames({ publishedOnly: true, limit: 8, sortBy: "newest", currentUserId }),
+    listGames({ publishedOnly: true, limit: 8, sortBy: "popular", currentUserId }),
     listCategories({ order: "editorial" }),
     listCategoryShowcasesPage({
       limit: 4,
       gamesPerCategory: 12,
       sortBy: "popular",
       categoryOrder: "editorial",
+      currentUserId,
     }),
     listPublishedBlogPosts(4),
     listTopPlayers(TARGET_LEADERBOARD_SIZE),
@@ -483,7 +448,7 @@ export default async function Home({
               <SectionTitle title={t.continueLabel} actionHref="/account" actionLabel={t.readAll} trackingPath="/home/section-header/continue" count={continuePlayingGames.length} />
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
                 {continuePlayingGames.map((game) => (
-                  <GameCard key={game.id} game={game} trackingPath={`/home/section/continue/${game.slug}`} locale={locale} />
+                  <HomeGameCard key={game.id} game={game as any} />
                 ))}
               </div>
             </section>
@@ -495,7 +460,7 @@ export default async function Home({
               <SectionTitle title={t.recommendedLabel} actionHref="/account" actionLabel={t.readAll} trackingPath="/home/section-header/recommended" count={recommendedGames.length} />
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
                 {recommendedGames.map((game) => (
-                  <GameCard key={game.id} game={game} trackingPath={`/home/section/recommended/${game.slug}`} locale={locale} badge={recommendedReason ? `${t.recommendedReasonLabel}: ${recommendedReason}` : null} />
+                  <HomeGameCard key={game.id} game={game as any} />
                 ))}
               </div>
             </section>
@@ -507,6 +472,7 @@ export default async function Home({
             initialNextOffset={themeSectionsPage.nextOffset}
             initialCategory={initialCategory}
             initialQuery={initialQuery}
+            isAuthenticated={Boolean(playerSession)}
           />
 
           {/* Featured */}
@@ -515,7 +481,7 @@ export default async function Home({
               <SectionTitle title={t.featuredLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/featured" count={featuredGames.length} />
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
                 {featuredGames.map((game) => (
-                  <GameCard key={game.id} game={game} trackingPath={`/home/section/featured/${game.slug}`} locale={locale} />
+                  <HomeGameCard key={game.id} game={game as any} />
                 ))}
               </div>
             </section>
@@ -526,7 +492,7 @@ export default async function Home({
             <SectionTitle title={t.popularLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/popular" count={popularGames.length} />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
               {popularGames.map((game) => (
-                <GameCard key={game.id} game={game} trackingPath={`/home/section/popular/${game.slug}`} locale={locale} />
+                <HomeGameCard key={game.id} game={game as any} />
               ))}
             </div>
           </section>
@@ -541,7 +507,7 @@ export default async function Home({
             <SectionTitle title={t.newLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/new" count={newGames.length} />
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
               {newGames.map((game) => (
-                <GameCard key={game.id} game={game} trackingPath={`/home/section/new/${game.slug}`} locale={locale} />
+                <HomeGameCard key={game.id} game={game as any} />
               ))}
             </div>
           </section>

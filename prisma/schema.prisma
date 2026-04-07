@@ -21,12 +21,18 @@ model Game {
   views       Int      @default(0)
   popularityScore Int  @default(0)
   isPublished Boolean  @default(true)
+  // SEO fields
+  longDescription String @default("")
+  tips            String @default("")
+  controls        String @default("")
+  faqJson         String @default("")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   favorites   FavoriteGame[]
   history     RecentlyPlayed[]
   analyticsEvents AnalyticsEvent[]
   comments    GameComment[]
+  ratings     GameRating[]
 
   @@index([isPublished, featured])
   @@index([category])
@@ -81,9 +87,12 @@ model PlayerUser {
   notifications PlayerNotification[]
   dailyMissions PlayerDailyMission[]
   comments      GameComment[]
+  ratings       GameRating[]
   sentFriendRequests     Friendship[] @relation("FriendshipSender")
   receivedFriendRequests Friendship[] @relation("FriendshipReceiver")
   coinTransactions CoinTransaction[]
+  rewardedAdViews  RewardedAdView[]
+  hadFreeTrial     Boolean          @default(false)
 }
 
 model PlayerSession {
@@ -279,6 +288,37 @@ model CoinTransaction {
   reason    String     // streak_reward, mission_complete, daily_login, purchase, theme_unlock, etc.
   createdAt DateTime   @default(now())
   user      PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+// ──────────────────────────────────────────
+// Game Ratings (Stars)
+// ──────────────────────────────────────────
+model GameRating {
+  id        String     @id @default(cuid())
+  gameId    String
+  userId    String
+  value     Int        // 1 to 5 stars
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  game      Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, gameId]) // Each user can only rate a game once
+  @@index([gameId, value])   // Helpful for stats
+}
+
+// ──────────────────────────────────────────
+// Rewarded Ad Views (anti-abuse tracking)
+// ──────────────────────────────────────────
+model RewardedAdView {
+  id           String     @id @default(cuid())
+  userId       String
+  rewardType   String     // coins | avatar_unlock | theme_unlock
+  rewardAmount Int        @default(50)
+  createdAt    DateTime   @default(now())
+  user         PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }

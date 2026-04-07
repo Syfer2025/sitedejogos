@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cookies } from "next/headers";
 
-import { getGameBySlug, listRelatedGames } from "@/data/gamesStore";
+import { getGameBySlug, getGameRatingStats, getUserGameRating, listRelatedGames } from "@/data/gamesStore";
 import { getPlayerGameState } from "@/data/playerStore";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 
@@ -13,6 +13,7 @@ import { FavoriteButton } from "../../components/FavoriteButton";
 import { GamePlayer } from "../../components/GamePlayer";
 import { GameComments } from "../../components/GameComments";
 import { ShareButton } from "../../components/ShareButton";
+import { StarRating } from "../../components/StarRating";
 import { PlayerHistoryTracker } from "../../components/PlayerHistoryTracker";
 import { GameViewTracker } from "../../components/GameViewTracker";
 import { getCommentCount } from "@/data/socialStore";
@@ -58,11 +59,15 @@ export default async function GamePage({ params }: GamePageProps) {
   const cookieStore = await cookies();
   const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
-  const [playerState, commentCount] = await Promise.all([
+  const [playerState, commentCount, ratingStats, userRating] = await Promise.all([
     playerSession
       ? getPlayerGameState(playerSession.user.id, game.id)
       : Promise.resolve(null),
     getCommentCount(game.id),
+    getGameRatingStats(game.id),
+    playerSession
+      ? getUserGameRating(playerSession.user.id, game.id)
+      : Promise.resolve(null),
   ]);
 
   return (
@@ -80,7 +85,18 @@ export default async function GamePage({ params }: GamePageProps) {
             genre: game.category,
             playMode: "SinglePlayer",
             applicationCategory: "Game",
-            operatingSystem: "WebBrowser"
+            operatingSystem: "WebBrowser",
+            ...(ratingStats.ratingCount > 0
+              ? {
+                  aggregateRating: {
+                    "@type": "AggregateRating",
+                    ratingValue: ratingStats.avgRating,
+                    ratingCount: ratingStats.ratingCount,
+                    bestRating: 5,
+                    worstRating: 1,
+                  },
+                }
+              : {}),
           })
         }}
       />
@@ -108,26 +124,41 @@ export default async function GamePage({ params }: GamePageProps) {
             {game.description}
           </p>
 
-          <GamePlayer iframeUrl={game.iframeUrl} title={game.title} />
+          <GamePlayer
+            iframeUrl={game.iframeUrl}
+            title={game.title}
+            toolbarExtra={
+              <>
+                <StarRating
+                  gameId={game.id}
+                  gameSlug={game.slug}
+                  avgRating={ratingStats.avgRating}
+                  ratingCount={ratingStats.ratingCount}
+                  initialUserRating={userRating?.value ?? 0}
+                  isAuthenticated={Boolean(playerSession)}
+                  size="sm"
+                />
+                <div className="h-5 w-px bg-slate-700 shrink-0" />
+                <FavoriteButton
+                  gameId={game.id}
+                  gameSlug={game.slug}
+                  initialFavorited={playerState?.favorited ?? false}
+                  isAuthenticated={Boolean(playerSession)}
+                />
+                <ShareButton title={game.title} text={game.description} />
+                <span className="text-[11px] text-slate-500 ml-auto shrink-0">
+                  💬 {commentCount}
+                </span>
+              </>
+            }
+          />
 
           <AdSlot
             label="Banner superior - Página de jogo"
             slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAME_TOP}
+            autoRefresh
+            refreshIntervalMs={45000}
           />
-
-          {/* Quick actions */}
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <FavoriteButton
-              gameId={game.id}
-              gameSlug={game.slug}
-              initialFavorited={playerState?.favorited ?? false}
-              isAuthenticated={Boolean(playerSession)}
-            />
-            <ShareButton title={game.title} text={game.description} />
-            <span className="text-[11px] text-slate-500">
-              💬 {commentCount} comentário{commentCount !== 1 ? "s" : ""}
-            </span>
-          </div>
 
           {/* Comments */}
           <div className="mt-4">
@@ -143,6 +174,8 @@ export default async function GamePage({ params }: GamePageProps) {
       <AdSlot
         label="Banner inferior - Página de jogo"
         slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAME_BOTTOM}
+        autoRefresh
+        refreshIntervalMs={45000}
       />
 
       <RelatedGamesSection games={relatedGames} />

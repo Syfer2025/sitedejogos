@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+import { RewardedAdButton } from "./RewardedAdButton";
+
 type Theme = {
   id: string;
   label: string;
@@ -137,6 +139,9 @@ export function CoinsPanel() {
           <span className="rounded-full border border-amber-700/50 bg-amber-900/20 px-2.5 py-1 text-[10px] text-amber-500">Loja Premium em breve</span>
         </div>
       </div>
+
+      {/* Rewarded Ads */}
+      <RewardedAdButton isAuthenticated={true} />
 
       {/* Themes */}
       <div>

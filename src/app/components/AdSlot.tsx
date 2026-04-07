@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 
 import { useAdBlockDetected } from "./AdBlockDetector";
@@ -15,9 +15,12 @@ type AdSlotProps = {
   label: string;
   slot?: string;
   minHeight?: number;
+  autoRefresh?: boolean;
+  refreshIntervalMs?: number;
 };
 
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+const MIN_REFRESH_INTERVAL = 30_000; // AdSense policy: minimum 30s
 
 /* ── Native fallback promos shown when adblock is active ── */
 const NATIVE_PROMOS = [
@@ -83,41 +86,60 @@ function NativePromo({ minHeight, label }: { minHeight: number; label: string })
   );
 }
 
-export function AdSlot({ label, slot, minHeight = 160 }: AdSlotProps) {
+export function AdSlot({
+  label,
+  slot,
+  minHeight = 160,
+  autoRefresh = false,
+  refreshIntervalMs = 45_000,
+}: AdSlotProps) {
   const canRenderAds = Boolean(ADSENSE_CLIENT_ID && slot);
   const adBlocked = useAdBlockDetected();
   const insRef = useRef<HTMLModElement>(null);
   const [adFailed, setAdFailed] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    if (!canRenderAds || typeof window === "undefined" || adBlocked) {
-      return;
-    }
+  const interval = Math.max(refreshIntervalMs, MIN_REFRESH_INTERVAL);
 
+  const pushAd = useCallback(() => {
+    if (!canRenderAds || typeof window === "undefined" || adBlocked) return;
     try {
       window.adsbygoogle = window.adsbygoogle || [];
       window.adsbygoogle.push({});
     } catch {
-      console.error("Falha ao inicializar anúncio");
+      // silent
     }
+  }, [canRenderAds, adBlocked]);
 
-    // Check after a small delay if the ad was actually rendered
+  // Push ad on mount / refresh
+  useEffect(() => {
+    pushAd();
+
     const timer = setTimeout(() => {
       const el = insRef.current;
       if (el) {
-        const rendered =
-          el.offsetHeight > 0 &&
-          el.querySelector("iframe, ins") !== null;
-        if (!rendered) {
-          setAdFailed(true);
-        }
+        const rendered = el.offsetHeight > 0 && el.querySelector("iframe, ins") !== null;
+        if (!rendered) setAdFailed(true);
       }
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [canRenderAds, slot, adBlocked]);
+  }, [pushAd, refreshKey]);
 
-  // When adblock is active or ad failed to render, show native promos
+  // Auto-refresh: increment key to force remount of <ins>
+  useEffect(() => {
+    if (!autoRefresh || !canRenderAds || adBlocked) return;
+
+    const tick = setInterval(() => {
+      // Pause refresh when tab is hidden (AdSense policy)
+      if (document.hidden) return;
+      setAdFailed(false);
+      setRefreshKey((k) => k + 1);
+    }, interval);
+
+    return () => clearInterval(tick);
+  }, [autoRefresh, canRenderAds, adBlocked, interval]);
+
   const showNativeFallback = adBlocked || adFailed;
 
   return (
@@ -134,6 +156,7 @@ export function AdSlot({ label, slot, minHeight = 160 }: AdSlotProps) {
           <NativePromo minHeight={minHeight} label={label} />
         ) : canRenderAds ? (
           <ins
+            key={refreshKey}
             ref={insRef}
             className="adsbygoogle block w-full overflow-hidden"
             style={{ minHeight }}

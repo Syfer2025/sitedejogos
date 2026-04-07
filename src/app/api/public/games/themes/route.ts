@@ -20,7 +20,17 @@ export async function GET(req: NextRequest) {
     Math.max(parseInteger(searchParams.get("gamesPerCategory"), 14), 1),
     18,
   );
+  const cookieStore = await import("next/headers").then(m => m.cookies());
   const sortBy = searchParams.get("sort") === "newest" ? "newest" : "popular";
+  const { PLAYER_SESSION_COOKIE, getPlayerSession } = await import("@/lib/user-auth");
+  const token = (await cookieStore).get(PLAYER_SESSION_COOKIE)?.value;
+
+  let currentUserId: string | undefined;
+  
+  if (token) {
+    const session = await getPlayerSession(token);
+    if (session) currentUserId = session.user.id;
+  }
 
   const result = await listCategoryShowcasesPage({
     offset,
@@ -28,6 +38,7 @@ export async function GET(req: NextRequest) {
     gamesPerCategory,
     sortBy,
     categoryOrder: "editorial",
+    currentUserId,
   });
 
   return NextResponse.json(result);

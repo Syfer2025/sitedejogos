@@ -10,6 +10,7 @@ import {
 import { getCategoryEmoji } from "@/lib/catalog-category-emoji";
 
 import { TrackedLink } from "./TrackedLink";
+import { CatalogGameCard } from "./CatalogGameCard";
 
 type ThemeGame = {
   id: string;
@@ -34,6 +35,7 @@ type HomeThemeCatalogProps = {
   initialNextOffset: number | null;
   initialCategory?: string;
   initialQuery?: string;
+  isAuthenticated?: boolean;
 };
 
 type ThemeSectionsApiPayload = {
@@ -85,52 +87,10 @@ function formatViews(value: number) {
   return new Intl.NumberFormat("pt-BR").format(value);
 }
 
-function HomeThemeGameCard({
-  game,
-  trackingPath,
-  variant = "default",
-}: {
-  game: ThemeGame;
-  trackingPath: string;
-  variant?: "default" | "compact";
-}) {
-  const isCompact = variant === "compact";
-
+// Local card bridge
+function ThemeGameCard({ game }: { game: ThemeGame }) {
   return (
-    <TrackedLink
-      href={`/games/${game.slug}`}
-      trackingPath={trackingPath}
-      className={`group block overflow-hidden border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:bg-slate-800/60 hover:shadow-[0_0_24px_rgba(34,211,238,0.1)] hover:-translate-y-0.5 ${isCompact ? "rounded-lg" : "rounded-xl"}`}
-    >
-      <div className="game-card-play relative aspect-[16/10] overflow-hidden bg-slate-950">
-        <Image
-          src={game.thumbnail}
-          alt={game.title}
-          fill
-          sizes={isCompact ? "(max-width: 640px) 46vw, (max-width: 1024px) 30vw, (max-width: 1536px) 18vw, 14vw" : "220px"}
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-200 group-hover:from-black/60" />
-        {game.featured ? (
-          <span className="absolute left-2 top-2 rounded bg-amber-400/90 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-950 shadow-lg shadow-amber-400/20">
-            ★
-          </span>
-        ) : null}
-        <span className="absolute right-2 bottom-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[9px] font-medium text-slate-300 backdrop-blur-sm opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-          👁 {formatViews(game.views)}
-        </span>
-      </div>
-      <div className={isCompact ? "p-2" : "p-2.5"}>
-        <h3 className={`truncate font-semibold text-slate-100 transition-colors group-hover:text-cyan-200 ${isCompact ? "text-[12px]" : "text-[13px]"}`}>
-          {game.title}
-        </h3>
-        <div className={`mt-1 flex items-center gap-2 text-slate-500 ${isCompact ? "text-[9px]" : "text-[10px]"}`}>
-          <span className="truncate">{game.category}</span>
-          <span>•</span>
-          <span>{formatViews(game.views)} views</span>
-        </div>
-      </div>
-    </TrackedLink>
+    <CatalogGameCard game={game as any} />
   );
 }
 
@@ -140,6 +100,7 @@ export function HomeThemeCatalog({
   initialNextOffset,
   initialCategory = "",
   initialQuery = "",
+  isAuthenticated = false,
 }: HomeThemeCatalogProps) {
   const [sections, setSections] = useState(initialSections);
   const [hasMore, setHasMore] = useState(initialHasMore);
@@ -446,73 +407,48 @@ export function HomeThemeCatalog({
       return (
         <section
           key={`${section.category}-${isFocused ? "focused" : "feed"}`}
-          className="overflow-hidden rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 animate-fade-in-up"
+          className="mb-3 animate-fade-in-up"
         >
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-            <div className="flex items-start gap-3">
-              <span
-                className={`inline-flex h-10 w-10 items-center justify-center rounded-xl border text-lg ${presentation.iconShellClassName}`}
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold uppercase tracking-wide text-slate-200">
+              {section.category}
+            </h3>
+            {isFocused ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveCategory("");
+                  setActiveQuery("");
+                }}
+                className="text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors"
               >
-                {getCategoryEmoji(section.category)}
-              </span>
-              <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  {isFocused ? "tema fixado" : "tema em destaque"}
-                </p>
-                <h3 className="mt-1 text-lg font-semibold text-slate-100">
-                  {section.category}
-                </h3>
-                <p className="mt-1 max-w-2xl text-xs leading-5 text-slate-400">
-                  {presentation.description}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1 text-[10px] font-medium text-slate-300">
-                {section.totalGames} jogos no tema
-              </span>
-              <span className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1 text-[10px] font-medium text-slate-300">
-                {section.games.length} cartas visiveis agora
-              </span>
-              {isFocused ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveCategory("");
-                    setActiveQuery("");
-                  }}
-                  className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1 text-[10px] font-medium text-slate-300 transition-colors hover:border-cyan-400/40 hover:text-cyan-200"
-                >
-                  voltar ao feed completo
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setActiveCategory(section.category)}
-                  className={`rounded-full border px-3 py-1 text-[10px] font-medium transition-colors ${presentation.chipClassName}`}
-                >
-                  ver so este tema
-                </button>
-              )}
-            </div>
+                Voltar
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setActiveCategory(section.category)}
+                className="text-[11px] text-slate-500 hover:text-cyan-300 transition-colors"
+              >
+                Ver Mais →
+              </button>
+            )}
           </div>
 
-          <div className="mt-2 flex items-center justify-between gap-3">
-            <p className="text-xs text-slate-500">
-              Role na horizontal para explorar mais jogos deste tema sem alongar demais a home.
-            </p>
-          </div>
-
-          <div className="mt-4 overflow-x-auto pb-2 -mx-4 px-4">
-            <div className="flex min-w-max gap-3 snap-x snap-mandatory">
+          <div className="mt-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+            <div
+              className="grid gap-2"
+              style={{
+                gridTemplateRows: section.games.length > 5 ? 'repeat(2, 1fr)' : '1fr',
+                gridAutoFlow: 'column',
+                gridAutoColumns: 'clamp(160px, calc((100vw - 200px) / 5), 220px)',
+              }}
+            >
               {section.games.map((game) => (
-                <div key={game.id} className="w-[208px] shrink-0 snap-start sm:w-[220px] lg:w-[230px]">
-                  <HomeThemeGameCard
-                    game={game}
-                    trackingPath={`/home/catalog/${section.category.toLowerCase()}/${game.slug}`}
-                  />
-                </div>
+                <ThemeGameCard
+                  key={game.id}
+                  game={game}
+                />
               ))}
             </div>
           </div>
@@ -535,32 +471,38 @@ export function HomeThemeCatalog({
           <div className="flex items-center gap-2">
             <div className="h-5 w-1 rounded-full bg-gradient-to-b from-cyan-400 to-purple-500" />
             <h2 className="text-sm font-bold uppercase tracking-wide text-slate-200">
-              Catalogo completo
+              Catalogo
             </h2>
-            <span className="rounded-full bg-slate-800/70 px-2 py-0.5 text-[9px] font-medium text-slate-400">
-              {activeQuery ? "modo busca" : activeCategory ? "modo focado" : "one-page feed"}
-            </span>
+            {activeQuery ? (
+               <span className="rounded-full bg-slate-800/70 px-2 py-0.5 text-[9px] font-medium text-slate-400">modo busca</span>
+            ) : null}
           </div>
-          <p className="mt-2 max-w-3xl text-sm text-slate-400">
-            A home agora percorre o catalogo inteiro em blocos por tema, com trilhas horizontais para mostrar mais variedade sem quebrar o ritmo da pagina.
-          </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
-          <span className="rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1">
-            {activeCategory || activeQuery ? focusedGames.length : sections.reduce((total, section) => total + section.games.length, 0)} jogos visiveis agora
-          </span>
-          {activeQuery ? (
-            <span className="rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-slate-300">
-              busca ativa: {activeQuery}
-            </span>
-          ) : null}
-          {activeCategory ? (
-            <span className="rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-slate-300">
-              tema ativo: {activeCategory}
-            </span>
-          ) : null}
-        </div>
+        {activeQuery || activeCategory ? (
+          <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
+            {activeQuery ? (
+              <span className="rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-slate-300">
+                busca: {activeQuery}
+              </span>
+            ) : null}
+            {activeCategory ? (
+              <span className="rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-slate-300">
+                tema: {activeCategory}
+              </span>
+            ) : null}
+            <button
+               type="button"
+               onClick={() => {
+                 setActiveCategory("");
+                 setActiveQuery("");
+               }}
+               className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1 text-[10px] font-medium text-slate-300 transition-colors hover:border-cyan-400/40 hover:text-cyan-200"
+            >
+               limpar filtro ×
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {loadError ? (
@@ -610,21 +552,8 @@ export function HomeThemeCatalog({
 
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1 text-[10px] font-medium text-slate-300">
-                {focusedTotal ?? focusedGames.length} jogos neste recorte
+                {focusedTotal ?? focusedGames.length} jogos
               </span>
-              <span className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1 text-[10px] font-medium text-slate-300">
-                {focusedGames.length} carregados agora
-              </span>
-              <button
-                type="button"
-                onClick={() => {
-                  setActiveCategory("");
-                  setActiveQuery("");
-                }}
-                className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1 text-[10px] font-medium text-slate-300 transition-colors hover:border-cyan-400/40 hover:text-cyan-200"
-              >
-                voltar ao feed completo
-              </button>
             </div>
           </div>
 
@@ -633,13 +562,11 @@ export function HomeThemeCatalog({
               Nenhum jogo encontrado para esse recorte.
             </div>
           ) : (
-            <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3">
               {focusedGames.map((game) => (
-                <HomeThemeGameCard
+                <ThemeGameCard
                   key={game.id}
                   game={game}
-                  trackingPath={`/home/focused/${(activeCategory || activeQuery).toLowerCase()}/${game.slug}`}
-                  variant="compact"
                 />
               ))}
             </div>
@@ -667,7 +594,22 @@ export function HomeThemeCatalog({
       ) : (
         <>
           <div className="space-y-4">
-            {sections.map((section) => renderThemeSection(section))}
+            {(() => {
+              const largeSections = sections.filter(s => s.games.length >= 6);
+              const smallSections = sections.filter(s => s.games.length < 6);
+              const mergedGames = smallSections.flatMap(s => s.games);
+              
+              const allRenderedSections = [...largeSections];
+              if (mergedGames.length > 0) {
+                 allRenderedSections.push({
+                    category: "Diversos",
+                    totalGames: mergedGames.length,
+                    games: mergedGames
+                 });
+              }
+
+              return allRenderedSections.map((section) => renderThemeSection(section));
+            })()}
           </div>
 
           {hasMore ? (

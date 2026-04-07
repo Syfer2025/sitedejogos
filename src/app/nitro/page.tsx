@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { NitroFreeTrialButton } from "../components/NitroFreeTrialButton";
 
 export const metadata: Metadata = {
   title: "Nitro Premium | Arcade Nexus",
@@ -15,6 +16,7 @@ const PLANS = [
     badge: null,
     highlight: false,
     savings: null,
+    cta: "Assinar Mensal",
   },
   {
     id: "quarterly",
@@ -24,6 +26,7 @@ const PLANS = [
     badge: "Popular",
     highlight: true,
     savings: "Economize 14%",
+    cta: "Assinar Trimestral",
   },
   {
     id: "annual",
@@ -33,52 +36,28 @@ const PLANS = [
     badge: "Melhor valor",
     highlight: false,
     savings: "Economize 25%",
+    cta: "Assinar Anual",
   },
 ];
 
-const BENEFITS = [
-  {
-    icon: "🚫",
-    title: "Zero anúncios",
-    desc: "Navegação e gameplay 100% livre de publicidade em todo o portal.",
-    gradient: "from-red-500/20 to-orange-500/20",
-    border: "border-red-500/20",
-  },
-  {
-    icon: "⚡",
-    title: "Acesso instantâneo",
-    desc: "Sem countdowns, sem telas de espera. Clicou, jogou.",
-    gradient: "from-cyan-500/20 to-blue-500/20",
-    border: "border-cyan-500/20",
-  },
-  {
-    icon: "♾️",
-    title: "Jogos ilimitados",
-    desc: "Sem limite diário de jogos. Jogue o quanto quiser, sempre.",
-    gradient: "from-purple-500/20 to-fuchsia-500/20",
-    border: "border-purple-500/20",
-  },
-  {
-    icon: "🏆",
-    title: "XP em dobro",
-    desc: "Ganhe 2x XP em todas as atividades e suba de nível mais rápido.",
-    gradient: "from-amber-500/20 to-yellow-500/20",
-    border: "border-amber-500/20",
-  },
-  {
-    icon: "🎨",
-    title: "Temas exclusivos",
-    desc: "Desbloqueie avatares, capas e temas visuais premium que só assinantes têm.",
-    gradient: "from-emerald-500/20 to-teal-500/20",
-    border: "border-emerald-500/20",
-  },
-  {
-    icon: "⭐",
-    title: "Badge Nitro",
-    desc: "Exiba o selo Nitro no seu perfil e no ranking para se destacar.",
-    gradient: "from-pink-500/20 to-rose-500/20",
-    border: "border-pink-500/20",
-  },
+const FREE_FEATURES = [
+  { icon: "✅", text: "Milhares de jogos gratuitos", available: true },
+  { icon: "📢", text: "Anúncios em todo o portal", available: false },
+  { icon: "⏳", text: "Telas de espera (até 30s)", available: false },
+  { icon: "📉", text: "Ganho de XP padrão (1x)", available: true },
+  { icon: "🚫", text: "Limite de 3 jogos/dia (AdBlock)", available: false },
+  { icon: "❌", text: "Sem temas ou avatares premium", available: false },
+  { icon: "❌", text: "Sem badge de apoiador", available: false },
+];
+
+const NITRO_FEATURES = [
+  { icon: "✅", text: "Experiência 100% sem anúncios", highlight: true },
+  { icon: "⚡", text: "Acesso instantâneo (Sem espera)", highlight: true },
+  { icon: "🚀", text: "XP em Dobro (2x mais rápido)", highlight: true },
+  { icon: "♾️", text: "Jogos ilimitados (Sem limites)", highlight: true },
+  { icon: "🎨", text: "Temas e Avatares exclusivos", highlight: false },
+  { icon: "⭐", text: "Badge Nitro no perfil e ranking", highlight: false },
+  { icon: "💎", text: "Apoio direto ao desenvolvimento", highlight: false },
 ];
 
 const FAQ = [
@@ -91,10 +70,6 @@ const FAQ = [
     a: "Toda ação que gera XP (jogar, completar missões, conquistas) rende o dobro enquanto sua assinatura estiver ativa.",
   },
   {
-    q: "E se eu já tiver moedas compradas?",
-    a: "Suas moedas são mantidas normalmente. O Nitro não afeta o saldo de moedas — são sistemas separados.",
-  },
-  {
     q: "Quais formas de pagamento são aceitas?",
     a: "Cartão de crédito, débito, Pix e boleto (processamento de 1 a 3 dias úteis).",
   },
@@ -102,201 +77,194 @@ const FAQ = [
 
 export default function NitroPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-black px-4 py-10">
-      <div className="mx-auto max-w-4xl">
+    <div className="min-h-screen bg-[#020617] text-slate-100 selection:bg-purple-500/30">
+      {/* Background Decorative Elements */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-cyan-600/10 rounded-full blur-[120px]" />
+      </div>
 
+      <div className="relative mx-auto max-w-6xl px-4 py-12 md:py-20">
+        
         {/* ── Hero ── */}
-        <div className="text-center mb-10">
-          <div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-400 via-purple-500 to-cyan-400 shadow-[0_0_40px_rgba(168,85,247,0.6)] mb-4">
-            <span className="text-2xl font-black text-white">N</span>
+        <div className="text-center mb-16 animate-fade-in">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-amber-400 via-purple-500 to-cyan-400 shadow-[0_0_50px_rgba(168,85,247,0.4)] mb-6 rotate-3">
+            <span className="text-3xl font-black text-white drop-shadow-md">N</span>
           </div>
-          <p className="text-[11px] uppercase tracking-[0.25em] text-purple-300/80 font-semibold mb-2">
-            Arcade Nexus
+          <p className="text-[12px] uppercase tracking-[0.3em] text-purple-400 font-bold mb-3">
+            Upgrade Experience
           </p>
-          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white mb-3">
-            Nitro <span className="bg-gradient-to-r from-amber-300 via-purple-400 to-cyan-300 bg-clip-text text-transparent">Premium</span>
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white mb-6">
+            Nitro <span className="bg-gradient-to-r from-amber-200 via-purple-400 to-cyan-300 bg-clip-text text-transparent">Premium</span>
           </h1>
-          <p className="text-sm md:text-base text-slate-400 max-w-lg mx-auto">
-            A experiência definitiva no Arcade Nexus. Sem anúncios, sem limites, sem espera.
-            Puro jogo.
+          <p className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed">
+            Elimine interrupções, mostre seu estilo e acelere seu progresso. 
+            A versão definitiva do Arcade Nexus feita para jogadores de verdade.
           </p>
         </div>
 
-        {/* ── Plans ── */}
-        <div className="grid gap-4 md:grid-cols-3 mb-10">
+        {/* ── Free Trial CTA ── */}
+        <div className="mb-12 mx-auto max-w-xl animate-fade-in-up">
+          <div className="relative overflow-hidden rounded-2xl border border-purple-500/30 bg-gradient-to-br from-purple-900/40 to-cyan-900/20 p-6 text-center">
+            <div className="absolute -right-10 -top-10 h-32 w-32 rounded-full bg-purple-500/10 blur-3xl" />
+            <span className="text-3xl">🎁</span>
+            <h3 className="mt-2 text-lg font-bold text-white">Teste gratis por 3 dias</h3>
+            <p className="mt-1 text-sm text-slate-300">
+              Experimente o Nitro Premium sem compromisso. Sem cartao de credito. Cancela automaticamente.
+            </p>
+            <NitroFreeTrialButton />
+          </div>
+        </div>
+
+        {/* ── Pricing & Comparison Grid ── */}
+        <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 items-stretch mb-20 stagger-children">
+          
+          {/* Baseline: FREE Card */}
+          <div className="flex flex-col rounded-3xl border border-slate-800/60 bg-slate-900/30 p-6 transition-all duration-300 hover:border-slate-700/80">
+            <div className="mb-6">
+              <h3 className="text-lg font-bold text-slate-100">Gratuito</h3>
+              <div className="mt-2 flex items-baseline gap-1">
+                <span className="text-3xl font-black text-white">R$ 0</span>
+                <span className="text-sm text-slate-500">/sempre</span>
+              </div>
+              <p className="mt-2 text-xs text-slate-500 uppercase tracking-tight">Experiência Padrão</p>
+            </div>
+
+            <div className="flex-1 space-y-4 mb-8">
+              {FREE_FEATURES.map((f, i) => (
+                <div key={i} className="flex items-start gap-3">
+                  <span className="shrink-0 text-sm">{f.icon}</span>
+                  <span className={`text-[13px] leading-tight ${f.available ? "text-slate-300" : "text-slate-500"}`}>
+                    {f.text}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <button disabled className="w-full rounded-xl bg-slate-800/50 py-3 text-sm font-semibold text-slate-400 cursor-default">
+              Plano Atual
+            </button>
+          </div>
+
+          {/* NITRO PLANS */}
           {PLANS.map((plan) => (
             <div
               key={plan.id}
-              className={`relative rounded-2xl border p-5 transition-all duration-300 hover:-translate-y-1 ${
+              className={`group relative flex flex-col rounded-3xl border transition-all duration-500 hover:-translate-y-2 ${
                 plan.highlight
-                  ? "border-purple-500/50 bg-gradient-to-b from-purple-950/40 to-slate-950/80 shadow-[0_0_40px_rgba(139,92,246,0.15)]"
-                  : "border-slate-800 bg-slate-950/80 hover:border-slate-700"
-              }`}
+                  ? "border-purple-500/50 bg-gradient-to-b from-purple-900/20 via-slate-900/40 to-slate-950/90 shadow-[0_20px_50px_rgba(139,92,246,0.15)] ring-1 ring-purple-500/20"
+                  : "border-slate-800/60 bg-slate-900/40 hover:border-purple-500/30"
+              } p-6`}
             >
               {plan.badge && (
-                <span className={`absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full px-3 py-0.5 text-[10px] font-bold ${
-                  plan.highlight
-                    ? "bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-[0_0_12px_rgba(168,85,247,0.5)]"
-                    : "bg-amber-500/20 text-amber-300 border border-amber-500/30"
-                }`}>
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500 px-4 py-1 text-[10px] font-black uppercase tracking-widest text-white shadow-lg shadow-purple-500/30">
                   {plan.badge}
                 </span>
               )}
 
-              <div className="text-center">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">
-                  {plan.name}
-                </p>
-                <p className="text-3xl font-black text-white mb-0.5">
-                  {plan.price}
-                </p>
-                <p className="text-[11px] text-slate-500">
-                  {plan.period}
-                </p>
-                {plan.savings && (
-                  <p className="mt-2 text-[10px] font-semibold text-emerald-400">
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                  Nitro {plan.name}
+                  {plan.highlight && <span className="text-amber-400">⭐</span>}
+                </h3>
+                <div className="mt-2 flex items-baseline gap-1">
+                  <span className="text-3xl font-black text-white">{plan.price}</span>
+                  <span className="text-sm text-slate-500">{plan.period}</span>
+                </div>
+                {plan.savings ? (
+                  <p className="mt-1.5 text-[11px] font-bold text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded-full inline-block">
                     {plan.savings}
                   </p>
+                ) : (
+                  <p className="mt-1.5 text-xs text-slate-500 uppercase tracking-tight">Experiência Premium</p>
                 )}
+              </div>
+
+              <div className="flex-1 space-y-4 mb-8">
+                {NITRO_FEATURES.map((f, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <span className="shrink-0 text-sm filter drop-shadow-[0_0_8px_rgba(168,85,247,0.4)]">{f.icon}</span>
+                    <span className={`text-[13px] leading-tight font-medium ${f.highlight ? "text-slate-100" : "text-slate-300"}`}>
+                      {f.text}
+                    </span>
+                  </div>
+                ))}
               </div>
 
               <button
                 type="button"
-                className={`w-full mt-5 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all active:scale-[0.98] ${
+                className={`w-full rounded-2xl py-4 text-sm font-black uppercase tracking-wider transition-all active:scale-[0.97] ${
                   plan.highlight
-                    ? "bg-gradient-to-r from-purple-500 to-fuchsia-500 text-white shadow-[0_0_22px_rgba(168,85,247,0.5)] hover:shadow-[0_0_30px_rgba(168,85,247,0.7)]"
-                    : "bg-slate-800/80 text-slate-200 border border-slate-700 hover:bg-slate-700/80 hover:text-white"
+                    ? "bg-gradient-to-r from-purple-500 via-fuchsia-500 to-purple-600 text-white shadow-[0_10px_30px_rgba(168,85,247,0.4)] hover:shadow-[0_15px_40px_rgba(168,85,247,0.6)]"
+                    : "bg-white text-slate-950 font-bold hover:bg-slate-200"
                 }`}
               >
-                Assinar {plan.name}
+                {plan.cta}
               </button>
             </div>
           ))}
         </div>
 
-        {/* ── Benefits Card ── */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-6 md:p-8 shadow-[0_0_50px_rgba(15,23,42,0.9)] mb-10">
-          <div className="text-center mb-6">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-purple-300/70 font-semibold mb-1">
-              Tudo incluído
-            </p>
-            <h2 className="text-xl font-bold text-white">
-              O que você ganha com o Nitro
-            </h2>
+        {/* ── FAQ Section ── */}
+        <div className="max-w-3xl mx-auto mb-20 animate-fade-in-up">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl font-bold text-white">Dúvidas comuns</h2>
+            <p className="mt-2 text-slate-400 text-sm">Tudo o que você precisa saber sobre o Arcade Nitro.</p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {BENEFITS.map((b) => (
-              <div
-                key={b.title}
-                className={`group rounded-xl border ${b.border} bg-gradient-to-br ${b.gradient} p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg`}
-              >
-                <span className="text-2xl mb-2 block">{b.icon}</span>
-                <p className="text-sm font-semibold text-white mb-1">{b.title}</p>
-                <p className="text-[11px] text-slate-400 leading-relaxed">{b.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Comparison Table ── */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-6 md:p-8 shadow-[0_0_50px_rgba(15,23,42,0.9)] mb-10">
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-bold text-white">
-              Grátis vs Nitro Premium
-            </h2>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-800">
-                  <th className="text-left py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Recurso
-                  </th>
-                  <th className="text-center py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    Grátis
-                  </th>
-                  <th className="text-center py-3 px-4 text-xs font-semibold text-purple-300 uppercase tracking-wider">
-                    Nitro ⭐
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/60">
-                {[
-                  ["Acesso a jogos", "✅ Todos", "✅ Todos"],
-                  ["Anúncios", "Sim", "❌ Nenhum"],
-                  ["Limite diário", "3 jogos (com adblock)", "♾️ Ilimitado"],
-                  ["Countdown antes de jogar", "Até 30s", "⚡ Instantâneo"],
-                  ["XP por atividade", "1×", "2× Dobro"],
-                  ["Temas exclusivos", "❌", "✅ Acesso total"],
-                  ["Badge no perfil", "❌", "⭐ Nitro Badge"],
-                  ["Favoritos e histórico", "✅", "✅"],
-                  ["Missões diárias", "✅", "✅ + bônus"],
-                ].map(([feature, free, nitro]) => (
-                  <tr key={feature} className="hover:bg-slate-900/40 transition-colors">
-                    <td className="py-3 px-4 text-slate-300 font-medium">{feature}</td>
-                    <td className="py-3 px-4 text-center text-slate-400">{free}</td>
-                    <td className="py-3 px-4 text-center text-slate-200 font-medium">{nitro}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* ── FAQ ── */}
-        <div className="rounded-2xl border border-slate-800 bg-slate-950/80 p-6 md:p-8 shadow-[0_0_50px_rgba(15,23,42,0.9)] mb-10">
-          <div className="text-center mb-6">
-            <h2 className="text-xl font-bold text-white">
-              Perguntas frequentes
-            </h2>
-          </div>
-
-          <div className="space-y-3 max-w-2xl mx-auto">
-            {FAQ.map((item) => (
+          <div className="space-y-4">
+            {FAQ.map((item, i) => (
               <details
-                key={item.q}
-                className="group rounded-xl border border-slate-800 bg-slate-900/50 [&[open]]:border-purple-500/30"
+                key={i}
+                className="group rounded-2xl border border-slate-800/60 bg-slate-900/20 backdrop-blur-sm transition-all hover:border-slate-700/80 [&[open]]:border-purple-500/30 [&[open]]:bg-slate-900/40"
               >
-                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 [&::-webkit-details-marker]:hidden">
-                  <span className="text-sm font-medium text-slate-200">{item.q}</span>
-                  <span className="shrink-0 text-slate-500 transition-transform group-open:rotate-45 text-lg">+</span>
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-4 [&::-webkit-details-marker]:hidden">
+                  <span className="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">{item.q}</span>
+                  <div className="relative h-5 w-5 shrink-0">
+                    <div className="absolute top-1/2 left-0 h-0.5 w-5 -translate-y-1/2 bg-slate-500 rounded-full" />
+                    <div className="absolute top-0 left-1/2 h-5 w-0.5 -translate-x-1/2 bg-slate-500 rounded-full transition-transform duration-300 group-open:rotate-90" />
+                  </div>
                 </summary>
-                <div className="border-t border-slate-800 px-4 py-3">
-                  <p className="text-[12px] text-slate-400 leading-relaxed">{item.a}</p>
+                <div className="px-6 pb-5 pt-1">
+                  <p className="text-xs md:text-sm text-slate-400 leading-relaxed font-medium">
+                    {item.a}
+                  </p>
                 </div>
               </details>
             ))}
           </div>
         </div>
 
-        {/* ── Final CTA ── */}
-        <div className="text-center rounded-2xl border border-purple-500/30 bg-gradient-to-b from-purple-950/30 to-slate-950/80 p-8 shadow-[0_0_50px_rgba(139,92,246,0.15)]">
-          <h2 className="text-2xl font-bold text-white mb-2">
-            Pronto para jogar sem limites?
-          </h2>
-          <p className="text-sm text-slate-400 mb-5 max-w-md mx-auto">
-            Assine o Nitro Premium e transforme sua experiência no Arcade Nexus.
-            Cancele quando quiser.
-          </p>
-          <button
-            type="button"
-            className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-purple-500 to-fuchsia-500 px-8 py-3 text-base font-bold text-white shadow-[0_0_30px_rgba(168,85,247,0.5)] transition-all hover:shadow-[0_0_40px_rgba(168,85,247,0.7)] hover:scale-[1.02] active:scale-[0.98]"
-          >
-            ⭐ Começar agora — R$ 8,90/mês
-          </button>
-          <p className="mt-3 text-[10px] text-slate-500">
-            Pagamento seguro. Cancele a qualquer momento sem custos adicionais.
+        {/* ── Security Badge ── */}
+        <div className="flex flex-col items-center justify-center gap-6 p-8 rounded-3xl border border-slate-800/40 bg-slate-900/10">
+          <div className="flex items-center gap-8 grayscale opacity-40 hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+            <div className="flex flex-col items-center">
+              <span className="text-2xl">🔒</span>
+              <span className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">SSL Secure</span>
+            </div>
+            <div className="h-8 w-[1px] bg-slate-800" />
+            <div className="flex flex-col items-center">
+              <span className="text-2xl">💳</span>
+              <span className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Safe Pay</span>
+            </div>
+            <div className="h-8 w-[1px] bg-slate-800" />
+            <div className="flex flex-col items-center">
+              <span className="text-2xl">⚡</span>
+              <span className="text-[10px] font-bold text-slate-500 mt-1 uppercase tracking-widest">Fast Activation</span>
+            </div>
+          </div>
+          
+          <p className="text-[11px] text-slate-500 text-center max-w-sm">
+            Assinatura processada de forma segura. O acesso Premium é ativado instantaneamente após a confirmação do pagamento.
           </p>
         </div>
 
-        {/* ── Back link ── */}
-        <p className="mt-6 text-center">
-          <Link href="/" className="text-xs text-slate-500 hover:text-slate-300 transition-colors">
-            ← Voltar ao portal
+        {/* ── Footer Link ── */}
+        <div className="mt-12 text-center">
+          <Link href="/" className="text-xs font-semibold text-slate-500 hover:text-cyan-400 transition-colors uppercase tracking-[0.2em] flex items-center justify-center gap-2">
+            <span>←</span> Voltar ao portal
           </Link>
-        </p>
+        </div>
       </div>
     </div>
   );

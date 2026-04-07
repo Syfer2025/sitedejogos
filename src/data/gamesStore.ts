@@ -23,6 +23,10 @@ export type GameRecord = {
   isPublished: boolean;
   createdAt: string;
   updatedAt: string;
+  avgRating: number;
+  ratingCount: number;
+  isFavorited?: boolean;
+  userRating?: number;
 };
 
 type ListGamesOptions = {
@@ -34,6 +38,7 @@ type ListGamesOptions = {
   publishedOnly?: boolean;
   query?: string;
   sortBy?: "newest" | "popular";
+  currentUserId?: string;
 };
 
 export type PaginatedGamesResult = {
@@ -81,6 +86,8 @@ function mapGame(game: Game): GameRecord {
     views: game.views,
     popularityScore: game.popularityScore,
     isPublished: game.isPublished,
+    avgRating: 0,
+    ratingCount: 0,
     createdAt: game.createdAt.toISOString(),
     updatedAt: game.updatedAt.toISOString(),
   };
@@ -153,14 +160,43 @@ export async function listGames(options: ListGamesOptions = {}) {
         ]
       : [{ featured: "desc" }, { createdAt: "desc" }];
 
+  const include: any = {
+    ratings: {
+      select: { value: true, userId: true }
+    },
+  };
+
+  if (options.currentUserId) {
+    include.favorites = {
+      where: { userId: options.currentUserId },
+      select: { id: true }
+    };
+  }
+
   const games = await prisma.game.findMany({
     where,
     orderBy,
+    include,
     ...(options.limit ? { take: options.limit } : {}),
     ...(options.offset ? { skip: options.offset } : {}),
   });
-
-  return games.map(mapGame);
+  return games.map((game) => {
+    const record = mapGame(game);
+    const ratings = (game as any).ratings || [];
+    const count = ratings.length;
+    const avg = count > 0 ? ratings.reduce((sum: number, r: any) => sum + r.value, 0) / count : 0;
+    const userRating = options.currentUserId 
+      ? ratings.find((r: any) => r.userId === options.currentUserId)?.value 
+      : undefined;
+    
+    return {
+      ...record,
+      avgRating: Number(avg.toFixed(1)),
+      ratingCount: count,
+      isFavorited: options.currentUserId ? (game as any).favorites?.length > 0 : false,
+      userRating,
+    };
+  });
 }
 
 export async function listGamesPage(
@@ -233,6 +269,7 @@ export async function listCategoryShowcasesPage(
     gamesPerCategory?: number;
     sortBy?: "newest" | "popular";
     categoryOrder?: CatalogCategoryOrderMode;
+    currentUserId?: string;
   } = {},
 ): Promise<PaginatedCategoryShowcasesResult> {
   const offset = Math.max(options.offset ?? 0, 0);
@@ -260,6 +297,7 @@ export async function listCategoryShowcasesPage(
         publishedOnly: true,
         limit: gamesPerCategory,
         sortBy: options.sortBy ?? "popular",
+        currentUserId: options.currentUserId,
       }),
     })),
   );
@@ -315,12 +353,22 @@ export async function listRelatedGames(game: Pick<GameRecord, "category" | "slug
       slug: { not: game.slug },
       ...(game.category ? { category: game.category } : {}),
     },
-    orderBy: [{ featured: "desc" }, { popularityScore: "desc" }, { views: "desc" }],
+    include: {
+      ratings: { select: { value: true } }
+    } as any,
     take: limit,
   });
 
+  const mapWithRatings = (g: any): GameRecord => {
+    const record = mapGame(g);
+    const ratings = g.ratings || [];
+    const count = ratings.length;
+    const avg = count > 0 ? ratings.reduce((sum: number, r: any) => sum + r.value, 0) / count : 0;
+    return { ...record, avgRating: Number(avg.toFixed(1)), ratingCount: count };
+  };
+
   if (sameCategory.length >= limit) {
-    return sameCategory.map(mapGame);
+    return sameCategory.map(mapWithRatings);
   }
 
   const fallback = await prisma.game.findMany({
@@ -331,10 +379,13 @@ export async function listRelatedGames(game: Pick<GameRecord, "category" | "slug
       },
     },
     orderBy: [{ featured: "desc" }, { popularityScore: "desc" }, { views: "desc" }],
+    include: {
+      ratings: { select: { value: true } }
+    } as any,
     take: limit - sameCategory.length,
   });
 
-  return [...sameCategory, ...fallback].map(mapGame);
+  return [...sameCategory, ...fallback].map(mapWithRatings);
 }
 
 export async function createGame(data: CreateGameInput) {
@@ -432,4 +483,37 @@ export async function countGames(
   };
 
   return prisma.game.count({ where });
+}
+
+export async function rateGame(userId: string, gameId: string, value: number) {
+  if (value < 1 || value > 5) throw new Error("O valor deve estar entre 1 e 5 estrelas.");
+
+  const rating = await (prisma as any).gameRating.upsert({
+    where: {
+      userId_gameId: { userId, gameId },
+    },
+    update: { value },
+    create: { userId, gameId, value },
+  });
+
+  return rating;
+}
+
+export async function getGameRatingStats(gameId: string) {
+  const ratings = await prisma.gameRating.findMany({
+    where: { gameId },
+    select: { value: true },
+  });
+  const count = ratings.length;
+  const avg = count > 0 ? ratings.reduce((sum, r) => sum + r.value, 0) / count : 0;
+  return { avgRating: Number(avg.toFixed(1)), ratingCount: count };
+}
+
+export async function getUserGameRating(userId: string, gameId: string) {
+  return (prisma as any).gameRating.findUnique({
+    where: {
+      userId_gameId: { userId, gameId },
+    },
+    select: { value: true },
+  });
 }

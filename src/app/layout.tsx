@@ -9,6 +9,7 @@ import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { LocaleProvider } from "./components/LocaleContext";
 import { AdBlockProvider } from "./components/AdBlockDetector";
 import { MobileBottomNav } from "./components/MobileBottomNav";
+import { NitroPremiumBanner } from "./components/NitroPremiumBanner";
 import { PageAnalyticsTracker } from "./components/PageAnalyticsTracker";
 import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
@@ -178,7 +179,7 @@ export default async function RootLayout({
 
           <MobileBottomNav />
 
-
+          <NitroPremiumBanner isAuthenticated={Boolean(playerSession)} isPremium={premium} />
 
           </AdBlockProvider>
         </LocaleProvider>

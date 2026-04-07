@@ -32,7 +32,7 @@ export function RelatedGamesSection({ games }: { games: RelatedGame[] }) {
           <Link
             key={game.id}
             href={`/games/${game.slug}`}
-            className="group relative rounded-xl overflow-hidden bg-slate-950/70 border border-slate-800/80 hover:border-purple-500/70 hover:bg-slate-950/90 transition-colors shadow-[0_0_0_rgba(0,0,0,0.6)] hover:shadow-[0_0_20px_rgba(129,140,248,0.6)]"
+            className="group relative rounded-xl overflow-hidden bg-slate-950/70 border border-slate-800/80 hover:border-purple-500/70 hover:bg-slate-950/90 transition-colors shadow-none"
           >
             <div className="relative aspect-video overflow-hidden">
               <Image
