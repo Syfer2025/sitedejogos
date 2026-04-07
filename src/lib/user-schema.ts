@@ -49,6 +49,10 @@ export const playerProfileUpdateSchema = z.object({
     .optional()
     .transform((value) => (value === undefined ? undefined : value.trim()))
     .refine(isOptionalSupportedImageReference, "Informe uma imagem válida para o avatar."),
+  coverUrl: z
+    .string()
+    .optional()
+    .transform((value) => (value === undefined ? undefined : value.trim())),
   bio: z
     .string()
     .trim()

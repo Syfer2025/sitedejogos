@@ -18,7 +18,15 @@ function buildAvatarDataUrl(primary: string, secondary: string, accent: string, 
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-export const AVATAR_PRESETS = [
+export type AvatarPreset = {
+  id: string;
+  label: string;
+  url: string;
+  isPremium?: boolean;
+  price?: number;
+};
+
+export const AVATAR_PRESETS: AvatarPreset[] = [
   {
     id: "nova",
     label: "Nova",
@@ -43,23 +51,38 @@ export const AVATAR_PRESETS = [
     id: "orbit",
     label: "Orbit",
     url: buildAvatarDataUrl("#10b981", "#052e16", "#facc15", "O"),
+    isPremium: true,
+    price: 150,
   },
   {
     id: "turbo",
     label: "Turbo",
     url: buildAvatarDataUrl("#f43f5e", "#4c0519", "#93c5fd", "T"),
+    isPremium: true,
+    price: 350,
   },
   {
     id: "drift",
     label: "Drift",
     url: buildAvatarDataUrl("#06b6d4", "#083344", "#fef08a", "D"),
+    isPremium: true,
+    price: 500,
   },
   {
     id: "quest",
     label: "Quest",
     url: buildAvatarDataUrl("#34d399", "#064e3b", "#e879f9", "Q"),
+    isPremium: true,
+    price: 800,
   },
-] as const;
+  {
+    id: "legend",
+    label: "Legend",
+    url: buildAvatarDataUrl("#eab308", "#450a0a", "#fef08a", "L"),
+    isPremium: true,
+    price: 3000,
+  },
+];
 
 export function getAvatarPresetById(id: string) {
   return AVATAR_PRESETS.find((preset) => preset.id === id) ?? null;

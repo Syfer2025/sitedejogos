@@ -592,15 +592,8 @@ export async function applyGamificationEvent(
   const xpResult = shouldGrantBaseXp ? await grantXp(userId, baseReward, event) : null;
 
   // ── Coin rewards ──
-  if (event === "login" && streakState?.isNewDay) {
-    await addCoins(userId, COIN_REWARDS.daily_login, "daily_login");
-
-    const streak = streakState.currentStreak;
-    if (streak >= 30) await addCoins(userId, COIN_REWARDS.streak_30, "streak_30");
-    else if (streak >= 14) await addCoins(userId, COIN_REWARDS.streak_14, "streak_14");
-    else if (streak >= 7) await addCoins(userId, COIN_REWARDS.streak_7, "streak_7");
-    else if (streak >= 3) await addCoins(userId, COIN_REWARDS.streak_3, "streak_3");
-  }
+  // Removed automatic coin injection for login, streaks, achievements, and missions to
+  // stop polluting the local currency economy. Only Level Up grants a coin bonus.
 
   // Level up coin bonus
   if (xpResult && xpResult.level > prevLevel) {
@@ -608,14 +601,7 @@ export async function applyGamificationEvent(
   }
 
   const unlockedAchievements = await evaluateAchievements(userId);
-  for (let index = 0; index < unlockedAchievements.length; index += 1) {
-    await addCoins(userId, COIN_REWARDS.achievement_unlock, "achievement_unlock");
-  }
-
   const missionCompleted = await syncDailyMissionProgress(userId, event);
-  if (missionCompleted) {
-    await addCoins(userId, COIN_REWARDS.mission_complete, "mission_complete");
-  }
 
   return getPlayerGamificationOverview(userId);
 }

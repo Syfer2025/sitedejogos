@@ -44,8 +44,11 @@ export type PlayerProfile = {
   email: string;
   displayName: string;
   avatarUrl: string;
+  coverUrl: string;
   bio: string;
   preferredCategories: string[];
+  unlockedAvatars: string[];
+  unlockedCovers: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -83,14 +86,17 @@ function normalizeGameTags(tags: string) {
     .filter(Boolean);
 }
 
-function mapPlayerProfile(user: PlayerProfileRow): PlayerProfile {
+function mapPlayerProfile(user: PlayerProfileRow & { unlockedAvatars?: string; unlockedCovers?: string }): PlayerProfile {
   return {
     id: user.id,
     email: user.email,
     displayName: user.displayName,
     avatarUrl: user.avatarUrl,
+    coverUrl: (user as unknown as Record<string, string>).coverUrl ?? "",
     bio: user.bio,
     preferredCategories: normalizePreferredCategories(user.preferredCategories),
+    unlockedAvatars: user.unlockedAvatars ? user.unlockedAvatars.split(",").filter(Boolean) : [],
+    unlockedCovers: user.unlockedCovers ? user.unlockedCovers.split(",").filter(Boolean) : [],
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
   };
@@ -132,8 +138,11 @@ export async function getPlayerProfile(userId: string) {
       email: true,
       displayName: true,
       avatarUrl: true,
+      coverUrl: true,
       bio: true,
       preferredCategories: true,
+      unlockedAvatars: true,
+      unlockedCovers: true,
       xp: true,
       level: true,
       currentStreak: true,
@@ -163,6 +172,9 @@ export async function updatePlayerProfile(
         ...(input.avatarUrl !== undefined
           ? { avatarUrl: input.avatarUrl }
           : {}),
+        ...(input.coverUrl !== undefined
+          ? { coverUrl: input.coverUrl }
+          : {}),
         ...(input.bio !== undefined ? { bio: input.bio } : {}),
         ...(input.preferredCategories !== undefined
           ? {
@@ -177,6 +189,7 @@ export async function updatePlayerProfile(
         email: true,
         displayName: true,
         avatarUrl: true,
+        coverUrl: true,
         bio: true,
         preferredCategories: true,
         createdAt: true,

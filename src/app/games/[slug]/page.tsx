@@ -67,6 +67,23 @@ export default async function GamePage({ params }: GamePageProps) {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 md:py-10">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "VideoGame",
+            name: game.title,
+            description: game.description,
+            image: game.thumbnail,
+            url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/games/${game.slug}`,
+            genre: game.category,
+            playMode: "SinglePlayer",
+            applicationCategory: "Game",
+            operatingSystem: "WebBrowser"
+          })
+        }}
+      />
       <GameViewTracker slug={game.slug} />
       <PlayerHistoryTracker gameId={game.id} />
 
