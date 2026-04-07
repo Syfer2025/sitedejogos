@@ -4,7 +4,7 @@ import type { FormEvent } from "react";
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { getAnalyticsSessionId } from "@/lib/analytics";
 
@@ -15,19 +15,82 @@ const DEMO_LOGIN = {
   password: "Demo123456!",
 };
 
+/* ── Password Strength ── */
+type StrengthLevel = 0 | 1 | 2 | 3 | 4;
+
+function calcPasswordStrength(pw: string): {
+  level: StrengthLevel;
+  label: string;
+  color: string;
+  checks: { label: string; passed: boolean }[];
+} {
+  const checks = [
+    { label: "Mínimo 8 caracteres", passed: pw.length >= 8 },
+    { label: "Letra maiúscula", passed: /[A-Z]/.test(pw) },
+    { label: "Letra minúscula", passed: /[a-z]/.test(pw) },
+    { label: "Número", passed: /\d/.test(pw) },
+    { label: "Caractere especial (!@#$...)", passed: /[^A-Za-z0-9]/.test(pw) },
+  ];
+
+  const passed = checks.filter((c) => c.passed).length;
+  const map: Record<number, { level: StrengthLevel; label: string; color: string }> = {
+    0: { level: 0, label: "", color: "transparent" },
+    1: { level: 1, label: "Muito fraca", color: "#ef4444" },
+    2: { level: 2, label: "Fraca", color: "#f97316" },
+    3: { level: 3, label: "Boa", color: "#eab308" },
+    4: { level: 4, label: "Forte", color: "#22c55e" },
+    5: { level: 4, label: "Excelente", color: "#06b6d4" },
+  };
+
+  return { ...map[passed], checks };
+}
+
+/* ── Social Icons ── */
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+  );
+}
+
+function FacebookIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="#1877F2">
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+    </svg>
+  );
+}
+
+function AppleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+    </svg>
+  );
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const resolvedMode: Mode =
-    searchParams.get("mode") === "register" ? "register" : "login";
+  const resolvedMode: Mode = searchParams.get("mode") === "register" ? "register" : "login";
+
   const [mode, setMode] = useState<Mode>(resolvedMode);
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const redirectTo = searchParams.get("from") || "/account";
+
+  const strength = useMemo(() => calcPasswordStrength(password), [password]);
 
   useEffect(() => {
     setMode(resolvedMode);
@@ -35,14 +98,14 @@ export default function LoginPage() {
 
   function updateMode(nextMode: Mode) {
     setMode(nextMode);
+    setError(null);
+    setPassword("");
+    setConfirmPassword("");
+    setAcceptedTerms(false);
 
     const params = new URLSearchParams(searchParams.toString());
     params.set("mode", nextMode);
-
-    const queryString = params.toString();
-    router.replace(queryString ? `/login?${queryString}` : "/login", {
-      scroll: false,
-    });
+    router.replace(`/login?${params.toString()}`, { scroll: false });
   }
 
   function fillDemoCredentials() {
@@ -53,19 +116,43 @@ export default function LoginPage() {
     setError(null);
   }
 
+  async function handleSocialLogin(provider: string) {
+    // In production, redirect to OAuth flow
+    setError(`Login via ${provider} será integrado com OAuth em produção.`);
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setLoading(true);
     setError(null);
+
+    // Registration validations
+    if (mode === "register") {
+      if (password.length < 8) {
+        setError("A senha deve ter no mínimo 8 caracteres.");
+        return;
+      }
+      if (strength.level < 3) {
+        setError("A senha é fraca demais. Atenda aos requisitos mínimos.");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setError("As senhas não coincidem.");
+        return;
+      }
+      if (!acceptedTerms) {
+        setError("Você precisa aceitar os termos para criar uma conta.");
+        return;
+      }
+    }
+
+    setLoading(true);
 
     try {
       const response = await fetch(
         mode === "login" ? "/api/auth/user/login" : "/api/auth/user/register",
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(
             mode === "login"
               ? {
@@ -101,165 +188,295 @@ export default function LoginPage() {
     }
   }
 
+  const isRegister = mode === "register";
+
   return (
-    <div className="min-h-[calc(100vh-56px-48px)] bg-[radial-gradient(circle_at_top,rgba(14,165,233,0.16),transparent_35%),radial-gradient(circle_at_80%_20%,rgba(234,179,8,0.12),transparent_30%),linear-gradient(180deg,#020617,#0f172a,#020617)] px-4 py-10">
-      <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1.15fr,0.85fr]">
-        <section className="rounded-[28px] border border-slate-800/80 bg-slate-950/75 p-6 shadow-[0_0_80px_rgba(2,6,23,0.9)] backdrop-blur">
-          <p className="text-[11px] uppercase tracking-[0.2em] text-cyan-300/80">
-            Player Hub
-          </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-slate-50">
-            Entre para salvar favoritos e continuar de onde parou.
+    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-black flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-[420px] rounded-2xl border border-slate-800 bg-slate-950/80 p-6 shadow-[0_0_50px_rgba(15,23,42,0.9)]">
+
+        {/* ── Header ── */}
+        <div className="mb-5 text-center">
+          <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-400 via-purple-500 to-fuchsia-500 shadow-[0_0_25px_rgba(34,211,238,0.6)]">
+            <span className="text-lg font-bold text-white">N</span>
+          </div>
+          <h1 className="mt-3 text-lg font-semibold tracking-tight text-slate-50">
+            {isRegister ? "Criar sua conta" : "Entrar no Arcade Nexus"}
           </h1>
-          <p className="mt-3 max-w-xl text-sm text-slate-300">
-            Sua conta libera favoritos, histórico recente de partidas e uma área
-            pessoal para acompanhar os jogos que mais performam para você.
+          <p className="mt-1 text-xs text-slate-400">
+            {isRegister
+              ? "Cadastre-se para salvar favoritos, acompanhar seu progresso e competir no ranking."
+              : "Acesse sua conta para continuar de onde parou."}
           </p>
+        </div>
 
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-              <p className="text-xs font-medium text-slate-100">Favoritos</p>
-              <p className="mt-2 text-[12px] text-slate-400">
-                Monte sua própria coleção de jogos em um clique.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-              <p className="text-xs font-medium text-slate-100">Histórico</p>
-              <p className="mt-2 text-[12px] text-slate-400">
-                Retorne rápido aos títulos jogados recentemente.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-4">
-              <p className="text-xs font-medium text-slate-100">Conta leve</p>
-              <p className="mt-2 text-[12px] text-slate-400">
-                Sem fricção: cadastro simples e acesso imediato ao portal.
-              </p>
-            </div>
-          </div>
-        </section>
+        {/* ── Mode Toggle ── */}
+        <div className="flex rounded-full border border-slate-800 bg-slate-900/70 p-1 text-xs mb-5">
+          <button
+            type="button"
+            onClick={() => updateMode("login")}
+            className={`flex-1 rounded-full px-3 py-2 font-medium transition-colors ${
+              mode === "login"
+                ? "bg-cyan-400 text-slate-950"
+                : "text-slate-300 hover:text-slate-50"
+            }`}
+          >
+            Entrar
+          </button>
+          <button
+            type="button"
+            onClick={() => updateMode("register")}
+            className={`flex-1 rounded-full px-3 py-2 font-medium transition-colors ${
+              mode === "register"
+                ? "bg-cyan-400 text-slate-950"
+                : "text-slate-300 hover:text-slate-50"
+            }`}
+          >
+            Criar conta
+          </button>
+        </div>
 
-        <section className="rounded-[28px] border border-slate-800/80 bg-slate-950/80 p-6 shadow-[0_0_70px_rgba(15,23,42,0.75)] backdrop-blur">
-          <div className="flex rounded-full border border-slate-800 bg-slate-900/70 p-1 text-xs">
+        {/* ── Social Login ── */}
+        <div className="space-y-2 mb-4">
+          <button
+            type="button"
+            onClick={() => handleSocialLogin("Google")}
+            className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
+          >
+            <GoogleIcon />
+            Continuar com Google
+          </button>
+          <div className="grid grid-cols-2 gap-2">
             <button
               type="button"
-              onClick={() => updateMode("login")}
-              className={`flex-1 rounded-full px-3 py-2 transition-colors ${
-                mode === "login"
-                  ? "bg-cyan-400 text-slate-950"
-                  : "text-slate-300 hover:text-slate-50"
-              }`}
+              onClick={() => handleSocialLogin("Facebook")}
+              className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2.5 text-xs font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
             >
-              Entrar
+              <FacebookIcon />
+              Facebook
             </button>
             <button
               type="button"
-              onClick={() => updateMode("register")}
-              className={`flex-1 rounded-full px-3 py-2 transition-colors ${
-                mode === "register"
-                  ? "bg-cyan-400 text-slate-950"
-                  : "text-slate-300 hover:text-slate-50"
-              }`}
+              onClick={() => handleSocialLogin("Apple")}
+              className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2.5 text-xs font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
             >
-              Criar conta
+              <AppleIcon />
+              Apple
             </button>
           </div>
+        </div>
 
-          <div className="mt-4 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-3">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.18em] text-emerald-200/80">
-                  Acesso demo local
-                </p>
-                <p className="mt-1 text-sm font-medium text-slate-50">
-                  Use a conta pronta para revisar a experiencia logada.
-                </p>
-                <p className="mt-2 text-[12px] text-slate-300">
-                  Email: {DEMO_LOGIN.email}
-                </p>
-                <p className="text-[12px] text-slate-300">
-                  Senha: {DEMO_LOGIN.password}
-                </p>
-              </div>
+        {/* ── Divider ── */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="flex-1 h-px bg-slate-800" />
+          <span className="text-[10px] uppercase tracking-[0.15em] text-slate-500 font-medium">ou com email</span>
+          <div className="flex-1 h-px bg-slate-800" />
+        </div>
+
+        {/* ── Demo Credentials ── */}
+        <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.15em] text-emerald-300/80 font-medium">
+                Conta demo
+              </p>
+              <p className="mt-0.5 text-[11px] text-slate-400">
+                {DEMO_LOGIN.email}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={fillDemoCredentials}
+              className="shrink-0 rounded-full border border-emerald-300/30 bg-slate-950/50 px-3 py-1.5 text-[10px] font-medium text-emerald-200 transition-colors hover:border-emerald-200/50 hover:text-white"
+            >
+              Preencher
+            </button>
+          </div>
+        </div>
+
+        {/* ── Email Form ── */}
+        <form onSubmit={handleSubmit} className="space-y-3">
+          {isRegister && (
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-300">
+                Nome de exibição
+              </label>
+              <input
+                type="text"
+                required
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/50"
+                placeholder="Ex.: Alex"
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-300">
+              Email
+            </label>
+            <input
+              type="email"
+              required
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/50"
+              placeholder="voce@email.com"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-xs font-medium text-slate-300">
+              Senha
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                required
+                autoComplete={isRegister ? "new-password" : "current-password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 pr-10 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/50"
+                placeholder={isRegister ? "Mínimo 8 caracteres" : "Sua senha"}
+              />
               <button
                 type="button"
-                onClick={fillDemoCredentials}
-                className="inline-flex shrink-0 items-center rounded-full border border-emerald-300/35 bg-slate-950/40 px-3 py-1.5 text-[11px] font-medium text-emerald-100 transition-colors hover:border-emerald-200/60 hover:text-white"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 text-xs px-1 py-0.5 transition-colors"
+                tabIndex={-1}
               >
-                Preencher demo
+                {showPassword ? "🙈" : "👁️"}
               </button>
             </div>
-          </div>
 
-          <form onSubmit={handleSubmit} className="mt-5 space-y-3">
-            {mode === "register" && (
-              <div>
-                <label className="mb-1 block text-xs font-medium text-slate-300">
-                  Nome de exibição
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={displayName}
-                  onChange={(event) => setDisplayName(event.target.value)}
-                  className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/70"
-                  placeholder="Ex.: Alex"
-                />
+            {/* Password Strength (register only) */}
+            {isRegister && password.length > 0 && (
+              <div className="mt-2 space-y-2">
+                {/* Strength bar */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 flex gap-1">
+                    {[1, 2, 3, 4].map((i) => (
+                      <div
+                        key={i}
+                        className="flex-1 h-1.5 rounded-full transition-colors duration-300"
+                        style={{
+                          backgroundColor:
+                            i <= strength.level ? strength.color : "rgba(51,65,85,0.4)",
+                        }}
+                      />
+                    ))}
+                  </div>
+                  <span
+                    className="text-[10px] font-semibold whitespace-nowrap"
+                    style={{ color: strength.color }}
+                  >
+                    {strength.label}
+                  </span>
+                </div>
+
+                {/* Requirements checklist */}
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                  {strength.checks.map((check) => (
+                    <span
+                      key={check.label}
+                      className={`text-[10px] flex items-center gap-1 ${
+                        check.passed ? "text-emerald-400" : "text-slate-500"
+                      }`}
+                    >
+                      <span className="text-[8px]">{check.passed ? "✓" : "○"}</span>
+                      {check.label}
+                    </span>
+                  ))}
+                </div>
               </div>
             )}
+          </div>
 
+          {/* Confirm Password (register only) */}
+          {isRegister && (
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-300">
-                Email
+                Confirmar senha
               </label>
               <input
-                type="email"
+                type={showPassword ? "text" : "password"}
                 required
-                autoComplete="email"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/70"
-                placeholder="voce@email.com"
+                autoComplete="new-password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className={`w-full rounded-lg bg-slate-950 border px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 transition-colors ${
+                  confirmPassword.length > 0 && confirmPassword !== password
+                    ? "border-red-500/60"
+                    : confirmPassword.length > 0 && confirmPassword === password
+                    ? "border-emerald-500/60"
+                    : "border-slate-800"
+                }`}
+                placeholder="Repita a senha"
               />
+              {confirmPassword.length > 0 && confirmPassword !== password && (
+                <p className="mt-1 text-[10px] text-red-400">As senhas não coincidem</p>
+              )}
             </div>
+          )}
 
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-300">
-                Senha
-              </label>
+          {/* Terms Acceptance (register only) */}
+          {isRegister && (
+            <label className="flex items-start gap-2.5 cursor-pointer select-none mt-1">
               <input
-                type="password"
-                required
-                autoComplete={mode === "login" ? "current-password" : "new-password"}
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="w-full rounded-xl border border-slate-800 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/70"
-                placeholder="Mínimo de 6 caracteres"
+                type="checkbox"
+                checked={acceptedTerms}
+                onChange={(e) => setAcceptedTerms(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-700 bg-slate-950 text-cyan-400 focus:ring-cyan-400/50 accent-cyan-400 shrink-0"
               />
-            </div>
+              <span className="text-[11px] text-slate-400 leading-relaxed">
+                Tenho 13 anos (ou idade mínima aplicável) ou mais e aceito os{" "}
+                <Link href="/termos" className="text-cyan-300 hover:text-cyan-200 underline underline-offset-2">
+                  Termos e Condições
+                </Link>{" "}
+                e a{" "}
+                <Link href="/privacidade" className="text-cyan-300 hover:text-cyan-200 underline underline-offset-2">
+                  Política de Privacidade
+                </Link>
+                .
+              </span>
+            </label>
+          )}
 
-            {error && (
-              <p className="rounded-xl border border-red-900/60 bg-red-950/30 px-3 py-2 text-xs text-red-300">
-                {error}
-              </p>
-            )}
+          {/* Error */}
+          {error && (
+            <p className="rounded-lg border border-red-900/60 bg-red-950/30 px-3 py-2 text-xs text-red-300">
+              {error}
+            </p>
+          )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="inline-flex w-full items-center justify-center rounded-xl bg-cyan-400 px-4 py-2.5 text-sm font-semibold text-slate-950 transition-colors hover:bg-cyan-300 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {loading
-                ? "Processando..."
-                : mode === "login"
-                ? "Entrar na conta"
-                : "Criar conta e entrar"}
-            </button>
-          </form>
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading || (isRegister && !acceptedTerms)}
+            className="w-full mt-1 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.5)] transition-all active:scale-[0.98]"
+          >
+            {loading
+              ? "Processando..."
+              : isRegister
+              ? "Criar conta e entrar"
+              : "Entrar na conta"}
+          </button>
+        </form>
 
-          <p className="mt-4 text-[11px] text-slate-500">
-            Acesso administrativo continua separado em <Link href="/admin/login" className="text-cyan-300 hover:text-cyan-200">/admin/login</Link>.
-          </p>
-        </section>
+        {/* ── Footer ── */}
+        <p className="mt-4 text-center text-[10px] text-slate-500">
+          {isRegister
+            ? "Já tem conta? "
+            : "Não tem conta? "}
+          <button
+            type="button"
+            onClick={() => updateMode(isRegister ? "login" : "register")}
+            className="text-cyan-300 hover:text-cyan-200 font-medium"
+          >
+            {isRegister ? "Faça login" : "Crie agora"}
+          </button>
+        </p>
       </div>
     </div>
   );
