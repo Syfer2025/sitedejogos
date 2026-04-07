@@ -688,7 +688,7 @@ export default async function AccountPage() {
                       preferredCategories: profile.preferredCategories,
                       unlockedAvatars: profile.unlockedAvatars,
                       unlockedCovers: profile.unlockedCovers,
-                      coins: profileOverview?.coins ?? 0,
+                      coins: profile.coins,
                     }}
                     categories={categories}
                   />

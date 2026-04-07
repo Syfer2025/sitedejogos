@@ -49,6 +49,7 @@ export type PlayerProfile = {
   preferredCategories: string[];
   unlockedAvatars: string[];
   unlockedCovers: string[];
+  coins: number;
   createdAt: string;
   updatedAt: string;
 };
@@ -86,7 +87,7 @@ function normalizeGameTags(tags: string) {
     .filter(Boolean);
 }
 
-function mapPlayerProfile(user: PlayerProfileRow & { unlockedAvatars?: string; unlockedCovers?: string }): PlayerProfile {
+function mapPlayerProfile(user: PlayerProfileRow & { unlockedAvatars?: string; unlockedCovers?: string; coins?: number; }): PlayerProfile {
   return {
     id: user.id,
     email: user.email,
@@ -97,6 +98,7 @@ function mapPlayerProfile(user: PlayerProfileRow & { unlockedAvatars?: string; u
     preferredCategories: normalizePreferredCategories(user.preferredCategories),
     unlockedAvatars: user.unlockedAvatars ? user.unlockedAvatars.split(",").filter(Boolean) : [],
     unlockedCovers: user.unlockedCovers ? user.unlockedCovers.split(",").filter(Boolean) : [],
+    coins: user.coins ?? 0,
     createdAt: user.createdAt.toISOString(),
     updatedAt: user.updatedAt.toISOString(),
   };
@@ -143,6 +145,7 @@ export async function getPlayerProfile(userId: string) {
       preferredCategories: true,
       unlockedAvatars: true,
       unlockedCovers: true,
+      coins: true,
       xp: true,
       level: true,
       currentStreak: true,
