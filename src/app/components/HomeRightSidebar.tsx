@@ -23,6 +23,7 @@ import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 
 import { AdSlot } from "./AdSlot";
 import { HomeAchievementsRail } from "./HomeAchievementsRail";
+import { RightSidebarShell } from "./RightSidebarShell";
 import { TrackedLink } from "./TrackedLink";
 
 function getInitials(name: string) {
@@ -246,7 +247,8 @@ export async function HomeRightSidebar() {
   const sidebarFriendCount = playerSession ? Math.max(friendLeaderboard.length - 1, 0) : 0;
 
   return (
-    <aside className="hidden xl:flex w-[320px] flex-none flex-col border-l border-slate-800/60 bg-slate-950/60 overflow-y-auto scrollbar-thin animate-slide-in-right">
+    <RightSidebarShell>
+    <aside className="flex flex-col flex-1 min-h-0 border-l border-slate-800/60 bg-slate-950/60 overflow-y-auto scrollbar-thin">
       <div className="p-4 space-y-4">
 
         {/* Player card */}
@@ -568,5 +570,6 @@ export async function HomeRightSidebar() {
         ) : null}
       </div>
     </aside>
+    </RightSidebarShell>
   );
 }

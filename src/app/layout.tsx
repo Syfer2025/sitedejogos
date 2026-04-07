@@ -178,12 +178,8 @@ export default async function RootLayout({
 
           <MobileBottomNav />
 
-          <footer className="hidden sm:block border-t border-slate-800 bg-slate-950/80">
-            <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between text-xs text-slate-500">
-              <span>© {new Date().getFullYear()} Arcade Nexus</span>
-              <span>HTML5 Gaming Portal Template</span>
-            </div>
-          </footer>
+
+
           </AdBlockProvider>
         </LocaleProvider>
       </body>

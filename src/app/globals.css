@@ -486,3 +486,185 @@ body {
     min-width: 44px;
   }
 }
+
+/* ═══════════════════════════════════════════
+   Collapsible Right Sidebar
+   ═══════════════════════════════════════════ */
+
+/* ── Shell: the outer container that reserves layout width ── */
+.rsb-shell {
+  position: relative;
+  flex-shrink: 0;
+  height: 100%;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: width;
+  z-index: 10;
+}
+
+/* ── Rail: the thin visual bar when collapsed ── */
+.rsb-rail {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 14px;
+  gap: 16px;
+  border-left: 1px solid rgba(71, 85, 105, 0.3);
+  background:
+    linear-gradient(180deg,
+      rgba(15, 23, 42, 0.95) 0%,
+      rgba(30, 41, 59, 0.25) 40%,
+      rgba(15, 23, 42, 0.95) 100%
+    );
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease, border-color 0.3s ease;
+}
+
+.rsb-rail--visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.rsb-rail--hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Rail expand button */
+.rsb-rail-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  border: 1px solid rgba(34, 211, 238, 0.3);
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.4), rgba(34, 211, 238, 0.25));
+  color: rgba(226, 232, 240, 0.9);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.12), 0 2px 8px rgba(0, 0, 0, 0.3);
+  animation: rsb-rail-btn-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes rsb-rail-btn-pulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(34, 211, 238, 0.12), 0 2px 8px rgba(0, 0, 0, 0.3); }
+  50% { box-shadow: 0 0 18px rgba(34, 211, 238, 0.25), 0 2px 8px rgba(0, 0, 0, 0.3); }
+}
+
+.rsb-rail-btn:hover {
+  background: linear-gradient(135deg, rgba(88, 101, 242, 0.55), rgba(34, 211, 238, 0.4));
+  color: #fff;
+  border-color: rgba(34, 211, 238, 0.55);
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.3), 0 2px 10px rgba(0, 0, 0, 0.3);
+  transform: scale(1.08);
+  animation: none;
+}
+
+/* Subtle indicator dots */
+.rsb-rail-dots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.rsb-rail-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(148, 163, 184, 0.25);
+  transition: background 0.2s ease;
+}
+
+.rsb-rail:hover .rsb-rail-dot {
+  background: rgba(148, 163, 184, 0.45);
+}
+
+/* Hover glow on the rail border */
+.rsb-rail--visible:hover {
+  border-left-color: rgba(34, 211, 238, 0.2);
+}
+
+/* ── Content panel ── */
+.rsb-panel {
+  position: relative;
+  width: 320px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transform: translateX(0);
+  opacity: 1;
+  transition:
+    transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.35s ease;
+  will-change: transform, opacity;
+}
+
+.rsb-panel--closed {
+  transform: translateX(100%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.rsb-panel--open {
+  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Floating panel: when hovering on collapsed rail */
+.rsb-panel--floating {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  border-left: 1px solid rgba(51, 65, 85, 0.5);
+  background:
+    linear-gradient(180deg,
+      rgba(8, 15, 35, 0.98) 0%,
+      rgba(2, 6, 23, 0.99) 100%
+    );
+  backdrop-filter: blur(20px);
+  box-shadow:
+    -12px 0 40px rgba(0, 0, 0, 0.45),
+    -4px 0 12px rgba(0, 0, 0, 0.25);
+  border-radius: 12px 0 0 12px;
+}
+
+/* ── Toggle bar: inside the expanded content ── */
+.rsb-panel-toggle-bar {
+  display: flex;
+  justify-content: flex-start;
+  padding: 8px 12px 2px;
+  flex-shrink: 0;
+}
+
+.rsb-panel-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 7px;
+  border: 1px solid rgba(100, 116, 139, 0.15);
+  background: rgba(30, 41, 59, 0.35);
+  color: rgba(148, 163, 184, 0.6);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rsb-panel-toggle:hover {
+  background: rgba(51, 65, 85, 0.45);
+  color: rgba(226, 232, 240, 0.9);
+  border-color: rgba(100, 116, 139, 0.35);
+}
