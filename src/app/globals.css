@@ -27,6 +27,11 @@ body {
     linear-gradient(180deg, #050816, #0b1020, #020617);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
 }
 
 /* ── Hide scrollbar ── */
