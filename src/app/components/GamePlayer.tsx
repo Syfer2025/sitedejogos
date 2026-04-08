@@ -12,6 +12,7 @@ type GamePlayerProps = {
   iframeUrl: string;
   title: string;
   toolbarExtra?: ReactNode;
+  isPremium?: boolean;
 };
 
 const CONTROLS_INFO = [
@@ -24,12 +25,12 @@ const CONTROLS_INFO = [
   { keys: "Clique", label: "Selecionar / Atirar" },
 ];
 
-export function GamePlayer({ iframeUrl, title, toolbarExtra }: GamePlayerProps) {
+export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }: GamePlayerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const { detected, level } = useAdBlock();
 
-  const [hasStarted, setHasStarted] = useState(false);
+  const [hasStarted, setHasStarted] = useState(isPremium);
   const [isShowingAd, setIsShowingAd] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const [adCountdown, setAdCountdown] = useState(0);
@@ -100,15 +101,15 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra }: GamePlayerProps) 
         ref={containerRef}
         className="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-[0_0_35px_rgba(15,23,42,0.9)] aspect-[16/10] sm:aspect-video w-full"
       >
-        {/* Anti-AdBlock Wall (hard level) */}
-        {showWall && (
+        {/* Anti-AdBlock Wall (hard level - skipped for premium) */}
+        {showWall && !isPremium && (
           <div className="absolute inset-0 z-40">
             <AntiAdBlockWall onAllow={handleWallAllow} />
           </div>
         )}
 
-        {/* Phase 1: Wait for Engagement */}
-        {!hasStarted && !isShowingAd && !showWall && (
+        {/* Phase 1: Wait for Engagement (skipped for premium) */}
+        {!hasStarted && !isShowingAd && !showWall && !isPremium && (
           <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-[radial-gradient(circle_at_50%_50%,rgba(147,51,234,0.15),transparent_60%),linear-gradient(135deg,#020617,#0f172a)] backdrop-blur-sm">
             <button
               onClick={handleStartGame}
@@ -278,6 +279,13 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra }: GamePlayerProps) 
 
         {/* Separator */}
         <div className="h-5 w-px bg-slate-700 shrink-0" />
+
+        {/* Nitro Protected Badge */}
+        {isPremium && (
+          <div className="flex shrink-0 items-center gap-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 px-2.5 py-1 text-[10px] font-bold tracking-wide text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.15)] select-none cursor-default">
+            <span className="text-sm">🛡️</span> Experiência Sem Anúncios
+          </div>
+        )}
 
         {/* Extra toolbar items (rating, favorite, share, etc.) */}
         {toolbarExtra}

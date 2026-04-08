@@ -127,6 +127,7 @@ export default async function GamePage({ params }: GamePageProps) {
           <GamePlayer
             iframeUrl={game.iframeUrl}
             title={game.title}
+            isPremium={playerSession?.user.isPremium}
             toolbarExtra={
               <>
                 <StarRating

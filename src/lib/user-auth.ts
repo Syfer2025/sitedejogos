@@ -104,6 +104,7 @@ export async function getPlayerSession(token: string) {
           email: true,
           displayName: true,
           createdAt: true,
+          isPremium: true,
         },
       },
     },
