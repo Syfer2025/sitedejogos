@@ -12,6 +12,7 @@
     "db:push": "prisma db push",
     "db:seed": "tsx prisma/seed.ts",
     "games:import:gamemonetize": "tsx scripts/import-gamemonetize-feed.ts",
+    "games:sync:gamemonetize": "tsx scripts/sync-gamemonetize.ts",
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",

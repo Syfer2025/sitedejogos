@@ -74,9 +74,6 @@ export function AntiAdBlockModal() {
             </span>
           )}
 
-          <Link href="/nitro" className="aab-modal-premium">
-            ⭐ Assinar Nitro — R$ 8,90/mês — Sem espera, sem anúncios
-          </Link>
         </div>
       </div>
     </div>

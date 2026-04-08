@@ -43,7 +43,7 @@ export function ProfileSidebarNav({ childrenMap, notificationCount = 0 }: Profil
     <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
       {/* Sidebar (Left) */}
       <aside className="space-y-4">
-        <nav className="flex flex-col gap-1 rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-2xl p-3 shadow-xl">
+        <nav className="flex flex-col gap-1 rounded-3xl border border-slate-700/60 bg-[#0b0f1e] p-3 shadow-xl">
           {displayTabs.map((tab) => {
             const isActive = activeTab === tab.key;
             return (
@@ -51,20 +51,20 @@ export function ProfileSidebarNav({ childrenMap, notificationCount = 0 }: Profil
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
                 className={`flex items-center justify-between gap-3 rounded-2xl px-4 py-3.5 text-sm font-bold transition-all duration-200 outline-none
-                  ${isActive 
-                    ? "bg-white/10 text-white shadow-inner" 
-                    : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                  ${isActive
+                    ? "bg-slate-800 text-white shadow border border-slate-600/50"
+                    : "text-slate-500 hover:bg-slate-800/60 hover:text-slate-200 border border-transparent"
                   }
                 `}
               >
                 <div className="flex items-center gap-3">
-                  <span className={`text-xl ${isActive ? tab.colorClass : "grayscale opacity-70"}`}>
+                  <span className={`text-xl ${isActive ? tab.colorClass : "grayscale opacity-50"} transition-all duration-200`}>
                     {tab.icon}
                   </span>
-                  <span>{tab.label}</span>
+                  <span className={isActive ? tab.colorClass : ""}>{tab.label}</span>
                 </div>
                 {tab.count !== undefined && (
-                  <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-black text-white shadow-lg shadow-red-500/30">
+                  <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-red-500 px-1.5 text-[10px] font-black text-white shadow shadow-red-500/40">
                     {tab.count}
                   </span>
                 )}
@@ -73,16 +73,6 @@ export function ProfileSidebarNav({ childrenMap, notificationCount = 0 }: Profil
           })}
         </nav>
 
-        {/* Support Card / Nitro Promo */}
-        <div className="group relative overflow-hidden rounded-3xl border border-purple-500/30 bg-gradient-to-br from-purple-600/20 to-indigo-950/20 backdrop-blur-3xl p-6 shadow-2xl">
-          <div className="absolute -right-4 -top-4 text-6xl opacity-20 transition-transform group-hover:scale-110 group-hover:rotate-12">⭐</div>
-          <p className="text-xs font-black uppercase tracking-[0.2em] text-purple-400">Upgrade</p>
-          <h4 className="mt-2 text-lg font-black text-white">Arcade Nitro</h4>
-          <p className="mt-2 text-[11px] text-slate-400 leading-relaxed">Libere temas exclusivos e 2x XP agora mesmo!</p>
-          <button className="mt-4 w-full rounded-xl bg-purple-600 py-2.5 text-xs font-black text-white shadow-lg shadow-purple-600/30 transition-all hover:bg-purple-500 hover:scale-[1.02]">
-            ASSINAR AGORA
-          </button>
-        </div>
       </aside>
 
       {/* Main Content (Right) */}

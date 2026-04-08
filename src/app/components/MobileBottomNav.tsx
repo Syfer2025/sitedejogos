@@ -15,7 +15,6 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { href: "/", label: "Início", icon: "🏠", activeIcon: "🏠" },
   { href: "/#catalogo", label: "Jogos", icon: "🎮", activeIcon: "🎮" },
-  { href: "/nitro", label: "Nitro", icon: "⭐", activeIcon: "⭐" },
   { href: "/account", label: "Perfil", icon: "👤", activeIcon: "👤" },
 ];
 

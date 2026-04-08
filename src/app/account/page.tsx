@@ -58,23 +58,23 @@ function getPlayerInitials(name: string) {
 function BackgroundDecorations() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-      <div className="absolute -left-1/4 -top-1/4 h-[800px] w-[800px] rounded-full bg-indigo-600/10 blur-[120px]" />
-      <div className="absolute -right-1/4 top-1/4 h-[600px] w-[600px] rounded-full bg-cyan-600/10 blur-[100px]" />
-      <div className="absolute bottom-0 left-1/2 h-[700px] w-[700px] -translate-x-1/2 rounded-full bg-purple-600/5 blur-[120px]" />
+      <div className="absolute -left-1/4 -top-1/4 h-[800px] w-[800px] rounded-full bg-indigo-700/6 blur-[160px]" />
+      <div className="absolute -right-1/4 top-1/4 h-[600px] w-[600px] rounded-full bg-cyan-700/6 blur-[140px]" />
+      <div className="absolute bottom-0 left-1/2 h-[700px] w-[700px] -translate-x-1/2 rounded-full bg-purple-700/4 blur-[160px]" />
     </div>
   );
 }
 
 function TabSectionShell({ icon, title, subtitle, children, badge }: { icon: string; title: string; subtitle?: string; children: ReactNode; badge?: ReactNode }) {
   return (
-    <section className="rounded-3xl border border-white/5 bg-white/[0.02] backdrop-blur-3xl p-8 shadow-2xl h-full flex flex-col">
+    <section className="rounded-3xl border border-slate-700/60 bg-[#0b0f1e] p-8 shadow-2xl h-full flex flex-col">
       <div className="flex flex-col h-full min-h-0">
         <div className="flex items-start justify-between shrink-0 mb-8">
           <div className="flex items-center gap-4">
-            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 text-2xl shadow-inner border border-white/5">{icon}</span>
+            <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-800 text-2xl shadow border border-slate-600">{icon}</span>
             <div>
               <h2 className="text-xl font-black tracking-tight text-white">{title}</h2>
-              {subtitle && <p className="text-sm font-medium text-slate-500">{subtitle}</p>}
+              {subtitle && <p className="text-sm font-medium text-slate-400">{subtitle}</p>}
             </div>
           </div>
           {badge}
@@ -89,12 +89,12 @@ function TabSectionShell({ icon, title, subtitle, children, badge }: { icon: str
 
 function StatCard({ label, value, icon, gradient }: { label: string; value: string | number; icon: string; gradient: string }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/[0.03] bg-white/[0.04] backdrop-blur-2xl px-4 py-3.5 transition-all duration-300 hover:border-white/10 hover:-translate-y-1 hover:shadow-xl">
-      <div className={`absolute inset-0 opacity-[0.05] bg-gradient-to-br ${gradient} transition-opacity duration-300 group-hover:opacity-[0.1]`} />
+    <div className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-900 px-4 py-3.5 transition-all duration-300 hover:border-slate-600 hover:-translate-y-1 hover:shadow-xl hover:shadow-black/40">
+      <div className={`absolute inset-0 opacity-[0.08] bg-gradient-to-br ${gradient} transition-opacity duration-300 group-hover:opacity-[0.18]`} />
       <div className="relative flex items-center gap-3">
         <span className="text-xl">{icon}</span>
         <div>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">{label}</p>
+          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">{label}</p>
           <p className="text-lg font-black text-white">{value}</p>
         </div>
       </div>
@@ -182,17 +182,19 @@ export default async function AccountPage() {
       
       <div className="relative mx-auto max-w-7xl px-4 py-8 lg:px-8">
         {/* Header */}
-        <header className="relative mb-8 overflow-hidden rounded-3xl border border-white/5 bg-white/[0.01] backdrop-blur-2xl shadow-2xl">
+        <header className="relative mb-8 overflow-hidden rounded-3xl border border-slate-700/60 bg-[#080c18] shadow-2xl">
           <div className="h-48 md:h-64 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#050816] via-slate-900 to-indigo-950" />
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(56,189,248,0.2),transparent_70%)]" />
+            <div className="absolute inset-0 bg-gradient-to-tr from-[#050816] via-[#0e1530] to-indigo-950" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(99,102,241,0.35),transparent_65%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_50%,rgba(56,189,248,0.15),transparent_60%)]" />
             {/* Fade-out mask for the banner */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050816] via-transparent to-transparent opacity-90" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#080c18] via-transparent to-transparent" />
           </div>
           
           <div className="px-6 pb-8 md:px-10">
             <div className="relative -mt-20 flex flex-col items-center gap-6 md:-mt-24 md:flex-row md:items-end">
-              <div className="h-40 w-40 flex items-center justify-center rounded-full border-4 border-slate-950/80 bg-gradient-to-br from-cyan-400 to-purple-600 shadow-2xl text-4xl font-black text-white shrink-0 ring-4 ring-white/10" 
+              <div
+                   className="h-40 w-40 flex items-center justify-center rounded-full border-4 border-[#080c18] bg-gradient-to-br from-cyan-400 to-purple-600 shadow-2xl text-4xl font-black text-white shrink-0 ring-2 ring-indigo-500/50"
                    style={profile.avatarUrl ? { backgroundImage: `url("${profile.avatarUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
                 {!profile.avatarUrl && playerInitials}
               </div>
@@ -200,7 +202,6 @@ export default async function AccountPage() {
               <div className="flex-1 text-center md:text-left">
                 <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
                   <h1 className="text-3xl font-black text-white md:text-4xl tracking-tight">{profile.displayName}</h1>
-                  {premiumStatus && <span className="rounded-full bg-gradient-to-r from-amber-400 to-orange-500 px-3 py-1 text-[10px] font-black italic text-slate-950 shadow-lg shadow-amber-500/20">NITRO</span>}
                 </div>
                 <p className="mt-2 text-sm font-medium text-slate-400">
                   {profile.email} • Membro desde {memberSince}
@@ -208,7 +209,12 @@ export default async function AccountPage() {
               </div>
 
               <form action={logout} className="shrink-0 mb-2">
-                 <button type="submit" className="rounded-xl border border-white/10 bg-white/5 px-6 py-2.5 text-xs font-bold text-slate-300 transition-all hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20">Sair</button>
+                 <button
+                   type="submit"
+                   className="rounded-xl border border-slate-700 bg-slate-900 px-6 py-2.5 text-xs font-bold text-slate-200 transition-all hover:border-red-500 hover:bg-red-500/10 hover:text-red-300"
+                 >
+                   Sair
+                 </button>
               </form>
             </div>
           </div>
@@ -244,13 +250,13 @@ export default async function AccountPage() {
               mission: (
                 <TabSectionShell icon="🎯" title="Minha Jornada" subtitle="Missões e conquistas diárias.">
                   <div className="space-y-8">
-                    <div className="rounded-2xl bg-white/[0.02] border border-white/5 p-6 shadow-inner">
+                    <div className="rounded-2xl bg-slate-800 border border-slate-700/60 p-6 shadow-inner">
                       <div className="flex items-center justify-between mb-4">
                         <h3 className="text-xl font-black text-white">{dailyMissionCard?.title}</h3>
-                        <span className="text-emerald-400 font-bold">+{gamification?.dailyMission?.rewardXp} XP</span>
+                        <span className="rounded-lg bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-400 border border-emerald-500/20">+{gamification?.dailyMission?.rewardXp} XP</span>
                       </div>
-                      <div className="h-4 rounded-full bg-slate-900/50 overflow-hidden border border-white/5 mb-6">
-                        <div className="h-full bg-emerald-500 transition-all duration-700 animate-progress-glow" style={{ width: `${currentMissionProgressPercent}%` }} />
+                      <div className="h-3 rounded-full bg-slate-950 overflow-hidden border border-slate-700 mb-6">
+                        <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700 animate-progress-glow rounded-full" style={{ width: `${currentMissionProgressPercent}%` }} />
                       </div>
                       <Link href={dailyMissionCard?.href ?? "#"} className="inline-block rounded-xl bg-emerald-600 px-8 py-3 text-sm font-black text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02]">COMEÇAR MISSÃO</Link>
                     </div>
@@ -308,8 +314,8 @@ export default async function AccountPage() {
                 <TabSectionShell icon="🔔" title="Notificações" subtitle="Avisos do portal.">
                   <div className="space-y-4">
                     {gamification?.notifications.map(n => (
-                      <div key={n.id} className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] transition-all hover:border-white/10 group cursor-default">
-                        <p className="font-bold text-white group-hover:text-cyan-400 transition-colors">{n.title}</p>
+                      <div key={n.id} className="p-4 rounded-2xl bg-slate-800 border border-slate-700/60 hover:bg-slate-700/50 transition-all hover:border-slate-600 group cursor-default">
+                        <p className="font-bold text-white group-hover:text-cyan-300 transition-colors">{n.title}</p>
                         <p className="text-xs text-slate-400 mt-1 leading-relaxed">{n.message}</p>
                       </div>
                     ))}

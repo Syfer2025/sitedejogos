@@ -16,6 +16,7 @@ import { ShareButton } from "../../components/ShareButton";
 import { StarRating } from "../../components/StarRating";
 import { PlayerHistoryTracker } from "../../components/PlayerHistoryTracker";
 import { GameViewTracker } from "../../components/GameViewTracker";
+import { GameWalkthrough } from "../components/GameWalkthrough";
 import { getCommentCount } from "@/data/socialStore";
 
 type GamePageProps = {
@@ -152,6 +153,13 @@ export default async function GamePage({ params }: GamePageProps) {
                 </span>
               </>
             }
+          />
+
+          <GameWalkthrough
+            gameId={"4kci7og3klgj0ivy2wz3gdvd9dth5e7n"}
+            color="#3f007e"
+            height="480px"
+            showAds={!playerSession?.user.isPremium}
           />
 
           <AdSlot

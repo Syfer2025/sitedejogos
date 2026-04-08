@@ -26,9 +26,6 @@ export function AntiAdBlockBanner() {
           </p>
         </div>
         <div className="aab-banner-actions">
-          <Link href="/nitro" className="aab-banner-premium">
-            ⭐ Nitro Premium — sem anúncios
-          </Link>
           <button type="button" onClick={dismiss} className="aab-banner-close" aria-label="Fechar">
             ✕
           </button>

@@ -9,7 +9,6 @@ import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { LocaleProvider } from "./components/LocaleContext";
 import { AdBlockProvider } from "./components/AdBlockDetector";
 import { MobileBottomNav } from "./components/MobileBottomNav";
-import { NitroPremiumBanner } from "./components/NitroPremiumBanner";
 import { PageAnalyticsTracker } from "./components/PageAnalyticsTracker";
 import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
@@ -44,7 +43,6 @@ export default async function RootLayout({
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
   const premium = playerSession ? await isPlayerPremium(playerSession.user.id) : false;
   const adsenseClientId = premium ? undefined : process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
-  const nitroHref = "/nitro";
 
   async function logoutPlayer() {
     "use server";
@@ -129,19 +127,6 @@ export default async function RootLayout({
               </div>
 
               <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
-                <Link
-                  href={nitroHref}
-                  className="group relative inline-flex shrink-0 items-center gap-2 overflow-hidden rounded-full border border-indigo-200/70 bg-[linear-gradient(135deg,#5865F2_0%,#6973FF_48%,#8B5CF6_100%)] px-3 py-1.5 text-white shadow-[0_12px_26px_rgba(88,101,242,0.34)] transition-all duration-200 hover:-translate-y-0.5 hover:border-white/80 hover:shadow-[0_16px_34px_rgba(88,101,242,0.48)]"
-                >
-                  <span className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.28),transparent_38%),linear-gradient(120deg,transparent_20%,rgba(255,255,255,0.14)_48%,transparent_72%)] opacity-90 transition-opacity duration-200 group-hover:opacity-100" />
-                  <span className="relative flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-white/10 text-[10px] font-black shadow-inner shadow-white/10">
-                    N
-                  </span>
-                  <span className="relative flex flex-col leading-none">
-                    <span className="text-[9px] font-black tracking-[0.14em] text-indigo-100/90">ASSINAR NITRO</span>
-                    <span className="mt-0.5 text-[11px] font-semibold text-indigo-50">R$ 8,90</span>
-                  </span>
-                </Link>
                 <div className="shrink-0">
                   <LanguageSwitcher />
                 </div>
@@ -178,8 +163,6 @@ export default async function RootLayout({
           <main className="flex-1 pb-14 sm:pb-0">{children}</main>
 
           <MobileBottomNav />
-
-          <NitroPremiumBanner isAuthenticated={Boolean(playerSession)} isPremium={premium} />
 
           </AdBlockProvider>
         </LocaleProvider>

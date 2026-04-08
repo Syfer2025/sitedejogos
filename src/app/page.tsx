@@ -311,14 +311,14 @@ export default async function Home({
     friendLeaderboard,
     achievementDefinitions,
   ] = await Promise.all([
-    listGames({ publishedOnly: true, featured: true, limit: 8, sortBy: "popular", currentUserId }),
+    listGames({ publishedOnly: true, featured: true, limit: 8, sortBy: "random", currentUserId }),
     listGames({ publishedOnly: true, limit: 8, sortBy: "newest", currentUserId }),
-    listGames({ publishedOnly: true, limit: 8, sortBy: "popular", currentUserId }),
+    listGames({ publishedOnly: true, limit: 12, sortBy: "random", currentUserId }),
     listCategories({ order: "editorial" }),
     listCategoryShowcasesPage({
       limit: 4,
       gamesPerCategory: 12,
-      sortBy: "popular",
+      sortBy: "random",
       categoryOrder: "editorial",
       currentUserId,
     }),
@@ -446,10 +446,19 @@ export default async function Home({
           {continuePlayingGames.length > 0 ? (
             <section>
               <SectionTitle title={t.continueLabel} actionHref="/account" actionLabel={t.readAll} trackingPath="/home/section-header/continue" count={continuePlayingGames.length} />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
-                {continuePlayingGames.map((game) => (
-                  <HomeGameCard key={game.id} game={game as any} />
-                ))}
+              <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                <div
+                  className="grid gap-2 lg:gap-3"
+                  style={{
+                    gridTemplateRows: "1fr",
+                    gridAutoFlow: "column",
+                    gridAutoColumns: "clamp(140px, calc((100vw - 220px) / 5), 210px)",
+                  }}
+                >
+                  {continuePlayingGames.map((game) => (
+                    <HomeGameCard key={game.id} game={game as any} />
+                  ))}
+                </div>
               </div>
             </section>
           ) : null}
@@ -458,10 +467,19 @@ export default async function Home({
           {recommendedGames.length > 0 ? (
             <section>
               <SectionTitle title={t.recommendedLabel} actionHref="/account" actionLabel={t.readAll} trackingPath="/home/section-header/recommended" count={recommendedGames.length} />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
-                {recommendedGames.map((game) => (
-                  <HomeGameCard key={game.id} game={game as any} />
-                ))}
+              <div className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
+                <div
+                  className="grid gap-2 lg:gap-3"
+                  style={{
+                    gridTemplateRows: "1fr",
+                    gridAutoFlow: "column",
+                    gridAutoColumns: "clamp(140px, calc((100vw - 220px) / 5), 210px)",
+                  }}
+                >
+                  {recommendedGames.map((game) => (
+                    <HomeGameCard key={game.id} game={game as any} />
+                  ))}
+                </div>
               </div>
             </section>
           ) : null}

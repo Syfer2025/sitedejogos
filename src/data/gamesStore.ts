@@ -37,7 +37,7 @@ type ListGamesOptions = {
   published?: boolean;
   publishedOnly?: boolean;
   query?: string;
-  sortBy?: "newest" | "popular";
+  sortBy?: "newest" | "popular" | "random";
   currentUserId?: string;
 };
 
@@ -129,6 +129,15 @@ async function makeUniqueSlug(title: string) {
   return nextSlug;
 }
 
+function fisherYatesShuffle<T>(array: T[]): T[] {
+  const out = array.slice();
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 export async function listGames(options: ListGamesOptions = {}) {
   const where: Prisma.GameWhereInput = {
     ...(typeof options.published === "boolean"
@@ -151,15 +160,6 @@ export async function listGames(options: ListGamesOptions = {}) {
       : {}),
   };
 
-  const orderBy: Prisma.GameOrderByWithRelationInput[] =
-    options.sortBy === "popular"
-      ? [
-          { views: "desc" },
-          { popularityScore: "desc" },
-          { createdAt: "desc" },
-        ]
-      : [{ featured: "desc" }, { createdAt: "desc" }];
-
   const include: any = {
     ratings: {
       select: { value: true, userId: true }
@@ -173,6 +173,54 @@ export async function listGames(options: ListGamesOptions = {}) {
     };
   }
 
+  function mapFull(game: any) {
+    const record = mapGame(game);
+    const ratings: any[] = game.ratings || [];
+    const count = ratings.length;
+    const avg = count > 0 ? ratings.reduce((sum: number, r: any) => sum + r.value, 0) / count : 0;
+    const userRating = options.currentUserId
+      ? ratings.find((r: any) => r.userId === options.currentUserId)?.value
+      : undefined;
+    return {
+      ...record,
+      avgRating: Number(avg.toFixed(1)),
+      ratingCount: count,
+      isFavorited: options.currentUserId ? game.favorites?.length > 0 : false,
+      userRating,
+    };
+  }
+
+  // Random mode: fetch a larger pool, shuffle in-memory, return `limit` items
+  if (options.sortBy === "random") {
+    const limit = options.limit ?? 8;
+    const total = await prisma.game.count({ where });
+    if (total === 0) return [];
+
+    const poolSize = Math.min(total, limit * 4);
+    const maxSkip = Math.max(total - poolSize, 0);
+    const skip = maxSkip > 0 ? Math.floor(Math.random() * maxSkip) : 0;
+
+    // Use popularity as base order so we don't pull unknown games from the very bottom
+    const games = await prisma.game.findMany({
+      where,
+      orderBy: [{ popularityScore: "desc" }, { views: "desc" }],
+      include,
+      take: poolSize,
+      skip,
+    });
+
+    return fisherYatesShuffle(games.map(mapFull)).slice(0, limit);
+  }
+
+  const orderBy: Prisma.GameOrderByWithRelationInput[] =
+    options.sortBy === "popular"
+      ? [
+          { views: "desc" },
+          { popularityScore: "desc" },
+          { createdAt: "desc" },
+        ]
+      : [{ featured: "desc" }, { createdAt: "desc" }];
+
   const games = await prisma.game.findMany({
     where,
     orderBy,
@@ -180,23 +228,7 @@ export async function listGames(options: ListGamesOptions = {}) {
     ...(options.limit ? { take: options.limit } : {}),
     ...(options.offset ? { skip: options.offset } : {}),
   });
-  return games.map((game) => {
-    const record = mapGame(game);
-    const ratings = (game as any).ratings || [];
-    const count = ratings.length;
-    const avg = count > 0 ? ratings.reduce((sum: number, r: any) => sum + r.value, 0) / count : 0;
-    const userRating = options.currentUserId 
-      ? ratings.find((r: any) => r.userId === options.currentUserId)?.value 
-      : undefined;
-    
-    return {
-      ...record,
-      avgRating: Number(avg.toFixed(1)),
-      ratingCount: count,
-      isFavorited: options.currentUserId ? (game as any).favorites?.length > 0 : false,
-      userRating,
-    };
-  });
+  return games.map(mapFull);
 }
 
 export async function listGamesPage(
@@ -267,7 +299,7 @@ export async function listCategoryShowcasesPage(
     offset?: number;
     limit?: number;
     gamesPerCategory?: number;
-    sortBy?: "newest" | "popular";
+    sortBy?: "newest" | "popular" | "random";
     categoryOrder?: CatalogCategoryOrderMode;
     currentUserId?: string;
   } = {},

@@ -73,15 +73,6 @@ export function AntiAdBlockWall({
 
             <div className="aab-wall-option-divider">ou</div>
 
-            <div className="aab-wall-option">
-              <p className="aab-wall-option-title">Opção 2 — Nitro Premium</p>
-              <p className="aab-wall-option-desc">
-                Sem anúncios, sem limites, sem espera. Jogue quanto quiser.
-              </p>
-              <Link href="/nitro" className="aab-wall-btn-premium">
-                ⭐ Assinar Nitro — R$ 8,90/mês
-              </Link>
-            </div>
           </div>
         </div>
       </div>
@@ -131,9 +122,6 @@ export function AntiAdBlockWall({
             <span className="aab-wall-countdown-text">{countdown}</span>
           </div>
 
-          <Link href="/nitro" className="aab-wall-btn-premium-small">
-            ⭐ Pular com Nitro Premium
-          </Link>
         </div>
       </div>
     );
