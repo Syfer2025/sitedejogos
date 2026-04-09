@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   const category = await findCategory(slug);
 
   if (!category) {
-    return { title: "Categoria não encontrada | Arcade Nexus" };
+    return { title: "Categoria não encontrada | Gasty Games" };
   }
 
   const seo = getCategorySeoContent(category);
@@ -188,7 +188,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
       {/* SEO text block */}
       <div className="mt-10 text-center text-sm text-slate-400 max-w-3xl mx-auto border-t border-slate-800 pt-8 p-6">
-        <h2 className="text-lg font-bold text-slate-200 mb-3">Por que jogar {category} no Arcade Nexus?</h2>
+        <h2 className="text-lg font-bold text-slate-200 mb-3">Por que jogar {category} no Gasty Games?</h2>
         <p className="leading-relaxed">
           A secao de jogos de {category} foi criada baseada no que ha de mais moderno em renderizacao de navegador (HTML5/WebGL).
           Sem a necessidade de realizar downloads pesados e instalar APPs arriscados, voce se diverte instantaneamente em qualquer dispositivo.

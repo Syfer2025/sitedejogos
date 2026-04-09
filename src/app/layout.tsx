@@ -10,7 +10,8 @@ import { LocaleProvider } from "./components/LocaleContext";
 import { AdBlockProvider } from "./components/AdBlockDetector";
 import { MobileBottomNav } from "./components/MobileBottomNav";
 import { PageAnalyticsTracker } from "./components/PageAnalyticsTracker";
-import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
+import { LOCALE_COOKIE_NAME, resolveLocale, type Locale } from "@/lib/locale";
+import { getDictionary } from "@/lib/i18n";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 import { isPlayerPremium } from "@/data/monetizationStore";
 
@@ -24,13 +25,19 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Arcade Nexus",
-    template: "%s | Arcade Nexus",
-  },
-  description: "Portal moderno de jogos HTML5 com SEO, catálogo curado e monetização pronta para anúncios.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies();
+  const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
+  const dict = await getDictionary(locale);
+  
+  return {
+    title: {
+      default: "Gasty Games",
+      template: "%s | Gasty Games",
+    },
+    description: dict.home.heroSubtitle,
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -43,6 +50,8 @@ export default async function RootLayout({
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
   const premium = playerSession ? await isPlayerPremium(playerSession.user.id) : false;
   const adsenseClientId = premium ? undefined : process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  const dict = await getDictionary(initialLocale);
+  const t = { ...dict.common, ...dict.home };
 
   async function logoutPlayer() {
     "use server";
@@ -91,20 +100,20 @@ export default async function RootLayout({
                   <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-purple-500 via-fuchsia-500 to-cyan-400 shadow-[0_0_25px_rgba(168,85,247,0.8)]" />
                   <div className="flex flex-col leading-tight">
                     <span className="text-lg font-semibold tracking-tight text-white">
-                      Arcade Nexus
+                      Gasty Games
                     </span>
                     <span className="hidden text-[11px] text-slate-400 sm:block">
-                      Portal de jogos HTML5
+                      {t.noInstalls}
                     </span>
                   </div>
                 </Link>
 
                 <div className="hidden md:flex items-center gap-1 text-xs font-medium text-slate-300">
                   <Link href="/" className="rounded-md px-3 py-1.5 transition-all duration-150 hover:bg-slate-800/60 hover:text-white">
-                    Início
+                    {t.home}
                   </Link>
                   <Link href="/blog" className="rounded-md px-3 py-1.5 transition-all duration-150 hover:bg-slate-800/60 hover:text-white">
-                    Blog
+                    {t.blog}
                   </Link>
                 </div>
               </div>
@@ -114,14 +123,14 @@ export default async function RootLayout({
                   <input
                     name="q"
                     type="text"
-                    placeholder="Buscar jogos..."
+                    placeholder={t.search}
                     className="h-9 w-full rounded-full border border-slate-700/70 bg-slate-900/80 px-4 pr-16 text-xs text-slate-100 placeholder:text-slate-500 shadow-inner shadow-black/60 focus:border-purple-400/70 focus:outline-none focus:ring-2 focus:ring-purple-500/70"
                   />
                   <button
                     type="submit"
                     className="absolute right-1 top-1 inline-flex h-7 items-center rounded-full bg-cyan-400/15 px-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-100 transition-colors hover:bg-cyan-400/25"
                   >
-                    Buscar
+                    {t.search?.split(" ")[0]}
                   </button>
                 </form>
               </div>
@@ -144,7 +153,7 @@ export default async function RootLayout({
                         type="submit"
                         className="inline-flex items-center rounded-full border border-slate-700/80 bg-slate-950/80 px-3 py-1 text-[11px] text-slate-200 transition-colors hover:border-red-500/80 hover:bg-red-950/40 hover:text-white"
                       >
-                        Sair
+                        {t.logout}
                       </button>
                     </form>
                   </div>
@@ -153,12 +162,13 @@ export default async function RootLayout({
                     href="/login"
                     className="hidden sm:inline-flex items-center rounded-full border border-cyan-500/50 bg-cyan-500/10 px-3 py-1 text-[11px] text-cyan-100 transition-colors hover:border-cyan-400 hover:bg-cyan-500/15"
                   >
-                    Entrar
+                    {t.login}
                   </Link>
                 )}
               </div>
             </nav>
           </header>
+
 
           <main className="flex-1 pb-14 sm:pb-0">{children}</main>
 

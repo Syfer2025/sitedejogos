@@ -39,7 +39,7 @@ Para maximizar receita sem destruir a experiência do jogador, você precisa pen
 - Equilíbrio entre anúncios e conteúdo: excesso de ads derruba retenção e reduz o número de impressões por usuário.
 - Velocidade: páginas rápidas carregam mais anúncios vistos e melhoram o rankeamento no Google.
 
-No Arcade Nexus, a home, as páginas de jogo e o blog foram desenhados com espaços de mídia claros, sem sacrificar legibilidade ou desempenho.`,
+No Gasty Games, a home, as páginas de jogo e o blog foram desenhados com espaços de mídia claros, sem sacrificar legibilidade ou desempenho.`,
     isPublished: true,
   },
   {

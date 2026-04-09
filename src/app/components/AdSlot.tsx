@@ -26,7 +26,7 @@ const MIN_REFRESH_INTERVAL = 30_000; // AdSense policy: minimum 30s
 const NATIVE_PROMOS = [
   {
     title: "🎮 Crie sua conta e ganhe moedas!",
-    text: "Registre-se grátis no Arcade Nexus e comece a ganhar moedas para desbloquear temas exclusivos.",
+    text: "Registre-se grátis no Gasty Games e comece a ganhar moedas para desbloquear temas exclusivos.",
     cta: "Criar conta grátis",
     href: "/login?mode=register",
     gradient: "from-purple-500/20 to-cyan-500/20",

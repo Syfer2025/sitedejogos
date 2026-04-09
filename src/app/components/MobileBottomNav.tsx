@@ -4,22 +4,24 @@ import { useEffect, useState } from "react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslate } from "./LocaleContext";
 
 type NavItem = {
   href: string;
-  label: string;
+  labelKey: string;
   icon: string;
   activeIcon: string;
 };
 
 const NAV_ITEMS: NavItem[] = [
-  { href: "/", label: "Início", icon: "🏠", activeIcon: "🏠" },
-  { href: "/#catalogo", label: "Jogos", icon: "🎮", activeIcon: "🎮" },
-  { href: "/account", label: "Perfil", icon: "👤", activeIcon: "👤" },
+  { href: "/", labelKey: "common.home", icon: "🏠", activeIcon: "🏠" },
+  { href: "/#catalogo", labelKey: "common.categories", icon: "🎮", activeIcon: "🎮" },
+  { href: "/account", labelKey: "common.account", icon: "👤", activeIcon: "👤" },
 ];
 
 export function MobileBottomNav() {
   const pathname = usePathname();
+  const t = useTranslate();
   const [hash, setHash] = useState("");
 
   useEffect(() => {
@@ -40,7 +42,7 @@ export function MobileBottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-slate-800/80 bg-slate-950/95 backdrop-blur-lg sm:hidden safe-area-bottom">
-      <div className="grid grid-cols-4 py-1.5">
+      <div className="grid grid-cols-3 py-1.5">
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.href === "/"
@@ -62,7 +64,7 @@ export function MobileBottomNav() {
               <span className="text-lg leading-none">
                 {isActive ? item.activeIcon : item.icon}
               </span>
-              <span className="font-medium">{item.label}</span>
+              <span className="font-medium">{t(item.labelKey)}</span>
               {isActive && (
                 <span className="absolute bottom-0 h-0.5 w-8 rounded-full bg-cyan-400" />
               )}

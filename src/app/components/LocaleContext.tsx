@@ -1,6 +1,5 @@
 "use client";
-
-import { createContext, useContext, useEffect, useSyncExternalStore } from "react";
+import { createContext, useContext, useEffect, useState, useSyncExternalStore, useMemo } from "react";
 
 import {
   DEFAULT_LOCALE,
@@ -15,6 +14,8 @@ const LOCALE_EVENT_NAME = "arcade-locale-change";
 type LocaleContextValue = {
   locale: Locale;
   setLocale: (next: Locale) => void;
+  dictionary: any;
+  t: (key: string, variables?: Record<string, string | number>, fallback?: string) => string;
 };
 
 const LocaleContext = createContext<LocaleContextValue | null>(null);
@@ -59,6 +60,19 @@ export function LocaleProvider({
     () => initialLocale
   );
 
+  const [dictionary, setDictionary] = useState<any>(null);
+
+  useEffect(() => {
+    // Load dictionary on client side
+    import(`@/messages/${locale}.json`)
+      .then((mod) => setDictionary(mod.default))
+      .catch((err) => {
+        console.error("Failed to load client dictionary", err);
+        // Fallback load
+        import(`@/messages/en-US.json`).then(mod => setDictionary(mod.default));
+      });
+  }, [locale]);
+
   useEffect(() => {
     if (typeof window === "undefined") return;
     window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
@@ -76,8 +90,36 @@ export function LocaleProvider({
     window.dispatchEvent(new Event(LOCALE_EVENT_NAME));
   }
 
+  const t = useMemo(() => {
+    return (key: string, variables?: Record<string, string | number>, fallback?: string) => {
+      if (!dictionary) return fallback ?? key;
+      
+      const keys = key.split(".");
+      let result = dictionary;
+      
+      for (const k of keys) {
+        if (result && typeof result === "object" && k in result) {
+          result = result[k];
+        } else {
+          result = fallback ?? key;
+          break;
+        }
+      }
+      
+      let text = typeof result === "string" ? result : (fallback ?? key);
+
+      if (variables) {
+        Object.entries(variables).forEach(([k, v]) => {
+          text = text.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
+        });
+      }
+
+      return text;
+    };
+  }, [dictionary]);
+
   return (
-    <LocaleContext.Provider value={{ locale, setLocale }}>
+    <LocaleContext.Provider value={{ locale, setLocale, dictionary, t }}>
       {children}
     </LocaleContext.Provider>
   );
@@ -89,4 +131,9 @@ export function useLocale() {
     throw new Error("useLocale must be used within LocaleProvider");
   }
   return ctx;
+}
+
+export function useTranslate() {
+  const { t } = useLocale();
+  return t;
 }

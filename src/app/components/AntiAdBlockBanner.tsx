@@ -21,7 +21,7 @@ export function AntiAdBlockBanner() {
             Notamos que você usa um bloqueador de anúncios
           </p>
           <p className="aab-banner-desc">
-            Os anúncios são a única fonte de receita do Arcade Nexus e mantêm os jogos
+            Os anúncios são a única fonte de receita do Gasty Games e mantêm os jogos
             100% gratuitos. Considere desativar o ad blocker para apoiar o portal!
           </p>
         </div>

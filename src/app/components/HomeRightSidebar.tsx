@@ -17,8 +17,8 @@ import {
   DEFAULT_ACHIEVEMENT_DEFINITIONS,
   getAchievementProgress,
 } from "@/lib/gamification";
-import { getHomeTexts } from "@/lib/home-content";
-import { getLocaleContentLocale, LOCALE_COOKIE_NAME, resolveLocale, type Locale } from "@/lib/locale";
+import { getDictionary, t } from "@/lib/i18n";
+import { LOCALE_COOKIE_NAME, resolveLocale, type Locale } from "@/lib/locale";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 
 import { AdSlot } from "./AdSlot";
@@ -57,73 +57,30 @@ function getLeaderboardBannerGradient(profileTheme: string, categories: string[]
   return "from-sky-500/80 via-indigo-400/45 to-slate-950";
 }
 
-function getLeaderboardProfileTag(locale: Locale, categories: string[]) {
+function getLeaderboardProfileTag(dict: any, categories: string[]) {
   const primaryCategory = categories[0];
-  const contentLocale = getLocaleContentLocale(locale);
-
-  if (primaryCategory) {
-    return primaryCategory;
-  }
-
-  if (contentLocale === "en") return "Top player";
-  if (contentLocale === "es") return "Jugador top";
-  return "Destaque";
+  if (primaryCategory) return primaryCategory;
+  return t(dict, "home.featuredLabel");
 }
 
-function getLeaderboardStatLabel(locale: Locale, type: "achievements" | "friends") {
-  const contentLocale = getLocaleContentLocale(locale);
-
-  if (type === "achievements") {
-    if (contentLocale === "en") return "Achievements";
-    if (contentLocale === "es") return "Logros";
-    return "Conquistas";
-  }
-
-  if (contentLocale === "en") return "Friends";
-  if (contentLocale === "es") return "Amigos";
-  return "Amigos";
+function getLeaderboardStatLabel(dict: any, type: "achievements" | "friends") {
+  if (type === "achievements") return t(dict, "player.achievements");
+  return t(dict, "player.friends");
 }
 
-function getLeaderboardStreakLabel(locale: Locale) {
-  const contentLocale = getLocaleContentLocale(locale);
-
-  if (contentLocale === "en") return "streak";
-  if (contentLocale === "es") return "racha";
-  return "sequência";
-}
-
-function getPlayerHubTag(locale: Locale, categories: string[]) {
+function getPlayerHubTag(dict: any, categories: string[]) {
   const primaryCategory = categories[0];
-  const contentLocale = getLocaleContentLocale(locale);
-
-  if (primaryCategory) {
-    return primaryCategory;
-  }
-
-  if (contentLocale === "en") return "Player hub";
-  if (contentLocale === "es") return "Perfil gamer";
-  return "Hub do jogador";
+  if (primaryCategory) return primaryCategory;
+  return t(dict, "common.account");
 }
 
 function getPlayerSidebarQuickLabel(
-  locale: Locale,
+  dict: any,
   type: "favorites" | "played" | "achievements" | "friends",
 ) {
-  const contentLocale = getLocaleContentLocale(locale);
-
-  if (type === "favorites") {
-    if (contentLocale === "en") return "Favorites";
-    if (contentLocale === "es") return "Favoritos";
-    return "Favoritos";
-  }
-
-  if (type === "played") {
-    if (contentLocale === "en") return "Played";
-    if (contentLocale === "es") return "Jugados";
-    return "Jogados";
-  }
-
-  return getLeaderboardStatLabel(locale, type);
+  if (type === "favorites") return t(dict, "player.favorites");
+  if (type === "played") return t(dict, "player.played");
+  return getLeaderboardStatLabel(dict, type === "achievements" ? "achievements" : "friends");
 }
 
 const ACHIEVEMENT_SHOWCASE_ORDER = new Map(
@@ -142,9 +99,9 @@ const GUEST_ACHIEVEMENT_SNAPSHOT: AchievementEvaluationSnapshot = {
 };
 
 const LEADERBOARD_SEALS = [
-  { src: "/leaderboard/place-1.png", alt: "1º lugar" },
-  { src: "/leaderboard/place-2.png", alt: "2º lugar" },
-  { src: "/leaderboard/place-3.png", alt: "3º lugar" },
+  { src: "/leaderboard/place-1.png", alt: "1º" },
+  { src: "/leaderboard/place-2.png", alt: "2º" },
+  { src: "/leaderboard/place-3.png", alt: "3º" },
 ] as const;
 const TARGET_LEADERBOARD_SIZE = 15;
 const PODIUM_DISPLAY_ORDER = [0, 1, 2] as const;
@@ -171,7 +128,7 @@ export async function HomeRightSidebar() {
   const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
   const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
-  const t = getHomeTexts(locale);
+  const dict = await getDictionary(locale);
 
   const [
     topPlayers,
@@ -230,8 +187,6 @@ export async function HomeRightSidebar() {
     podiumPlayers.length >= 3
       ? PODIUM_DISPLAY_ORDER.filter((index) => podiumPlayers[index])
       : podiumPlayers.map((_, index) => index);
-  const podiumGridClassName =
-    podiumPlayers.length === 1 ? "grid-cols-1" : "grid-cols-2";
   const remainingLeaderboardEntries = Array.from(
     { length: Math.max(TARGET_LEADERBOARD_SIZE - 3, 0) },
     (_, index) => ({
@@ -243,7 +198,7 @@ export async function HomeRightSidebar() {
     "default",
     profile?.preferredCategories ?? [],
   );
-  const playerHubTag = getPlayerHubTag(locale, profile?.preferredCategories ?? []);
+  const playerHubTag = getPlayerHubTag(dict, profile?.preferredCategories ?? []);
   const sidebarFriendCount = playerSession ? Math.max(friendLeaderboard.length - 1, 0) : 0;
 
   return (
@@ -277,14 +232,14 @@ export async function HomeRightSidebar() {
                       {profile?.displayName ?? playerSession.user.displayName}
                     </p>
                     <p className="mt-1 text-[11px] text-slate-400">
-                      Level {gamification?.level ?? 1}
+                      {t(dict, "player.levelLabel", { level: gamification?.level ?? 1 })}
                     </p>
                   </div>
                 </div>
 
                 <div className="mt-4 space-y-1.5">
                   <div className="flex justify-between text-[10px] text-slate-500">
-                    <span>XP → Level {(gamification?.level ?? 1) + 1}</span>
+                    <span>{t(dict, "player.levelUp", { level: (gamification?.level ?? 1) + 1 })}</span>
                     <span>{Math.min(gamification?.progress.progressPercent ?? 0, 100)}%</span>
                   </div>
                   <div className="h-3 overflow-hidden rounded-full bg-slate-950/80">
@@ -295,26 +250,26 @@ export async function HomeRightSidebar() {
                 <div className="mt-4 grid grid-cols-4 gap-2 text-center">
                   <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-1 py-2">
                     <p className="text-lg font-bold text-slate-100">{gamification?.level ?? 1}</p>
-                    <p className="text-[8px] font-medium leading-tight text-slate-500 [overflow-wrap:anywhere]">{t.statsLevel}</p>
+                    <p className="text-[8px] font-medium leading-tight text-slate-500 [overflow-wrap:anywhere]">{t(dict, "player.level")}</p>
                   </div>
                   <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-1 py-2">
                     <p className="text-lg font-bold text-slate-100">{gamification?.currentStreak ?? 0}</p>
-                    <p className="text-[8px] font-medium leading-tight text-slate-500 [overflow-wrap:anywhere]">{t.statsStreak}</p>
+                    <p className="text-[8px] font-medium leading-tight text-slate-500 [overflow-wrap:anywhere]">{t(dict, "player.streak")}</p>
                   </div>
                   <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-1 py-2">
                     <p className="text-lg font-bold text-slate-100">{leaderboardPosition ? `#${leaderboardPosition}` : "--"}</p>
-                    <p className="text-[8px] font-medium leading-tight text-slate-500 [overflow-wrap:anywhere]">{t.rankBadge}</p>
+                    <p className="text-[8px] font-medium leading-tight text-slate-500 [overflow-wrap:anywhere]">{t(dict, "home.rankingLabel")}</p>
                   </div>
                   <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-1 py-2">
                     <p className="text-lg font-bold text-slate-100">{gamification?.unreadNotifications ?? 0}</p>
-                    <p className="text-[8px] font-medium leading-tight text-slate-500 [overflow-wrap:anywhere]">{t.statsNotifications}</p>
+                    <p className="text-[8px] font-medium leading-tight text-slate-500 [overflow-wrap:anywhere]">{t(dict, "player.notifications")}</p>
                   </div>
                 </div>
 
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-3 py-2">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      {getPlayerSidebarQuickLabel(locale, "achievements")}
+                      {getPlayerSidebarQuickLabel(dict, "achievements")}
                     </p>
                     <p className="mt-1 text-sm font-bold text-slate-100 tabular-nums">
                       {formatViews(gamification?.achievementCount ?? 0, locale)}
@@ -322,7 +277,7 @@ export async function HomeRightSidebar() {
                   </div>
                   <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-3 py-2">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      {getPlayerSidebarQuickLabel(locale, "friends")}
+                      {getPlayerSidebarQuickLabel(dict, "friends")}
                     </p>
                     <p className="mt-1 text-sm font-bold text-slate-100 tabular-nums">
                       {formatViews(sidebarFriendCount, locale)}
@@ -330,7 +285,7 @@ export async function HomeRightSidebar() {
                   </div>
                   <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-3 py-2">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      {getPlayerSidebarQuickLabel(locale, "favorites")}
+                      {getPlayerSidebarQuickLabel(dict, "favorites")}
                     </p>
                     <p className="mt-1 text-sm font-bold text-slate-100 tabular-nums">
                       {formatViews(favorites.length, locale)}
@@ -338,7 +293,7 @@ export async function HomeRightSidebar() {
                   </div>
                   <div className="rounded-xl border border-slate-800/80 bg-slate-950/55 px-3 py-2">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-500">
-                      {getPlayerSidebarQuickLabel(locale, "played")}
+                      {getPlayerSidebarQuickLabel(dict, "played")}
                     </p>
                     <p className="mt-1 text-sm font-bold text-slate-100 tabular-nums">
                       {formatViews(continuePlayingGames.length, locale)}
@@ -354,18 +309,17 @@ export async function HomeRightSidebar() {
                   ?
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-bold text-slate-100">Guest</p>
-                  <p className="text-[11px] text-slate-500">{t.anonymousHint}</p>
+                  <p className="truncate text-sm font-bold text-slate-100">{t(dict, "player.guestName")}</p>
+                  <p className="text-[11px] text-slate-500">{t(dict, "home.anonymousHint")}</p>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs text-slate-400">{t.anonymousHint}</p>
                 <TrackedLink href="/login?mode=register" trackingPath="/home/sidebar/register" className="block w-full rounded-lg bg-gradient-to-r from-purple-500 to-cyan-400 py-2 text-center text-xs font-bold text-white transition-all duration-200 hover:shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:scale-[1.02] active:scale-[0.98]">
-                  {t.ctaRegister}
+                  {t(dict, "common.register")}
                 </TrackedLink>
                 <TrackedLink href="/login" trackingPath="/home/sidebar/login" className="block w-full rounded-lg border border-slate-700 bg-slate-800/50 py-2 text-center text-xs font-medium text-slate-300 hover:border-slate-600 hover:text-white transition-colors">
-                  Entrar
+                  {t(dict, "common.login")}
                 </TrackedLink>
               </div>
             </div>
@@ -377,20 +331,20 @@ export async function HomeRightSidebar() {
           locale={locale}
           isAuthenticated={Boolean(playerSession)}
           unlockedCount={achievementRailItems.filter((achievement) => achievement.unlocked).length}
-          title={t.achievementsLabel}
-          subtitle={t.achievementsSubtitle}
-          lockedLabel={t.achievementsLockedLabel}
-          unlockedLabel={t.achievementsUnlockedLabel}
-          guestCtaLabel={t.achievementsGuestCta}
-          accountCtaLabel={t.achievementsAccountCta}
+          title={t(dict, "player.achievements")}
+          subtitle={t(dict, "player.achievementsSubtitle")}
+          lockedLabel={t(dict, "player.locked")}
+          unlockedLabel={t(dict, "player.unlocked")}
+          guestCtaLabel={t(dict, "auth.registerSubtitle")}
+          accountCtaLabel={t(dict, "player.achievementsSubtitle")}
         />
 
         {/* Ranking */}
         <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-3 animate-fade-in-up">
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] uppercase tracking-widest text-amber-300/80 font-bold">🏆 {t.rankingLabel}</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{t.rankingSubtitle}</p>
+              <p className="text-[10px] uppercase tracking-widest text-amber-300/80 font-bold">🏆 {t(dict, "home.rankingLabel")}</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-slate-500">{t(dict, "home.rankingSubtitle")}</p>
             </div>
             {topPlayers.length > 0 ? (
               <span className="shrink-0 self-start rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-[10px] font-semibold text-amber-100">
@@ -411,7 +365,7 @@ export async function HomeRightSidebar() {
                     player.profileTheme,
                     player.preferredCategories,
                   );
-                  const bannerTag = getLeaderboardProfileTag(locale, player.preferredCategories);
+                  const bannerTag = getLeaderboardProfileTag(dict, player.preferredCategories);
 
                   return (
                     <div
@@ -445,7 +399,7 @@ export async function HomeRightSidebar() {
                             </p>
                             <div className="mt-0.5 flex items-center gap-1 text-[10px] text-slate-300/90">
                               <span>
-                                Lv.{player.level} • {player.currentStreak}🔥 {getLeaderboardStreakLabel(locale)}
+                                Lv.{player.level} • {player.currentStreak}🔥 {t(dict, "player.streak")}
                               </span>
                               <img
                                 src={seal.src}
@@ -475,16 +429,11 @@ export async function HomeRightSidebar() {
                 <div className="border-t border-slate-800/80 pt-3">
                   <div className="mb-2 flex items-center justify-between gap-3">
                     <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                      Posições 4 a {TARGET_LEADERBOARD_SIZE}
+                      {t(dict, "player.rankingRange", { start: 4, end: TARGET_LEADERBOARD_SIZE })}
                     </p>
-                    {remainingLeaderboardEntries.length > 4 ? (
-                      <span className="text-[10px] text-slate-500">Role para ver mais</span>
-                    ) : null}
                   </div>
                   <div className="max-h-[212px] space-y-1.5 overflow-y-scroll pr-1 scrollbar-thin stagger-children">
                     {remainingLeaderboardEntries.map(({ rank, player }) => {
-                      const isEmptySlot = !player;
-
                       return (
                         <div key={player?.id ?? `leaderboard-slot-${rank}`} className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-all duration-200 animate-fade-in-up hover:bg-slate-800/40">
                           <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full border border-slate-700 bg-slate-950 text-[10px] font-bold text-slate-300">
@@ -507,8 +456,8 @@ export async function HomeRightSidebar() {
                               </>
                             ) : (
                               <>
-                                <p className="truncate text-[12px] font-semibold text-slate-400 leading-tight">Vaga aberta no ranking</p>
-                                <p className="text-[9px] text-slate-600 leading-tight">Novos jogadores aparecem aqui conforme acumulam XP.</p>
+                                <p className="truncate text-[12px] font-semibold text-slate-400 leading-tight">{t(dict, "player.rankingEmptySlot")}</p>
+                                <p className="text-[9px] text-slate-600 leading-tight">{t(dict, "player.rankingEmptySlotHint")}</p>
                               </>
                             )}
                           </div>
@@ -520,7 +469,7 @@ export async function HomeRightSidebar() {
               ) : null}
             </div>
           ) : (
-            <p className="text-xs text-slate-500 py-2">{t.rankingEmpty}</p>
+            <p className="text-xs text-slate-500 py-2">{t(dict, "home.empty")}</p>
           )}
         </div>
 
@@ -532,7 +481,7 @@ export async function HomeRightSidebar() {
         {/* Friend leaderboard */}
         {friendLeaderboard.length > 1 && (
           <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-3 animate-fade-in-up">
-            <p className="text-[10px] uppercase tracking-widest text-cyan-300/80 font-bold">👥 Ranking entre amigos</p>
+            <p className="text-[10px] uppercase tracking-widest text-cyan-300/80 font-bold">👥 {t(dict, "player.friendRanking")}</p>
             <div className="space-y-1 stagger-children">
               {friendLeaderboard.map((player, index) => {
                 const isMe = "isCurrentUser" in player && player.isCurrentUser;
@@ -550,7 +499,7 @@ export async function HomeRightSidebar() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className={`truncate text-[11px] font-semibold leading-tight ${isMe ? "text-cyan-200" : "text-slate-200"}`}>
-                        {player.displayName} {isMe ? "(você)" : ""}
+                        {player.displayName} {isMe ? `(${t(dict, "player.you")})` : ""}
                       </p>
                       <p className="text-[9px] text-slate-500 leading-tight">Lv.{player.level} • {player.xp} XP</p>
                     </div>
@@ -564,7 +513,7 @@ export async function HomeRightSidebar() {
         {/* Taste profile summary */}
         {playerSession && tasteProfile?.recommendationSummary ? (
           <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-2">
-            <p className="text-[10px] uppercase tracking-widest text-purple-300/80 font-bold">Seu perfil</p>
+            <p className="text-[10px] uppercase tracking-widest text-purple-300/80 font-bold">{t(dict, "game.about")}</p>
             <p className="text-xs text-slate-400 leading-relaxed">{tasteProfile.recommendationSummary}</p>
           </div>
         ) : null}

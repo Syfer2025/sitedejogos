@@ -6,11 +6,12 @@ import { useRouter } from "next/navigation";
 
 import { getLocaleDefinition, LOCALE_MARKETS, type Locale } from "@/lib/locale";
 
-import { useLocale } from "./LocaleContext";
+import { useLocale, useTranslate } from "./LocaleContext";
 
 export function LanguageSwitcher() {
   const router = useRouter();
   const { locale, setLocale } = useLocale();
+  const t = useTranslate();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement | null>(null);
 
@@ -72,7 +73,7 @@ export function LanguageSwitcher() {
         <div className="absolute right-0 z-20 mt-2 w-[290px] overflow-hidden rounded-2xl border border-slate-700/80 bg-slate-950/95 shadow-[0_18px_45px_rgba(2,6,23,0.6)] backdrop-blur-md">
           <div className="border-b border-slate-800/80 px-3 py-2">
             <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-400">
-              Idiomas
+              {t("common.languages")}
             </p>
           </div>
           <div role="listbox" className="scrollbar-locale max-h-[420px] overflow-y-auto py-1 pr-1">

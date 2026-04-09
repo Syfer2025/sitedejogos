@@ -52,7 +52,7 @@ export default async function AdminGamesLayout({
             Admin Panel
           </div>
           <div className="text-sm font-medium text-slate-100 mt-1">
-            Arcade Nexus
+            Gasty Games
           </div>
           <div className="text-[11px] text-slate-500 mt-1 truncate">
             {session.email}

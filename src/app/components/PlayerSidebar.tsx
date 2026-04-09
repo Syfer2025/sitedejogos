@@ -11,8 +11,8 @@ import {
   listTopPlayers,
 } from "@/data/playerStore";
 import { buildDailyMission } from "@/lib/daily-missions";
-import { getHomeTexts } from "@/lib/home-content";
 import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
+import { getDictionary, t as tr } from "@/lib/i18n";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 
 import { AdSlot } from "./AdSlot";
@@ -36,7 +36,9 @@ export async function PlayerSidebar() {
   const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
   const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
-  const t = getHomeTexts(locale);
+  const dict = await getDictionary(locale);
+  const t = { ...dict.common, ...dict.home, ...dict.player };
+
 
   const [
     topPlayers,
@@ -78,7 +80,7 @@ export async function PlayerSidebar() {
               {profile?.displayName ?? (playerSession ? playerSession.user.displayName : "Guest")}
             </p>
             <p className="text-[11px] text-slate-500">
-              {playerSession ? `Level ${gamification?.level ?? 1}` : t.anonymousHint}
+              {playerSession ? tr(dict, "player.levelLabel", { level: gamification?.level ?? 1 }) : t.anonymousHint}
             </p>
           </div>
         </div>
@@ -88,7 +90,7 @@ export async function PlayerSidebar() {
             {/* XP bar */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-[10px] text-slate-500">
-                <span>XP → Level {(gamification?.level ?? 1) + 1}</span>
+                <span>{tr(dict, "player.levelUp", { level: (gamification?.level ?? 1) + 1 })}</span>
                 <span>{Math.min(gamification?.progress.progressPercent ?? 0, 100)}%</span>
               </div>
               <div className="h-3 overflow-hidden rounded-full bg-slate-900">
@@ -111,7 +113,7 @@ export async function PlayerSidebar() {
               </div>
               <div className="rounded-lg bg-slate-800/50 py-2">
                 <p className="text-lg font-bold text-slate-100">{leaderboardPosition ? `#${leaderboardPosition}` : "--"}</p>
-                <p className="text-[9px] uppercase text-slate-500">{t.rankBadge}</p>
+                <p className="text-[9px] uppercase text-slate-500">{tr(dict, "home.rankingLabel")}</p>
               </div>
               <div className="rounded-lg bg-slate-800/50 py-2">
                 <p className="text-lg font-bold text-slate-100">{gamification?.unreadNotifications ?? 0}</p>
@@ -123,11 +125,11 @@ export async function PlayerSidebar() {
             <div className="flex gap-2">
               <div className="flex-1 rounded-lg bg-slate-800/30 px-3 py-2 text-center">
                 <p className="text-base font-bold text-slate-100">{favorites.length}</p>
-                <p className="text-[10px] text-slate-500">Favoritos</p>
+                <p className="text-[10px] text-slate-500">{tr(dict, "player.favorites")}</p>
               </div>
               <div className="flex-1 rounded-lg bg-slate-800/30 px-3 py-2 text-center">
                 <p className="text-base font-bold text-slate-100">{continuePlayingGames.length}</p>
-                <p className="text-[10px] text-slate-500">Jogados</p>
+                <p className="text-[10px] text-slate-500">{tr(dict, "player.played")}</p>
               </div>
             </div>
           </>
@@ -146,7 +148,7 @@ export async function PlayerSidebar() {
               trackingPath="/home/sidebar/login"
               className="block w-full rounded-lg border border-slate-700 bg-slate-800/50 py-2 text-center text-xs font-medium text-slate-300 hover:border-slate-600 hover:text-white transition-colors"
             >
-              Entrar
+              {t.login}
             </TrackedLink>
           </div>
         )}
@@ -225,7 +227,7 @@ export async function PlayerSidebar() {
       {/* Friend leaderboard */}
       {friendLeaderboard.length > 1 && (
         <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-3 animate-fade-in-up">
-          <p className="text-[10px] uppercase tracking-widest text-cyan-300/80 font-bold">👥 Ranking entre amigos</p>
+          <p className="text-[10px] uppercase tracking-widest text-cyan-300/80 font-bold">👥 {tr(dict, "player.friendRanking")}</p>
           <div className="space-y-1 stagger-children">
             {friendLeaderboard.map((player, index) => {
               const isMe = "isCurrentUser" in player && player.isCurrentUser;
@@ -246,7 +248,7 @@ export async function PlayerSidebar() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className={`truncate text-[11px] font-semibold leading-tight ${isMe ? "text-cyan-200" : "text-slate-200"}`}>
-                      {player.displayName} {isMe ? "(você)" : ""}
+                      {player.displayName} {isMe ? `(${tr(dict, "player.you")})` : ""}
                     </p>
                     <p className="text-[9px] text-slate-500 leading-tight">Lv.{player.level} • {player.xp} XP</p>
                   </div>
@@ -260,7 +262,7 @@ export async function PlayerSidebar() {
       {/* Taste profile summary */}
       {playerSession && tasteProfile?.recommendationSummary ? (
         <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-2">
-          <p className="text-[10px] uppercase tracking-widest text-purple-300/80 font-bold">Seu perfil</p>
+          <p className="text-[10px] uppercase tracking-widest text-purple-300/80 font-bold">{tr(dict, "game.about")}</p>
           <p className="text-xs text-slate-400 leading-relaxed">{tasteProfile.recommendationSummary}</p>
         </div>
       ) : null}

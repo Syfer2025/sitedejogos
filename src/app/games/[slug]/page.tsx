@@ -31,13 +31,13 @@ export async function generateMetadata({
 
   if (!game) {
     return {
-      title: "Jogo não encontrado | Arcade Nexus",
+      title: "Jogo não encontrado | Gasty Games",
       description: "Este jogo não está disponível no momento.",
     };
   }
 
   return {
-    title: `${game.title} | Arcade Nexus`,
+    title: `${game.title} | Gasty Games`,
     description: game.description,
     openGraph: {
       title: game.title,

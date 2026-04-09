@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Plano descontinuado | Arcade Nexus",
-  description: "O plano Nitro não está mais disponível no Arcade Nexus.",
+  title: "Plano descontinuado | Gasty Games",
+  description: "O plano Nitro não está mais disponível no Gasty Games.",
 };
 
 export default function NitroPage() {
@@ -15,7 +15,7 @@ export default function NitroPage() {
         </h1>
         <p className="text-sm md:text-base text-slate-300 leading-relaxed">
           O antigo plano Nitro Premium não está mais disponível. Continuamos trabalhando em novas formas de
-          oferecer uma experiência cada vez melhor no Arcade Nexus.
+          oferecer uma experiência cada vez melhor no Gasty Games.
         </p>
         <p className="text-xs text-slate-500">
           Se você já teve acesso premium no passado, pode continuar jogando normalmente — nenhum jogo foi removido.

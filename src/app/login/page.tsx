@@ -200,7 +200,7 @@ export default function LoginPage() {
             <span className="text-lg font-bold text-white">N</span>
           </div>
           <h1 className="mt-3 text-lg font-semibold tracking-tight text-slate-50">
-            {isRegister ? "Criar sua conta" : "Entrar no Arcade Nexus"}
+            {isRegister ? "Criar sua conta" : "Entrar no Gasty Games"}
           </h1>
           <p className="mt-1 text-xs text-slate-400">
             {isRegister

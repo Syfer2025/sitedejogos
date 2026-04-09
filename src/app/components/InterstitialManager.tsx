@@ -81,7 +81,7 @@ export function InterstitialProvider({
     if (!active || countdown <= 0) return;
     const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
     return () => clearTimeout(timer);
-  }, [active, countdown, showNitroUpsell]);
+  }, [active, countdown]);
 
   // Auto-dismiss when countdown finishes
   useEffect(() => {
@@ -89,7 +89,7 @@ export function InterstitialProvider({
       const timer = setTimeout(() => setActive(false), 300);
       return () => clearTimeout(timer);
     }
-  }, [active, countdown, showNitroUpsell]);
+  }, [active, countdown]);
 
   // Vignette: trigger on route change FROM /games/* to another page
   useEffect(() => {

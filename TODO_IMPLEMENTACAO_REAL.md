@@ -1,6 +1,6 @@
 # Status - Implementação real do portal
 
-Este documento foi atualizado para refletir o estado atual do Arcade Nexus depois da implementação real de catálogo, admin, autenticação e páginas públicas.
+Este documento foi atualizado para refletir o estado atual do Gasty Games depois da implementação real de catálogo, admin, autenticação e páginas públicas.
 
 ## Concluído
 - Catálogo de jogos persistido em SQLite via Prisma.

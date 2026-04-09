@@ -1,9 +1,14 @@
 import path from "node:path";
 
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { createClient } from "@libsql/client";
 import { PrismaClient } from "@prisma/client";
 
 const DATABASE_URL = process.env.DATABASE_URL ?? "file:./dev.db";
+const TURSO_DATABASE_URL = process.env.TURSO_DATABASE_URL;
+const TURSO_AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN;
+
 const PROJECT_ROOT = process.env.npm_package_json
   ? path.dirname(process.env.npm_package_json)
   : process.cwd();
@@ -45,9 +50,20 @@ const REQUIRED_PRISMA_DELEGATES = [
   "coinTransaction",
   "gameRating",
   "rewardedAdView",
+  "playerDailyMission",
 ] as const;
 
 function createPrismaClient() {
+  // Se as variáveis do Turso estiverem presentes, usa o driver adapter do libSQL
+  if (TURSO_DATABASE_URL) {
+    const adapter = new PrismaLibSql({
+      url: TURSO_DATABASE_URL,
+      authToken: TURSO_AUTH_TOKEN,
+    });
+    return new PrismaClient({ adapter });
+  }
+
+  // Fallback para SQLite local usando o driver nativo better-sqlite3
   const adapter = new PrismaBetterSqlite3({
     url: resolveSqlitePath(DATABASE_URL),
   });

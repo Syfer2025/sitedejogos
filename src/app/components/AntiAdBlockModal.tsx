@@ -41,7 +41,7 @@ export function AntiAdBlockModal() {
         </div>
 
         <p className="aab-modal-text">
-          Os anúncios mantêm o Arcade Nexus gratuito para todos. Enquanto o
+          Os anúncios mantêm o Gasty Games gratuito para todos. Enquanto o
           bloqueador estiver ativo, você precisará aguardar um momento antes
           de jogar.
         </p>

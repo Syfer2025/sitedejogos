@@ -21,9 +21,9 @@ import {
   DEFAULT_ACHIEVEMENT_DEFINITIONS,
   getAchievementProgress,
 } from "@/lib/gamification";
-import { getHomeTexts } from "@/lib/home-content";
 import { getRecommendedReason, resolveHeroGame } from "@/lib/home-feed";
-import { getLocaleContentLocale, LOCALE_COOKIE_NAME, resolveLocale, type Locale } from "@/lib/locale";
+import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
+import { getDictionary, t as tr } from "@/lib/i18n";
 import { getSingleQueryValue } from "@/lib/pagination";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 
@@ -79,73 +79,34 @@ function getLeaderboardBannerGradient(profileTheme: string, categories: string[]
   return "from-sky-500/80 via-indigo-400/45 to-slate-950";
 }
 
-function getLeaderboardProfileTag(locale: Locale, categories: string[]) {
+function getLeaderboardProfileTag(dict: any, categories: string[]) {
   const primaryCategory = categories[0];
-  const contentLocale = getLocaleContentLocale(locale);
-
-  if (primaryCategory) {
-    return primaryCategory;
-  }
-
-  if (contentLocale === "en") return "Top player";
-  if (contentLocale === "es") return "Jugador top";
-  return "Destaque";
+  if (primaryCategory) return primaryCategory;
+  return tr(dict, "home.featuredLabel");
 }
 
-function getLeaderboardStatLabel(locale: Locale, type: "achievements" | "friends") {
-  const contentLocale = getLocaleContentLocale(locale);
-
-  if (type === "achievements") {
-    if (contentLocale === "en") return "Achievements";
-    if (contentLocale === "es") return "Logros";
-    return "Conquistas";
-  }
-
-  if (contentLocale === "en") return "Friends";
-  if (contentLocale === "es") return "Amigos";
-  return "Amigos";
+function getLeaderboardStatLabel(dict: any, type: "achievements" | "friends") {
+  if (type === "achievements") return tr(dict, "player.achievements");
+  return tr(dict, "player.friends");
 }
 
-function getLeaderboardStreakLabel(locale: Locale) {
-  const contentLocale = getLocaleContentLocale(locale);
-
-  if (contentLocale === "en") return "streak";
-  if (contentLocale === "es") return "racha";
-  return "sequência";
+function getLeaderboardStreakLabel(dict: any) {
+  return tr(dict, "player.streak");
 }
 
-function getPlayerHubTag(locale: Locale, categories: string[]) {
+function getPlayerHubTag(dict: any, categories: string[]) {
   const primaryCategory = categories[0];
-  const contentLocale = getLocaleContentLocale(locale);
-
-  if (primaryCategory) {
-    return primaryCategory;
-  }
-
-  if (contentLocale === "en") return "Player hub";
-  if (contentLocale === "es") return "Perfil gamer";
-  return "Hub do jogador";
+  if (primaryCategory) return primaryCategory;
+  return tr(dict, "common.account");
 }
 
 function getPlayerSidebarQuickLabel(
-  locale: Locale,
+  dict: any,
   type: "favorites" | "played" | "achievements" | "friends",
 ) {
-  const contentLocale = getLocaleContentLocale(locale);
-
-  if (type === "favorites") {
-    if (contentLocale === "en") return "Favorites";
-    if (contentLocale === "es") return "Favoritos";
-    return "Favoritos";
-  }
-
-  if (type === "played") {
-    if (contentLocale === "en") return "Played";
-    if (contentLocale === "es") return "Jugados";
-    return "Jogados";
-  }
-
-  return getLeaderboardStatLabel(locale, type);
+  if (type === "favorites") return tr(dict, "player.favorites");
+  if (type === "played") return tr(dict, "player.played");
+  return getLeaderboardStatLabel(dict, type === "achievements" ? "achievements" : "friends");
 }
 
 const ACHIEVEMENT_SHOWCASE_ORDER = new Map(
@@ -289,7 +250,8 @@ export default async function Home({
   const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
   const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
-  const t = getHomeTexts(locale);
+  const dict = await getDictionary(locale);
+  const t = { ...dict.common, ...dict.home };
 
   const currentUserId = playerSession?.user.id;
 
@@ -390,7 +352,7 @@ export default async function Home({
     "default",
     profile?.preferredCategories ?? [],
   );
-  const playerHubTag = getPlayerHubTag(locale, profile?.preferredCategories ?? []);
+  const playerHubTag = getPlayerHubTag(dict, profile?.preferredCategories ?? []);
   const sidebarFriendCount = playerSession ? Math.max(friendLeaderboard.length - 1, 0) : 0;
   const recommendedReason = getRecommendedReason(profile, recommendedGames);
   const homeThemeSections = themeSectionsPage.items;
@@ -422,8 +384,6 @@ export default async function Home({
       <aside className="hidden lg:flex w-[160px] flex-none flex-col border-r border-slate-800/60 bg-slate-950/60 overflow-y-auto scrollbar-thin animate-slide-in-left">
         <CategorySidebarNav
           categories={categories}
-          allLabel={t.readAll}
-          blogLabel={t.blogTitle}
         />
       </aside>
 

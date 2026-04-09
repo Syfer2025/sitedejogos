@@ -14,7 +14,7 @@ function getBlogTexts(locale: Locale) {
 
   if (contentLocale === "en") {
     return {
-      kicker: "Arcade Nexus Blog",
+      kicker: "Gasty Games Blog",
       title: "Content to grow your HTML5 gaming portal.",
       subtitle:
         "Articles focused on SEO, monetization and performance tactics to scale organic traffic and revenue.",
@@ -28,7 +28,7 @@ function getBlogTexts(locale: Locale) {
 
   if (contentLocale === "es") {
     return {
-      kicker: "Blog Arcade Nexus",
+      kicker: "Blog Gasty Games",
       title: "Contenido para hacer crecer tu portal HTML5.",
       subtitle:
         "Artículos enfocados en SEO, monetización y performance para escalar tráfico orgánico e ingresos.",
@@ -41,7 +41,7 @@ function getBlogTexts(locale: Locale) {
   }
 
   return {
-    kicker: "Blog Arcade Nexus",
+    kicker: "Blog Gasty Games",
     title: "Conteúdo para crescer seu portal HTML5.",
     subtitle:
       "Artigos focados em SEO, monetização e performance para escalar tráfego orgânico e receita.",

@@ -19,8 +19,8 @@ import {
   DEFAULT_ACHIEVEMENT_DEFINITIONS,
   getAchievementProgress,
 } from "@/lib/gamification";
-import { getHomeTexts } from "@/lib/home-content";
 import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
+import { getDictionary, t as tr } from "@/lib/i18n";
 import {
   getPlayerProfile,
   getPlayerTasteProfile,
@@ -109,7 +109,7 @@ const premiumStatus = true;
 export default async function AccountPage() {
   const cookieStore = await cookies();
   const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
-  const homeTexts = getHomeTexts(locale);
+  const dict = await getDictionary(locale);
   const token = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
   const session = token ? await getPlayerSession(token) : null;
 
@@ -204,7 +204,7 @@ export default async function AccountPage() {
                   <h1 className="text-3xl font-black text-white md:text-4xl tracking-tight">{profile.displayName}</h1>
                 </div>
                 <p className="mt-2 text-sm font-medium text-slate-400">
-                  {profile.email} • Membro desde {memberSince}
+                  {profile.email} • {tr(dict, "player.memberSince", { date: memberSince })}
                 </p>
               </div>
 
@@ -213,7 +213,7 @@ export default async function AccountPage() {
                    type="submit"
                    className="rounded-xl border border-slate-700 bg-slate-900 px-6 py-2.5 text-xs font-bold text-slate-200 transition-all hover:border-red-500 hover:bg-red-500/10 hover:text-red-300"
                  >
-                   Sair
+                   {tr(dict, "common.logout")}
                  </button>
               </form>
             </div>
@@ -222,11 +222,11 @@ export default async function AccountPage() {
 
         {/* Stats */}
         <section className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 animate-fade-in-up">
-          <StatCard label="Nível" value={gamification?.level ?? 1} icon="⚡" gradient="from-amber-400 to-orange-500" />
-          <StatCard label="XP total" value={gamification?.xp.toLocaleString(locale) ?? "0"} icon="✨" gradient="from-cyan-400 to-blue-500" />
-          <StatCard label="Streak" value={`${gamification?.currentStreak ?? 0}d`} icon="🔥" gradient="from-orange-400 to-red-500" />
-          <StatCard label="Favoritos" value={favorites.length} icon="❤️" gradient="from-pink-400 to-fuchsia-500" />
-          <StatCard label="Recentes" value={history.length} icon="🎮" gradient="from-emerald-400 to-teal-500" />
+          <StatCard label={tr(dict, "player.level")} value={gamification?.level ?? 1} icon="⚡" gradient="from-amber-400 to-orange-500" />
+          <StatCard label={tr(dict, "player.xp")} value={gamification?.xp.toLocaleString(locale) ?? "0"} icon="✨" gradient="from-cyan-400 to-blue-500" />
+          <StatCard label={tr(dict, "player.streak")} value={`${gamification?.currentStreak ?? 0}d`} icon="🔥" gradient="from-orange-400 to-red-500" />
+          <StatCard label={tr(dict, "player.favorites")} value={favorites.length} icon="❤️" gradient="from-pink-400 to-fuchsia-500" />
+          <StatCard label={tr(dict, "player.played")} value={history.length} icon="🎮" gradient="from-emerald-400 to-teal-500" />
         </section>
 
         {/* Layout Grid */}
@@ -238,17 +238,17 @@ export default async function AccountPage() {
                 <ActivityFeed history={history} locale={locale} />
               ),
               wallet: (
-                <TabSectionShell icon="🪙" title="Sua Carteira" subtitle="Gerencie seus créditos e temas.">
+                <TabSectionShell icon="🪙" title={tr(dict, "player.wallet")} subtitle={tr(dict, "player.walletSubtitle")}>
                   <CoinsPanel />
                 </TabSectionShell>
               ),
               social: (
-                <TabSectionShell icon="👥" title="Rede Social" subtitle="Seus amigos e rivais.">
+                <TabSectionShell icon="👥" title={tr(dict, "player.social")} subtitle={tr(dict, "player.socialSubtitle")}>
                   <FriendsPanel />
                 </TabSectionShell>
               ),
               mission: (
-                <TabSectionShell icon="🎯" title="Minha Jornada" subtitle="Missões e conquistas diárias.">
+                <TabSectionShell icon="🎯" title={tr(dict, "player.journey")} subtitle={tr(dict, "player.journeySubtitle")}>
                   <div className="space-y-8">
                     <div className="rounded-2xl bg-slate-800 border border-slate-700/60 p-6 shadow-inner">
                       <div className="flex items-center justify-between mb-4">
@@ -258,19 +258,19 @@ export default async function AccountPage() {
                       <div className="h-3 rounded-full bg-slate-950 overflow-hidden border border-slate-700 mb-6">
                         <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700 animate-progress-glow rounded-full" style={{ width: `${currentMissionProgressPercent}%` }} />
                       </div>
-                      <Link href={dailyMissionCard?.href ?? "#"} className="inline-block rounded-xl bg-emerald-600 px-8 py-3 text-sm font-black text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02]">COMEÇAR MISSÃO</Link>
+                      <Link href={dailyMissionCard?.href ?? "#"} className="inline-block rounded-xl bg-emerald-600 px-8 py-3 text-sm font-black text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] uppercase">{tr(dict, "player.startMission")}</Link>
                     </div>
 
                     {achievementItems.length > 0 && (
                       <div>
                         <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
-                           <span className="text-xl">🏆</span> Suas Conquistas
+                           <span className="text-xl">🏆</span> {tr(dict, "player.yourAchievements")}
                         </h3>
                         <AchievementCollection 
                           items={achievementItems} 
                           locale={locale} 
-                          lockedLabel={homeTexts.achievementsLockedLabel ?? "Bloqueado"} 
-                          unlockedLabel={homeTexts.achievementsUnlockedLabel ?? "Conquistada"} 
+                          lockedLabel={tr(dict, "player.locked")} 
+                          unlockedLabel={tr(dict, "player.unlocked")} 
                           layout="grid" 
                         />
                       </div>
@@ -279,7 +279,7 @@ export default async function AccountPage() {
                 </TabSectionShell>
               ),
               library: (
-                <TabSectionShell icon="📚" title="Minha Biblioteca" subtitle="Seus favoritos e recomendados.">
+                <TabSectionShell icon="📚" title={tr(dict, "player.library")} subtitle={tr(dict, "player.librarySubtitle")}>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {favorites.map(f => (
                       <Link key={f.id} href={`/games/${f.game.slug}`} className="group relative aspect-video overflow-hidden rounded-2xl border border-white/5 bg-slate-900 transition-all hover:border-white/20">
@@ -293,7 +293,7 @@ export default async function AccountPage() {
                 </TabSectionShell>
               ),
               profile: (
-                <TabSectionShell icon="✏️" title="Editar Perfil" subtitle="Customize sua identidade visual.">
+                <TabSectionShell icon="✏️" title={tr(dict, "player.editProfile")} subtitle={tr(dict, "player.editProfileSubtitle")}>
                   <AccountProfileForm
                     initialProfile={{
                       displayName: profile.displayName,
@@ -311,7 +311,7 @@ export default async function AccountPage() {
                 </TabSectionShell>
               ),
               notifications: (
-                <TabSectionShell icon="🔔" title="Notificações" subtitle="Avisos do portal.">
+                <TabSectionShell icon="🔔" title={tr(dict, "player.notifications")} subtitle={tr(dict, "player.notificationsSubtitle")}>
                   <div className="space-y-4">
                     {gamification?.notifications.map(n => (
                       <div key={n.id} className="p-4 rounded-2xl bg-slate-800 border border-slate-700/60 hover:bg-slate-700/50 transition-all hover:border-slate-600 group cursor-default">

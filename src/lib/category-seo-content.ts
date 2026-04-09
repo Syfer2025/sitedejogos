@@ -1,7 +1,7 @@
 const GENERIC_FAQ = (category: string) => [
   {
     question: `Os jogos de ${category} sao gratis?`,
-    answer: `Sim! Todos os jogos de ${category} no Arcade Nexus sao 100% gratuitos. Basta acessar pelo navegador e comecar a jogar.`,
+    answer: `Sim! Todos os jogos de ${category} no Gasty Games sao 100% gratuitos. Basta acessar pelo navegador e comecar a jogar.`,
   },
   {
     question: `Preciso instalar algo para jogar ${category}?`,
@@ -15,9 +15,9 @@ const GENERIC_FAQ = (category: string) => [
 
 export function getCategorySeoContent(category: string) {
   return {
-    title: `Jogos de ${category} Online Gratis - Jogar no Navegador | Arcade Nexus`,
+    title: `Jogos de ${category} Online Gratis - Jogar no Navegador | Gasty Games`,
     h1: `Jogos de ${category} Online Gratis`,
-    description: `Jogue os melhores jogos de ${category} online gratis no Arcade Nexus. Centenas de opcoes em HTML5 direto no navegador para PC e celular!`,
+    description: `Jogue os melhores jogos de ${category} online gratis no Gasty Games. Centenas de opcoes em HTML5 direto no navegador para PC e celular!`,
     intro: `Explore nossa colecao de jogos de ${category}, todos gratuitos e prontos para jogar direto no navegador. Sem downloads, sem instalacao — basta clicar e comecar a se divertir. Funciona em PC, tablet e celular.`,
     benefits: [
       "100% gratis, sem downloads",
