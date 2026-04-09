@@ -25,10 +25,13 @@ const CONTROLS_INFO = [
   { keys: "Clique", label: "Selecionar / Atirar" },
 ];
 
+import { useTranslate } from "./LocaleContext";
+
 export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }: GamePlayerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const { detected, level } = useAdBlock();
+  const t = useTranslate();
 
   const [hasStarted, setHasStarted] = useState(isPremium);
   const [isShowingAd, setIsShowingAd] = useState(false);
@@ -117,11 +120,11 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
             >
               <div className="flex items-center gap-3 rounded-xl bg-slate-950/50 px-8 py-4 backdrop-blur-md">
                 <span className="text-3xl drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]">▶</span>
-                <span className="text-xl font-bold tracking-tight text-white">Carregar Jogo</span>
+                <span className="text-xl font-bold tracking-tight text-white">{t("game.loadGame")}</span>
               </div>
             </button>
             <p className="mt-4 text-[11px] text-slate-500 uppercase tracking-widest font-medium">
-              Ao jogar, você assiste um breve anúncio e apoia o portal
+              {t("game.watchAdSupport")}
             </p>
           </div>
         )}
@@ -130,14 +133,14 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
         {isShowingAd && (
           <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black">
             <div className="absolute top-4 right-4 rounded-full bg-slate-900/80 px-3 py-1 text-xs text-slate-300 border border-slate-800 font-tabular-nums">
-              Anúncio: {adCountdown}s
+              {t("game.adCountdown", { seconds: adCountdown })}
             </div>
 
             <div className="flex flex-col items-center text-center max-w-sm px-6">
               <span className="text-4xl mb-4 opacity-50 shrink-0">💰</span>
-              <h3 className="text-xl font-bold text-slate-200 mb-2">Espaço para Patrocinador</h3>
+              <h3 className="text-xl font-bold text-slate-200 mb-2">{t("game.adSpace")}</h3>
               <p className="text-sm text-slate-400 mb-6 font-medium">
-                Sua API do AdSense For Games (H5) injetará um vídeo ou interstitial interativo nesta tela antes de liberar o iframe.
+                {t("game.adsenseNote")}
               </p>
 
               <div className="w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
@@ -157,7 +160,7 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
               <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950">
                 <div className="flex flex-col items-center gap-3">
                   <div className="h-12 w-12 rounded-xl bg-gradient-to-tr from-purple-500 to-cyan-400 animate-pulse shadow-[0_0_20px_rgba(168,85,247,0.4)]" />
-                  <p className="text-xs text-slate-400 animate-pulse font-medium tracking-wide">Iniciando motor do jogo...</p>
+                  <p className="text-xs text-slate-400 animate-pulse font-medium tracking-wide">{t("game.initializingGame")}</p>
                 </div>
               </div>
             )}
@@ -175,7 +178,7 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
             {muted && (
               <div className="absolute inset-0 z-[5] pointer-events-none">
                 <div className="absolute top-3 left-3 rounded-full bg-black/70 px-2.5 py-1 text-[10px] text-red-400 font-bold uppercase tracking-wider border border-red-500/30">
-                  🔇 Mudo
+                  🔇 {t("game.muted")}
                 </div>
               </div>
             )}
@@ -188,14 +191,14 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
             <div className="w-full max-w-md mx-4 rounded-2xl border border-slate-700 bg-slate-900/95 p-5 shadow-2xl">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-bold uppercase tracking-wide text-slate-200">
-                  Controles
+                  {t("game.controls")}
                 </h3>
                 <button
                   type="button"
                   onClick={() => setShowControls(false)}
                   className="rounded-lg bg-slate-800 px-2.5 py-1 text-xs text-slate-400 hover:text-white hover:bg-slate-700 transition-colors"
                 >
-                  Fechar ✕
+                  {t("common.close")} ✕
                 </button>
               </div>
               <div className="space-y-2">
@@ -212,7 +215,7 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
                 ))}
               </div>
               <p className="mt-3 text-[10px] text-slate-500 text-center">
-                Os controles podem variar dependendo do jogo
+                {t("game.controlsVary")}
               </p>
             </div>
           </div>
@@ -230,7 +233,7 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
             <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
           </svg>
-          <span className="hidden sm:inline">Tela cheia</span>
+          <span className="hidden sm:inline">{t("game.fullScreen")}</span>
         </button>
 
         {/* Mute */}
@@ -255,7 +258,7 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
               <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
             </svg>
           )}
-          <span className="hidden sm:inline">{muted ? "Mudo" : "Som"}</span>
+          <span className="hidden sm:inline">{muted ? t("game.muted") : t("game.unmuted")}</span>
         </button>
 
         {/* Controls */}
@@ -274,7 +277,7 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
             <circle cx="17" cy="10" r="1" fill="currentColor" />
             <circle cx="15" cy="13" r="1" fill="currentColor" />
           </svg>
-          <span className="hidden sm:inline">Controles</span>
+          <span className="hidden sm:inline">{t("game.controls")}</span>
         </button>
 
         {/* Separator */}
@@ -283,7 +286,7 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
         {/* Nitro Protected Badge */}
         {isPremium && (
           <div className="flex shrink-0 items-center gap-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 px-2.5 py-1 text-[10px] font-bold tracking-wide text-purple-300 shadow-[0_0_15px_rgba(168,85,247,0.15)] select-none cursor-default">
-            <span className="text-sm">🛡️</span> Experiência Sem Anúncios
+            <span className="text-sm">🛡️</span> {t("game.noAds")}
           </div>
         )}
 

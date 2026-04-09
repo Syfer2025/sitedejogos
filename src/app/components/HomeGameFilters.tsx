@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useTranslate } from "./LocaleContext";
 
 type CatalogGame = {
   id: string;
@@ -29,6 +30,7 @@ export function HomeGameFilters({
 }: {
   initialCategory?: string;
 }) {
+  const t = useTranslate();
   const [category, setCategory] = useState(initialCategory ?? "");
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<"popular" | "newest">("popular");
@@ -89,11 +91,11 @@ export function HomeGameFilters({
       <div className="flex items-center gap-2 mb-4">
         <div className="h-4 w-1 rounded-full bg-gradient-to-b from-cyan-400 to-purple-500" />
         <h2 className="text-sm font-bold uppercase tracking-wide text-slate-200">
-          Catálogo Completo
+          {t("catalog.fullCatalog")}
         </h2>
         {pagination && pagination.totalItems > 0 && (
           <span className="text-[10px] text-slate-500 ml-1">
-            ({pagination.totalItems} jogos)
+            ({pagination.totalItems} {t("catalog.games", { count: pagination.totalItems })})
           </span>
         )}
       </div>
@@ -105,7 +107,7 @@ export function HomeGameFilters({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Buscar jogos..."
+            placeholder={t("catalog.searchPlaceholder")}
             className="w-full rounded-lg border border-slate-700 bg-slate-900/80 px-3 py-2 pl-8 text-sm text-slate-200 placeholder-slate-500 outline-none focus:border-cyan-400/50 focus:ring-1 focus:ring-cyan-400/20 transition-colors"
           />
           <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
@@ -124,7 +126,7 @@ export function HomeGameFilters({
                 : "bg-slate-800/50 text-slate-400 border border-slate-700 hover:text-slate-200"
             }`}
           >
-            🔥 Popular
+            🔥 {t("catalog.sortPopular")}
           </button>
           <button
             onClick={() => {
@@ -137,7 +139,7 @@ export function HomeGameFilters({
                 : "bg-slate-800/50 text-slate-400 border border-slate-700 hover:text-slate-200"
             }`}
           >
-            ✨ Novos
+            ✨ {t("catalog.sortNewest")}
           </button>
         </div>
       </div>
@@ -145,13 +147,13 @@ export function HomeGameFilters({
       {/* Active filter indicator */}
       {category && (
         <div className="flex items-center gap-2 mb-4">
-          <span className="text-[11px] text-slate-400">Filtrando por:</span>
+          <span className="text-[11px] text-slate-400">{t("catalog.filteringBy")}</span>
           <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-400/15 border border-cyan-400/30 px-3 py-1 text-[11px] font-semibold text-cyan-300">
             {category}
             <button
               onClick={() => { setCategory(""); setPage(1); }}
               className="ml-0.5 rounded-full hover:bg-cyan-400/20 p-0.5 transition-colors text-cyan-400"
-              aria-label="Limpar filtro"
+              aria-label={t("catalog.clearFilter")}
             >
               ✕
             </button>
@@ -177,7 +179,7 @@ export function HomeGameFilters({
         </div>
       ) : games.length === 0 ? (
         <div className="rounded-lg border border-slate-800/60 bg-slate-900/50 p-8 text-center">
-          <p className="text-sm text-slate-400">Nenhum jogo encontrado.</p>
+          <p className="text-sm text-slate-400">{t("catalog.noGamesFound")}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 stagger-children">
@@ -214,7 +216,7 @@ export function HomeGameFilters({
                   )}
                   <span>•</span>
                   <span>
-                    {new Intl.NumberFormat("pt-BR").format(game.views)} views
+                    {new Intl.NumberFormat("pt-BR").format(game.views)} {t("catalog.views")}
                   </span>
                 </div>
               </div>
@@ -231,7 +233,7 @@ export function HomeGameFilters({
             disabled={page <= 1}
             className="rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-1.5 text-xs text-slate-300 disabled:opacity-40 hover:border-slate-600 transition-colors"
           >
-            ← Anterior
+            ← {t("common.previous")}
           </button>
           <span className="text-xs text-slate-500">
             {page} / {totalPages}
@@ -241,7 +243,7 @@ export function HomeGameFilters({
             disabled={page >= totalPages}
             className="rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-1.5 text-xs text-slate-300 disabled:opacity-40 hover:border-slate-600 transition-colors"
           >
-            Próximo →
+            {t("common.next")} →
           </button>
         </div>
       )}

@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { t } from "@/lib/i18n";
 
 export type RelatedGame = {
   id: string;
@@ -9,7 +10,7 @@ export type RelatedGame = {
   category?: string;
 };
 
-export function RelatedGamesSection({ games }: { games: RelatedGame[] }) {
+export function RelatedGamesSection({ games, dict }: { games: RelatedGame[], dict: any }) {
   if (games.length === 0) {
     return null;
   }
@@ -18,13 +19,13 @@ export function RelatedGamesSection({ games }: { games: RelatedGame[] }) {
     <section className="mt-6 md:mt-8">
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-sm font-semibold tracking-tight text-slate-100">
-          You may also like
+          {t(dict, "game.youMayAlsoLike")}
         </h2>
         <Link
           href="/#catalogo"
           className="text-[11px] text-slate-400 hover:text-slate-200 transition-colors"
         >
-          View more
+          {t(dict, "common.viewMore")}
         </Link>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
@@ -54,7 +55,7 @@ export function RelatedGamesSection({ games }: { games: RelatedGame[] }) {
                 {game.title}
               </h3>
               <p className="text-[10px] text-slate-500 group-hover:text-slate-300 transition-colors">
-                Play in one click
+                {t(dict, "game.playInOneClick")}
               </p>
             </div>
           </Link>

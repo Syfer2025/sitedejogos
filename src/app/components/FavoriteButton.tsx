@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { getAnalyticsSessionId } from "@/lib/analytics";
+import { useTranslate } from "./LocaleContext";
 
 type FavoriteButtonProps = {
   gameId: string;
@@ -19,6 +20,7 @@ export function FavoriteButton({
   isAuthenticated,
 }: FavoriteButtonProps) {
   const router = useRouter();
+  const t = useTranslate();
   const [favorited, setFavorited] = useState(initialFavorited);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,13 +51,13 @@ export function FavoriteButton({
       );
 
       if (!response.ok) {
-        throw new Error("Falha ao atualizar favoritos.");
+        throw new Error(t("favorites.error"));
       }
 
       setFavorited((current) => !current);
       router.refresh();
     } catch {
-      setError("Não foi possível atualizar seus favoritos.");
+      setError(t("favorites.networkError"));
     } finally {
       setPending(false);
     }
@@ -74,10 +76,10 @@ export function FavoriteButton({
         }`}
       >
         {pending
-          ? "Salvando..."
+          ? t("common.saving")
           : favorited
-          ? "★ Favoritado"
-          : "☆ Adicionar aos favoritos"}
+          ? `★ ${t("favorites.favorited")}`
+          : `☆ ${t("favorites.addToFavorites")}`}
       </button>
       {error && <p className="text-[11px] text-red-400">{error}</p>}
     </div>

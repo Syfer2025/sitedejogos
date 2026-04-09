@@ -6,6 +6,8 @@ import { cookies } from "next/headers";
 import { getGameBySlug, getGameRatingStats, getUserGameRating, listRelatedGames } from "@/data/gamesStore";
 import { getPlayerGameState } from "@/data/playerStore";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
+import { getDictionary, t } from "@/lib/i18n";
+import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
 
 import { RelatedGamesSection } from "../../components/RelatedGames";
 import { AdSlot } from "../../components/AdSlot";
@@ -60,6 +62,8 @@ export default async function GamePage({ params }: GamePageProps) {
   const cookieStore = await cookies();
   const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
+  const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
+  const dict = await getDictionary(locale);
   const [playerState, commentCount, ratingStats, userRating] = await Promise.all([
     playerSession
       ? getPlayerGameState(playerSession.user.id, game.id)
@@ -113,7 +117,7 @@ export default async function GamePage({ params }: GamePageProps) {
               </span>
             )}
             <span className="px-2 py-0.5 rounded-full bg-slate-900/80 border border-slate-700/80">
-              HTML5 • Browser
+              {t(dict, "game.htmlBrowser")}
             </span>
           </div>
 
@@ -187,7 +191,7 @@ export default async function GamePage({ params }: GamePageProps) {
         refreshIntervalMs={45000}
       />
 
-      <RelatedGamesSection games={relatedGames} />
+      <RelatedGamesSection games={relatedGames} dict={dict} />
     </div>
   );
 }

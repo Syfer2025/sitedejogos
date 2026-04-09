@@ -11,6 +11,7 @@ import { getCategoryEmoji } from "@/lib/catalog-category-emoji";
 
 import { TrackedLink } from "./TrackedLink";
 import { CatalogGameCard } from "./CatalogGameCard";
+import { useTranslate } from "./LocaleContext";
 
 type ThemeGame = {
   id: string;
@@ -102,6 +103,7 @@ export function HomeThemeCatalog({
   initialQuery = "",
   isAuthenticated = false,
 }: HomeThemeCatalogProps) {
+  const t = useTranslate();
   const [sections, setSections] = useState(initialSections);
   const [hasMore, setHasMore] = useState(initialHasMore);
   const [nextOffset, setNextOffset] = useState(initialNextOffset);
@@ -422,7 +424,7 @@ export function HomeThemeCatalog({
                 }}
                 className="text-[11px] text-cyan-400 hover:text-cyan-300 transition-colors"
               >
-                Voltar
+                {t("common.back")}
               </button>
             ) : (
               <button
@@ -430,7 +432,7 @@ export function HomeThemeCatalog({
                 onClick={() => setActiveCategory(section.category)}
                 className="text-[11px] text-slate-500 hover:text-cyan-300 transition-colors"
               >
-                Ver Mais →
+                {t("common.viewMore")} →
               </button>
             )}
           </div>
@@ -471,10 +473,10 @@ export function HomeThemeCatalog({
           <div className="flex items-center gap-2">
             <div className="h-5 w-1 rounded-full bg-gradient-to-b from-cyan-400 to-purple-500" />
             <h2 className="text-sm font-bold uppercase tracking-wide text-slate-200">
-              Catalogo
+              {t("catalog.title")}
             </h2>
             {activeQuery ? (
-               <span className="rounded-full bg-slate-800/70 px-2 py-0.5 text-[9px] font-medium text-slate-400">modo busca</span>
+               <span className="rounded-full bg-slate-800/70 px-2 py-0.5 text-[9px] font-medium text-slate-400">{t("catalog.searchMode")}</span>
             ) : null}
           </div>
         </div>
@@ -483,12 +485,12 @@ export function HomeThemeCatalog({
           <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-500">
             {activeQuery ? (
               <span className="rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-slate-300">
-                busca: {activeQuery}
+                {t("catalog.searchPrefix")}: {activeQuery}
               </span>
             ) : null}
             {activeCategory ? (
               <span className="rounded-full border border-slate-800 bg-slate-950/70 px-3 py-1 text-slate-300">
-                tema: {activeCategory}
+                {t("catalog.themePrefix")}: {activeCategory}
               </span>
             ) : null}
             <button
@@ -499,7 +501,7 @@ export function HomeThemeCatalog({
                }}
                className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1 text-[10px] font-medium text-slate-300 transition-colors hover:border-cyan-400/40 hover:text-cyan-200"
             >
-               limpar filtro ×
+               {t("catalog.clearFilter")} ×
             </button>
           </div>
         ) : null}
@@ -539,7 +541,7 @@ export function HomeThemeCatalog({
               </span>
               <div>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-500">
-                  {activeQuery ? "busca ativa" : "tema fixado"}
+                  {activeQuery ? t("catalog.activeSearchLabel") : t("catalog.activeThemeLabel")}
                 </p>
                 <h3 className="mt-1 text-lg font-semibold text-slate-100">
                   {focusedTitle}
@@ -552,14 +554,14 @@ export function HomeThemeCatalog({
 
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-slate-700 bg-slate-950/70 px-3 py-1 text-[10px] font-medium text-slate-300">
-                {focusedTotal ?? focusedGames.length} jogos
+                {focusedTotal ?? focusedGames.length} {t("catalog.games")}
               </span>
             </div>
           </div>
 
           {focusedGames.length === 0 ? (
             <div className="mt-4 rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-6 text-sm text-slate-400">
-              Nenhum jogo encontrado para esse recorte.
+              {t("catalog.noGamesFound")}
             </div>
           ) : (
             <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3">
@@ -577,14 +579,14 @@ export function HomeThemeCatalog({
               <div ref={focusedSentinelRef} className="h-1 w-full" />
               <div className="rounded-xl border border-slate-800 bg-slate-950/60 px-4 py-3 text-center">
                 {loadingMoreFocused ? (
-                  <p className="text-sm text-slate-300">Carregando mais jogos deste recorte...</p>
+                  <p className="text-sm text-slate-300">{t("catalog.loadingMoreThemes")}</p>
                 ) : (
                   <button
                     type="button"
                     onClick={() => void loadMoreFocusedGames()}
                     className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-cyan-400/40 hover:text-cyan-200"
                   >
-                    Carregar mais jogos
+                    {t("catalog.loadMoreGames")}
                   </button>
                 )}
               </div>
@@ -617,21 +619,21 @@ export function HomeThemeCatalog({
               <div ref={sentinelRef} className="h-1 w-full" />
               <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 text-center">
                 {loadingMore ? (
-                  <p className="text-sm text-slate-300">Carregando mais temas da home...</p>
+                  <p className="text-sm text-slate-300">{t("catalog.loadingMoreThemes")}</p>
                 ) : (
                   <button
                     type="button"
                     onClick={() => void loadMoreThemes()}
                     className="rounded-lg border border-slate-700 bg-slate-950 px-4 py-2 text-sm font-medium text-slate-200 transition-colors hover:border-cyan-400/40 hover:text-cyan-200"
                   >
-                    Carregar mais temas
+                    {t("catalog.loadMoreThemes")}
                   </button>
                 )}
               </div>
             </div>
           ) : (
             <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 px-4 py-3 text-center text-sm text-slate-400">
-              Todos os temas priorizados ja entraram no feed da home.
+              {t("catalog.allThemesLoaded")}
             </div>
           )}
         </>

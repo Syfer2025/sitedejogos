@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useTranslate } from "./LocaleContext";
 
 type ShareButtonProps = {
   title: string;
@@ -10,6 +11,7 @@ type ShareButtonProps = {
 
 export function ShareButton({ title, text, className }: ShareButtonProps) {
   const [copied, setCopied] = useState(false);
+  const t = useTranslate();
 
   const handleShare = useCallback(async () => {
     const url = window.location.href;
@@ -41,7 +43,7 @@ export function ShareButton({ title, text, className }: ShareButtonProps) {
         "inline-flex items-center gap-1.5 rounded-full border border-slate-700 bg-slate-900/60 px-4 py-2 text-xs text-slate-200 transition-colors hover:border-cyan-500/60 hover:text-cyan-100 active:scale-95 min-h-[40px]"
       }
     >
-      {copied ? "✓ Link copiado!" : "↗ Compartilhar"}
+      {copied ? `✓ ${t("share.copied")}` : `↗ ${t("share.share")}`}
     </button>
   );
 }

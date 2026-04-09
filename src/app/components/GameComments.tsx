@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { useTranslate } from "./LocaleContext";
 
 type Comment = {
   id: string;
@@ -30,18 +31,19 @@ function getInitials(name: string) {
     .join("");
 }
 
-function timeAgo(dateStr: string): string {
+function timeAgo(dateStr: string, t: (key: string, vars?: Record<string, string | number>) => string): string {
   const diff = Date.now() - new Date(dateStr).getTime();
   const minutes = Math.floor(diff / 60_000);
-  if (minutes < 1) return "agora";
-  if (minutes < 60) return `${minutes}min`;
+  if (minutes < 1) return t("common.now");
+  if (minutes < 60) return t("common.minutesAgo", { value: minutes });
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h`;
+  if (hours < 24) return t("common.hoursAgo", { value: hours });
   const days = Math.floor(hours / 24);
-  return `${days}d`;
+  return t("common.daysAgo", { value: days });
 }
 
 export function GameComments({ gameId, isAuthenticated }: GameCommentsProps) {
+  const t = useTranslate();
   const [comments, setComments] = useState<Comment[]>([]);
   const [loading, setLoading] = useState(true);
   const [content, setContent] = useState("");
@@ -75,11 +77,11 @@ export function GameComments({ gameId, isAuthenticated }: GameCommentsProps) {
         body: JSON.stringify({ content: content.trim() }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Erro ao comentar.");
+      if (!res.ok) throw new Error(data.error ?? t("comments.errorPosting"));
       setComments((prev) => [data, ...prev]);
       setContent("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro ao comentar.");
+      setError(err instanceof Error ? err.message : t("comments.errorPosting"));
     } finally {
       setSending(false);
     }
@@ -89,7 +91,7 @@ export function GameComments({ gameId, isAuthenticated }: GameCommentsProps) {
     <div className="rounded-2xl border border-slate-800 bg-slate-950/70 p-4 space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-slate-200">
-          💬 Comentários {comments.length > 0 && <span className="text-slate-500 font-normal">({comments.length})</span>}
+          💬 {t("comments.title")} {comments.length > 0 && <span className="text-slate-500 font-normal">({comments.length})</span>}
         </h2>
       </div>
 
@@ -99,7 +101,7 @@ export function GameComments({ gameId, isAuthenticated }: GameCommentsProps) {
             ref={inputRef}
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="O que achou desse jogo?"
+            placeholder={t("comments.placeholder")}
             rows={2}
             maxLength={500}
             className="w-full rounded-xl border border-slate-700/70 bg-slate-900/80 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-400/50"
@@ -111,14 +113,14 @@ export function GameComments({ gameId, isAuthenticated }: GameCommentsProps) {
               disabled={sending || content.trim().length < 2}
               className="rounded-full bg-purple-600/80 hover:bg-purple-500 px-4 py-1.5 text-xs font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {sending ? "Enviando..." : "Comentar"}
+              {sending ? t("common.sending") : t("comments.submit")}
             </button>
           </div>
           {error && <p className="text-[11px] text-red-400">{error}</p>}
         </form>
       ) : (
         <p className="text-xs text-slate-500">
-          <a href="/login" className="text-cyan-400 hover:text-cyan-300">Entre</a> para comentar.
+          <a href="/login" className="text-cyan-400 hover:text-cyan-300">{t("comments.loginRequired")}</a>
         </p>
       )}
 
@@ -135,7 +137,7 @@ export function GameComments({ gameId, isAuthenticated }: GameCommentsProps) {
           ))}
         </div>
       ) : comments.length === 0 ? (
-        <p className="text-xs text-slate-500 py-2">Nenhum comentário ainda. Seja o primeiro!</p>
+        <p className="text-xs text-slate-500 py-2">{t("comments.empty")}</p>
       ) : (
         <div className="space-y-3 max-h-[400px] overflow-y-auto scrollbar-thin">
           {comments.map((comment) => (
@@ -159,7 +161,7 @@ export function GameComments({ gameId, isAuthenticated }: GameCommentsProps) {
                   {comment.user.isPremium && (
                     <span className="text-[9px] text-amber-400 font-bold">★ PRO</span>
                   )}
-                  <span className="text-[9px] text-slate-600">{timeAgo(comment.createdAt)}</span>
+                  <span className="text-[9px] text-slate-600">{timeAgo(comment.createdAt, t)}</span>
                 </div>
                 <p className="text-xs text-slate-400 mt-0.5 break-words">{comment.content}</p>
               </div>
