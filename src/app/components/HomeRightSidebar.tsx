@@ -105,7 +105,7 @@ const LEADERBOARD_SEALS = [
   { src: "/leaderboard/place-2.png", alt: "2º" },
   { src: "/leaderboard/place-3.png", alt: "3º" },
 ] as const;
-const TARGET_LEADERBOARD_SIZE = 15;
+const TARGET_LEADERBOARD_SIZE = 100;
 const PODIUM_DISPLAY_ORDER = [0, 1, 2] as const;
 const PODIUM_CARD_STYLES = [
   {
@@ -434,7 +434,7 @@ export async function HomeRightSidebar() {
                       {t(dict, "player.rankingRange", { start: 4, end: TARGET_LEADERBOARD_SIZE })}
                     </p>
                   </div>
-                  <div className="max-h-[212px] space-y-1.5 overflow-y-scroll pr-1 scrollbar-thin stagger-children">
+                  <div className="max-h-[400px] space-y-1.5 overflow-y-scroll pr-1 scrollbar-thin stagger-children">
                     {remainingLeaderboardEntries.map(({ rank, player }) => {
                       return (
                         <div key={player?.id ?? `leaderboard-slot-${rank}`} className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 transition-all duration-200 animate-fade-in-up hover:bg-slate-800/40">
