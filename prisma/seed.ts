@@ -1,10 +1,16 @@
+import "dotenv/config";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { PrismaClient } from "@prisma/client";
 
 import { DEFAULT_GAMES } from "../src/data/defaultGames";
 import { slugify } from "../src/lib/game-schema";
 
+import { PrismaLibSql } from "@prisma/adapter-libsql";
+import { createClient } from "@libsql/client";
+
 const databaseUrl = process.env.DATABASE_URL ?? "file:./dev.db";
+const tursoUrl = process.env.TURSO_DATABASE_URL;
+const tursoToken = process.env.TURSO_AUTH_TOKEN;
 
 function resolveSqlitePath(url: string) {
   if (!url.startsWith("file:")) {
@@ -15,11 +21,23 @@ function resolveSqlitePath(url: string) {
   return rawPath.startsWith("/") ? rawPath : `${process.cwd()}/${rawPath.replace(/^\.\//, "")}`;
 }
 
-const adapter = new PrismaBetterSqlite3({
-  url: resolveSqlitePath(databaseUrl),
-});
+function createPrismaClient() {
+  if (tursoUrl) {
+    const adapter = new PrismaLibSql({
+      url: tursoUrl,
+      authToken: tursoToken,
+    });
+    return new PrismaClient({ adapter });
+  }
 
-const prisma = new PrismaClient({ adapter });
+  const adapter = new PrismaBetterSqlite3({
+    url: resolveSqlitePath(databaseUrl),
+  });
+
+  return new PrismaClient({ adapter });
+}
+
+const prisma = createPrismaClient();
 
 async function main() {
   const count = await prisma.game.count();

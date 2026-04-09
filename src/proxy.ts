@@ -46,6 +46,9 @@ export function proxy(req: NextRequest) {
   res.headers.set("X-Content-Type-Options", "nosniff");
   res.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   res.headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  
+  // Ensure CDNs vary cache by the locale cookie
+  res.headers.set("Vary", "Cookie");
 
   return res;
 }

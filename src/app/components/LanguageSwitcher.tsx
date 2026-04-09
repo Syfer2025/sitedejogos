@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { getLocaleDefinition, LOCALE_MARKETS, type Locale } from "@/lib/locale";
 
 import { useLocale, useTranslate } from "./LocaleContext";
+import { setLocaleAction } from "../actions/locale";
 
 export function LanguageSwitcher() {
   const router = useRouter();
@@ -46,12 +47,17 @@ export function LanguageSwitcher() {
     };
   }, [open]);
 
-  function handleSelect(next: Locale) {
+  async function handleSelect(next: Locale) {
+    // 1. Update the client-side context for immediate UI feedback (client components)
     setLocale(next);
     setOpen(false);
-    startTransition(() => {
-      router.refresh();
-    });
+
+    // 2. Call the server action to update the cookie and revalidate
+    // This ensures Server Components update on the next render.
+    await setLocaleAction(next);
+    
+    // 3. Force a refresh to show the server-side changes
+    router.refresh();
   }
 
   return (

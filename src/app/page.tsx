@@ -248,6 +248,7 @@ export default async function Home({
   const initialQuery = getSingleQueryValue(resolvedSearchParams.q)?.trim() ?? "";
   const cookieStore = await cookies();
   const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
+  console.log(`[DEBUG] Resolved Locale for Home: ${locale}`);
   const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
   const dict = await getDictionary(locale);

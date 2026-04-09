@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { syncGameMonetizeFeedPages } from "../src/data/gameFeedImport";
 import { prisma } from "../src/lib/prisma";
 

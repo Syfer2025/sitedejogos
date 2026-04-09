@@ -1,6 +1,6 @@
 # Sistema de Gamificação
 
-Este documento descreve o sistema de gamificação do Arcade Nexus com foco em retenção, recorrência de uso e aumento de profundidade de sessão.
+Este documento descreve o sistema de gamificação do Gasty Games com foco em retenção, recorrência de uso e aumento de profundidade de sessão.
 
 ## Estado atual implementado
 - XP por ações-chave: cadastro, login diário, favoritar jogo, jogar com conta e atualizar perfil.
