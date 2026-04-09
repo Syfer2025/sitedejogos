@@ -199,7 +199,7 @@ export default async function GamePage({ params }: GamePageProps) {
              <AdSlot
                label="Sidebar Skyscraper"
                slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR}
-               minHeight={600}
+               minHeight={250}
                autoRefresh
                refreshIntervalMs={60000}
              />
