@@ -129,82 +129,87 @@ export default async function GamePage({ params }: GamePageProps) {
             {game.description}
           </p>
 
-          <div className="mb-4">
-            <AdSlot
-              label="Banner Top - Hero"
-              slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAME_TOP}
-              autoRefresh
-              refreshIntervalMs={60000}
-              minHeight={90}
-            />
-          </div>
 
-          <GamePlayer
-            iframeUrl={game.iframeUrl}
-            title={game.title}
-            isPremium={playerSession?.user.isPremium}
-            toolbarExtra={
-              <>
-                <StarRating
-                  gameId={game.id}
-                  gameSlug={game.slug}
-                  avgRating={ratingStats.avgRating}
-                  ratingCount={ratingStats.ratingCount}
-                  initialUserRating={userRating?.value ?? 0}
-                  isAuthenticated={Boolean(playerSession)}
-                  size="sm"
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1 min-w-0">
+              <div className="mb-4">
+                <AdSlot
+                  label="Banner Top - Hero"
+                  slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAME_TOP}
+                  autoRefresh
+                  refreshIntervalMs={60000}
+                  minHeight={90}
                 />
-                <div className="h-5 w-px bg-slate-700 shrink-0" />
-                <FavoriteButton
+              </div>
+
+              <GamePlayer
+                iframeUrl={game.iframeUrl}
+                title={game.title}
+                isPremium={playerSession?.user.isPremium}
+                toolbarExtra={
+                  <>
+                    <StarRating
+                      gameId={game.id}
+                      gameSlug={game.slug}
+                      avgRating={ratingStats.avgRating}
+                      ratingCount={ratingStats.ratingCount}
+                      initialUserRating={userRating?.value ?? 0}
+                      isAuthenticated={Boolean(playerSession)}
+                      size="sm"
+                    />
+                    <div className="h-5 w-px bg-slate-700 shrink-0" />
+                    <FavoriteButton
+                      gameId={game.id}
+                      gameSlug={game.slug}
+                      initialFavorited={playerState?.favorited ?? false}
+                      isAuthenticated={Boolean(playerSession)}
+                    />
+                    <ShareButton title={game.title} text={game.description} />
+                    <span className="text-[11px] text-slate-500 ml-auto shrink-0">
+                      💬 {commentCount}
+                    </span>
+                  </>
+                }
+              />
+
+              <GameWalkthrough
+                gameId={"4kci7og3klgj0ivy2wz3gdvd9dth5e7n"}
+                color="#3f007e"
+                height="480px"
+                showAds={!playerSession?.user.isPremium}
+              />
+
+              <AdSlot
+                label="Banner superior - Página de jogo"
+                slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAME_TOP}
+                autoRefresh
+                refreshIntervalMs={45000}
+              />
+
+              {/* Comments */}
+              <div className="mt-4">
+                <GameComments
                   gameId={game.id}
-                  gameSlug={game.slug}
-                  initialFavorited={playerState?.favorited ?? false}
                   isAuthenticated={Boolean(playerSession)}
                 />
-                <ShareButton title={game.title} text={game.description} />
-                <span className="text-[11px] text-slate-500 ml-auto shrink-0">
-                  💬 {commentCount}
-                </span>
-              </>
-            }
-          />
+              </div>
+            </div>
 
-          <GameWalkthrough
-            gameId={"4kci7og3klgj0ivy2wz3gdvd9dth5e7n"}
-            color="#3f007e"
-            height="480px"
-            showAds={!playerSession?.user.isPremium}
-          />
-
-          <AdSlot
-            label="Banner superior - Página de jogo"
-            slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAME_TOP}
-            autoRefresh
-            refreshIntervalMs={45000}
-          />
-
-          {/* Comments */}
-          <div className="mt-4">
-            <GameComments
-              gameId={game.id}
-              isAuthenticated={Boolean(playerSession)}
-            />
+            {/* Right Sidebar Ad */}
+            <aside className="hidden md:block w-[300px] shrink-0 self-start sticky top-32">
+              <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 mb-4">
+                <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3 text-center">Espaço Patrocinado</p>
+                <AdSlot
+                  label="Sidebar Skyscraper"
+                  slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR}
+                  minHeight={350}
+                  autoRefresh
+                  refreshIntervalMs={60000}
+                />
+              </div>
+            </aside>
           </div>
         </div>
-
-        {/* Right Sidebar Ad */}
-        <aside className="hidden md:block w-full md:w-[300px] shrink-0 sticky top-32 mt-36">
-          <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 mb-4">
-             <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3 text-center">Spaço Patrocinado</p>
-             <AdSlot
-               label="Sidebar Skyscraper"
-               slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR}
-               minHeight={350}
-               autoRefresh
-               refreshIntervalMs={60000}
-             />
-          </div>
-        </aside>
       </div>
 
       <AdSlot
