@@ -11,6 +11,14 @@ import { LOCALE_COOKIE_NAME, resolveLocale, SUPPORTED_LOCALES } from "@/lib/loca
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/game-schema";
 
+import { RelatedGamesSection } from "../../components/RelatedGames";
+import { AdSlot } from "../../components/AdSlot";
+import { FavoriteButton } from "../../components/FavoriteButton";
+import { GamePlayer } from "../../components/GamePlayer";
+import { GameComments } from "../../components/GameComments";
+import { ShareButton } from "../../components/ShareButton";
+import { StarRating } from "../../components/StarRating";
+import { PlayerHistoryTracker } from "../../components/PlayerHistoryTracker";
 import { GameViewTracker } from "../../components/GameViewTracker";
 import { GameWalkthrough } from "../components/GameWalkthrough";
 import { SITE_CONFIG } from "@/lib/config";
@@ -78,38 +86,6 @@ export default async function GamePage({ params }: GamePageProps) {
   const dict = await getDictionary(initialLocale);
   const siteUrl = SITE_CONFIG.url;
 
-  const [ratingStats, userRating, playerState, commentCount] = await Promise.all([
-    getGameRatingStats(game.id),
-    playerSession ? getUserGameRating(playerSession.user.id, game.id) : null,
-    playerSession ? getPlayerGameState(playerSession.user.id, game.id) : null,
-    prisma.gameComment.count({ where: { gameId: game.id, isHidden: false } }),
-  ]);
-
-  const jsonLd = [
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": siteUrl
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": game.category,
-          "item": `${siteUrl}/category/${slugify(game.category)}`
-        },
-        {
-          "@type": "ListItem",
-          "position": 3,
-          "name": game.title,
-          "item": `${siteUrl}/games/${game.slug}`
-        }
-      ]
-    },
   // Parse FAQ for schema and UI
   let faqSchemaItems: any[] = [];
   try {
@@ -129,6 +105,13 @@ export default async function GamePage({ params }: GamePageProps) {
   } catch (e) {
     console.error("Failed to parse faqJson for game", game.slug);
   }
+
+  const [ratingStats, userRating, playerState, commentCount] = await Promise.all([
+    getGameRatingStats(game.id),
+    playerSession ? getUserGameRating(playerSession.user.id, game.id) : null,
+    playerSession ? getPlayerGameState(playerSession.user.id, game.id) : null,
+    prisma.gameComment.count({ where: { gameId: game.id, isHidden: false } }),
+  ]);
 
   const jsonLd = [
     {
