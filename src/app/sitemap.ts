@@ -3,6 +3,7 @@ import type { MetadataRoute } from "next";
 import { listPublishedBlogPosts } from "@/data/blogPosts";
 import { listGames, listCategories } from "@/data/gamesStore";
 import { slugify } from "@/lib/game-schema";
+import { SUPPORTED_LOCALES } from "@/lib/locale";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -15,7 +16,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const staticRoutes = ["", "/blog"];
 
-  return [
+  // Base routes (canonical)
+  const canonicalRoutes: MetadataRoute.Sitemap = [
     ...staticRoutes.map((path) => ({
       url: `${SITE_URL}${path}`,
       lastModified: new Date(),
@@ -41,4 +43,29 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.85,
     })),
   ];
+
+  // Localized routes for Home and Categories (FODIDO SEO)
+  const localizedRoutes: MetadataRoute.Sitemap = [];
+  
+  SUPPORTED_LOCALES.forEach((locale) => {
+    // Localized Home
+    localizedRoutes.push({
+      url: `${SITE_URL}?lang=${locale}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    });
+
+    // Localized Categories
+    categories.forEach((category) => {
+      localizedRoutes.push({
+        url: `${SITE_URL}/category/${slugify(category)}?lang=${locale}`,
+        lastModified: new Date(),
+        changeFrequency: "weekly" as const,
+        priority: 0.8,
+      });
+    });
+  });
+
+  return [...canonicalRoutes, ...localizedRoutes];
 }

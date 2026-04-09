@@ -8,6 +8,7 @@ export const revalidate = 600; // 10 min — category pages update slowly
 import { slugify } from "@/lib/game-schema";
 import { getCategorySeoContent } from "@/lib/category-seo-content";
 import { AdSlot } from "../../components/AdSlot";
+import { SUPPORTED_LOCALES } from "@/lib/locale";
 
 type CategoryPageProps = {
   params: Promise<{ slug: string }>;
@@ -29,6 +30,13 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
 
   const seo = getCategorySeoContent(category);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  // Generate hreflang alternates for this specific category
+  const languages: Record<string, string> = {};
+  SUPPORTED_LOCALES.forEach((loc) => {
+    languages[loc] = `${siteUrl}/category/${slug}?lang=${loc}`;
+  });
 
   return {
     title: seo.title,
@@ -39,7 +47,8 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
       type: "website",
     },
     alternates: {
-      canonical: `${SITE_URL}/category/${slug}`,
+      canonical: `/category/${slug}`,
+      languages,
     },
   };
 }

@@ -29,13 +29,44 @@ export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies();
   const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
   const dict = await getDictionary(locale);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   
+  // Generate hreflang alternates for all supported locales
+  const languages: Record<string, string> = {};
+  SUPPORTED_LOCALES.forEach((loc) => {
+    languages[loc] = `${siteUrl}?lang=${loc}`;
+  });
+
   return {
+    metadataBase: new URL(siteUrl),
     title: {
       default: "Gasty Games",
       template: "%s | Gasty Games",
     },
     description: dict.home.heroSubtitle,
+    alternates: {
+      canonical: "/",
+      languages,
+    },
+    openGraph: {
+      title: "Gasty Games",
+      description: dict.home.heroSubtitle,
+      url: siteUrl,
+      siteName: "Gasty Games",
+      locale: locale,
+      type: "website",
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
   };
 }
 
@@ -97,6 +128,23 @@ export default async function RootLayout({
         <LocaleProvider initialLocale={initialLocale}>
           <AdBlockProvider isPremium={premium}>
           <PageAnalyticsTracker />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Organization",
+                "name": "Gasty Games",
+                "url": process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+                "logo": `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/logo.png`,
+                "sameAs": [
+                  "https://facebook.com/gastygames",
+                  "https://twitter.com/gastygames",
+                  "https://instagram.com/gastygames"
+                ]
+              })
+            }}
+          />
           <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur-md">
             <nav className="relative flex w-full items-center gap-4 px-4 py-2.5">
               <div className="flex shrink-0 items-center gap-4 lg:gap-6">

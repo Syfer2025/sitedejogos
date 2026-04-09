@@ -7,7 +7,9 @@ import { getGameBySlug, getGameRatingStats, getUserGameRating, listRelatedGames 
 import { getPlayerGameState } from "@/data/playerStore";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 import { getDictionary, t } from "@/lib/i18n";
-import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
+import { LOCALE_COOKIE_NAME, resolveLocale, SUPPORTED_LOCALES } from "@/lib/locale";
+import { prisma } from "@/lib/prisma";
+import { slugify } from "@/lib/game-schema";
 
 import { RelatedGamesSection } from "../../components/RelatedGames";
 import { AdSlot } from "../../components/AdSlot";
@@ -19,7 +21,6 @@ import { StarRating } from "../../components/StarRating";
 import { PlayerHistoryTracker } from "../../components/PlayerHistoryTracker";
 import { GameViewTracker } from "../../components/GameViewTracker";
 import { GameWalkthrough } from "../components/GameWalkthrough";
-import { getCommentCount } from "@/data/socialStore";
 
 type GamePageProps = {
   params: Promise<{ slug: string }>;
@@ -38,14 +39,32 @@ export async function generateMetadata({
     };
   }
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  
+  // Generate hreflang alternates for this specific game
+  const languages: Record<string, string> = {};
+  SUPPORTED_LOCALES.forEach((loc) => {
+    languages[loc] = `${siteUrl}/games/${game.slug}?lang=${loc}`;
+  });
+
   return {
-    title: `${game.title} | Gasty Games`,
-    description: game.description,
+    title: game.title,
+    description: game.description || `Jogue ${game.title} online e grátis no Gasty Games. Aproveite o melhor de ${game.category} diretamente no seu navegador.`,
+    alternates: {
+      canonical: `/games/${game.slug}`,
+      languages,
+    },
     openGraph: {
       title: game.title,
       description: game.description,
       images: [game.thumbnail],
-      type: "website",
+      type: "video.game",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: game.title,
+      description: game.description,
+      images: [game.thumbnail],
     },
   };
 }
@@ -62,47 +81,73 @@ export default async function GamePage({ params }: GamePageProps) {
   const cookieStore = await cookies();
   const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
-  const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
-  const dict = await getDictionary(locale);
-  const [playerState, commentCount, ratingStats, userRating] = await Promise.all([
-    playerSession
-      ? getPlayerGameState(playerSession.user.id, game.id)
-      : Promise.resolve(null),
-    getCommentCount(game.id),
+  const initialLocale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
+  const dict = await getDictionary(initialLocale);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
+  const [ratingStats, userRating, playerState, commentCount] = await Promise.all([
     getGameRatingStats(game.id),
-    playerSession
-      ? getUserGameRating(playerSession.user.id, game.id)
-      : Promise.resolve(null),
+    playerSession ? getUserGameRating(playerSession.user.id, game.id) : null,
+    playerSession ? getPlayerGameState(playerSession.user.id, game.id) : null,
+    prisma.gameComment.count({ where: { gameId: game.id, isHidden: false } }),
   ]);
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": siteUrl
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": game.category,
+          "item": `${siteUrl}/category/${slugify(game.category)}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": game.title,
+          "item": `${siteUrl}/games/${game.slug}`
+        }
+      ]
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": ["VideoGame", "SoftwareApplication"],
+      name: game.title,
+      description: game.description,
+      image: game.thumbnail,
+      url: `${siteUrl}/games/${game.slug}`,
+      genre: game.category,
+      playMode: "SinglePlayer",
+      applicationCategory: "Game",
+      operatingSystem: "WebBrowser",
+      ...(ratingStats.ratingCount > 0
+        ? {
+            aggregateRating: {
+              "@type": "AggregateRating",
+              ratingValue: ratingStats.avgRating,
+              ratingCount: ratingStats.ratingCount,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          }
+        : {}),
+    }
+  ];
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-6 md:py-10">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "VideoGame",
-            name: game.title,
-            description: game.description,
-            image: game.thumbnail,
-            url: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/games/${game.slug}`,
-            genre: game.category,
-            playMode: "SinglePlayer",
-            applicationCategory: "Game",
-            operatingSystem: "WebBrowser",
-            ...(ratingStats.ratingCount > 0
-              ? {
-                  aggregateRating: {
-                    "@type": "AggregateRating",
-                    ratingValue: ratingStats.avgRating,
-                    ratingCount: ratingStats.ratingCount,
-                    bestRating: 5,
-                    worstRating: 1,
-                  },
-                }
-              : {}),
-          })
+          __html: JSON.stringify(jsonLd)
         }}
       />
       <GameViewTracker slug={game.slug} />
@@ -128,7 +173,6 @@ export default async function GamePage({ params }: GamePageProps) {
           <p className="text-sm text-slate-400 max-w-2xl mb-4">
             {game.description}
           </p>
-
 
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1 min-w-0">
@@ -171,6 +215,46 @@ export default async function GamePage({ params }: GamePageProps) {
                   </>
                 }
               />
+
+              {/* Game Guide Section for SEO */}
+              {(game.longDescription || game.controls || game.tips) && (
+                <div className="mt-8 space-y-8 border-t border-slate-800/60 pt-8">
+                  {game.longDescription && (
+                    <article className="prose prose-invert prose-slate max-w-none">
+                      <h2 className="text-lg font-semibold text-slate-100 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                        {t(dict, "game.aboutGame")}
+                      </h2>
+                      <div className="text-sm text-slate-400 leading-relaxed whitespace-pre-wrap">
+                        {game.longDescription}
+                      </div>
+                    </article>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {game.controls && (
+                      <div className="rounded-2xl border border-slate-800/60 bg-slate-900/30 p-5">
+                        <h2 className="text-[13px] font-bold uppercase tracking-wider text-slate-200 mb-4 flex items-center gap-2">
+                          🎮 {t(dict, "game.controls")}
+                        </h2>
+                        <div className="text-sm text-slate-400 leading-normal">
+                          {game.controls}
+                        </div>
+                      </div>
+                    )}
+                    {game.tips && (
+                      <div className="rounded-2xl border border-amber-900/20 bg-amber-950/5 p-5">
+                        <h2 className="text-[13px] font-bold uppercase tracking-wider text-amber-200 mb-4 flex items-center gap-2">
+                          💡 {t(dict, "game.tips")}
+                        </h2>
+                        <div className="text-sm text-slate-400 leading-normal">
+                          {game.tips}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               <GameWalkthrough
                 gameId={"4kci7og3klgj0ivy2wz3gdvd9dth5e7n"}
