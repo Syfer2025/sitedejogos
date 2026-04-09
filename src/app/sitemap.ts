@@ -4,8 +4,9 @@ import { listPublishedBlogPosts } from "@/data/blogPosts";
 import { listGames, listCategories } from "@/data/gamesStore";
 import { slugify } from "@/lib/game-schema";
 import { SUPPORTED_LOCALES } from "@/lib/locale";
+import { SITE_CONFIG } from "@/lib/config";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const SITE_URL = SITE_CONFIG.url;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [games, blogPosts, categories] = await Promise.all([

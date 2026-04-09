@@ -14,6 +14,7 @@ import { LOCALE_COOKIE_NAME, resolveLocale, type Locale, SUPPORTED_LOCALES } fro
 import { getDictionary } from "@/lib/i18n";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 import { isPlayerPremium } from "@/data/monetizationStore";
+import { SITE_CONFIG } from "@/lib/config";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,7 +30,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies();
   const locale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
   const dict = await getDictionary(locale);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = SITE_CONFIG.url;
   
   // Generate hreflang alternates for all supported locales
   const languages: Record<string, string> = {};
@@ -134,13 +135,11 @@ export default async function RootLayout({
               __html: JSON.stringify({
                 "@context": "https://schema.org",
                 "@type": "Organization",
-                "name": "Gasty Games",
-                "url": process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-                "logo": `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/logo.png`,
+                "name": SITE_CONFIG.name,
+                "url": SITE_CONFIG.url,
+                "logo": `${SITE_CONFIG.url}/logo.png`,
                 "sameAs": [
-                  "https://facebook.com/gastygames",
-                  "https://twitter.com/gastygames",
-                  "https://instagram.com/gastygames"
+                  SITE_CONFIG.facebookPage
                 ]
               })
             }}

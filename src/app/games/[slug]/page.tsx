@@ -11,16 +11,9 @@ import { LOCALE_COOKIE_NAME, resolveLocale, SUPPORTED_LOCALES } from "@/lib/loca
 import { prisma } from "@/lib/prisma";
 import { slugify } from "@/lib/game-schema";
 
-import { RelatedGamesSection } from "../../components/RelatedGames";
-import { AdSlot } from "../../components/AdSlot";
-import { FavoriteButton } from "../../components/FavoriteButton";
-import { GamePlayer } from "../../components/GamePlayer";
-import { GameComments } from "../../components/GameComments";
-import { ShareButton } from "../../components/ShareButton";
-import { StarRating } from "../../components/StarRating";
-import { PlayerHistoryTracker } from "../../components/PlayerHistoryTracker";
 import { GameViewTracker } from "../../components/GameViewTracker";
 import { GameWalkthrough } from "../components/GameWalkthrough";
+import { SITE_CONFIG } from "@/lib/config";
 
 type GamePageProps = {
   params: Promise<{ slug: string }>;
@@ -39,7 +32,7 @@ export async function generateMetadata({
     };
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = SITE_CONFIG.url;
   
   // Generate hreflang alternates for this specific game
   const languages: Record<string, string> = {};
@@ -83,7 +76,7 @@ export default async function GamePage({ params }: GamePageProps) {
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
   const initialLocale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
   const dict = await getDictionary(initialLocale);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = SITE_CONFIG.url;
 
   const [ratingStats, userRating, playerState, commentCount] = await Promise.all([
     getGameRatingStats(game.id),

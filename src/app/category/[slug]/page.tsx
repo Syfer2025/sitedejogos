@@ -9,12 +9,13 @@ import { slugify } from "@/lib/game-schema";
 import { getCategorySeoContent } from "@/lib/category-seo-content";
 import { AdSlot } from "../../components/AdSlot";
 import { SUPPORTED_LOCALES } from "@/lib/locale";
+import { SITE_CONFIG } from "@/lib/config";
 
 type CategoryPageProps = {
   params: Promise<{ slug: string }>;
 };
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const SITE_URL = SITE_CONFIG.url;
 
 async function findCategory(slug: string) {
   const categories = await listCategories({ order: "editorial" });
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
   }
 
   const seo = getCategorySeoContent(category);
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = SITE_CONFIG.url;
 
   // Generate hreflang alternates for this specific category
   const languages: Record<string, string> = {};
