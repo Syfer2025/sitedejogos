@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
+import React from "react";
 import { t } from "@/lib/i18n";
+import { AdSlot } from "./AdSlot";
 
 export type RelatedGame = {
   id: string;
@@ -29,9 +31,22 @@ export function RelatedGamesSection({ games, dict }: { games: RelatedGame[], dic
         </Link>
       </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {games.map((game) => (
+        {games.map((game, index) => (
+          <React.Fragment key={game.id}>
+          {index === 2 && (
+            <div className="group relative rounded-xl overflow-hidden bg-slate-950/70 border border-slate-800/80 p-2 flex flex-col items-center justify-center">
+              <span className="text-[9px] uppercase text-slate-500 mb-1">Patrocinado</span>
+              <div className="w-full h-full flex items-center justify-center min-h-[140px] overflow-hidden">
+                <AdSlot
+                  label="In-Feed Ad"
+                  slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_INFEED}
+                  autoRefresh
+                  refreshIntervalMs={60000}
+                />
+              </div>
+            </div>
+          )}
           <Link
-            key={game.id}
             href={`/games/${game.slug}`}
             className="group relative rounded-xl overflow-hidden bg-slate-950/70 border border-slate-800/80 hover:border-purple-500/70 hover:bg-slate-950/90 transition-colors shadow-none"
           >
@@ -59,6 +74,7 @@ export function RelatedGamesSection({ games, dict }: { games: RelatedGame[], dic
               </p>
             </div>
           </Link>
+          </React.Fragment>
         ))}
       </div>
     </section>

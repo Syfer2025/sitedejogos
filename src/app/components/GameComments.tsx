@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTranslate } from "./LocaleContext";
+import { AdSlot } from "./AdSlot";
 
 type Comment = {
   id: string;
@@ -140,8 +141,9 @@ export function GameComments({ gameId, isAuthenticated }: GameCommentsProps) {
         <p className="text-xs text-slate-500 py-2">{t("comments.empty")}</p>
       ) : (
         <div className="space-y-3 max-h-[400px] overflow-y-auto scrollbar-thin">
-          {comments.map((comment) => (
-            <div key={comment.id} className="flex gap-2.5 animate-fade-in-up">
+          {comments.map((comment, index) => (
+            <React.Fragment key={comment.id}>
+              <div className="flex gap-2.5 animate-fade-in-up">
               <div className="flex h-8 w-8 flex-none items-center justify-center rounded-lg border border-slate-700 bg-slate-900 text-[10px] font-bold text-slate-300 overflow-hidden">
                 {comment.user.avatarUrl ? (
                   <div
@@ -166,6 +168,17 @@ export function GameComments({ gameId, isAuthenticated }: GameCommentsProps) {
                 <p className="text-xs text-slate-400 mt-0.5 break-words">{comment.content}</p>
               </div>
             </div>
+            {index === 2 && comments.length > 3 && (
+              <div className="my-2 p-2 rounded-xl border border-slate-800/60 bg-slate-900/40 relative">
+                 <span className="absolute top-1 right-2 text-[8px] uppercase text-slate-600">Post Patrocinado</span>
+                 <AdSlot
+                   label="Comments In-Article Ad"
+                   slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_INARTICLE}
+                   minHeight={120}
+                 />
+              </div>
+            )}
+            </React.Fragment>
           ))}
         </div>
       )}

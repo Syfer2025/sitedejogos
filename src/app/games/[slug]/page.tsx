@@ -129,6 +129,16 @@ export default async function GamePage({ params }: GamePageProps) {
             {game.description}
           </p>
 
+          <div className="mb-4">
+            <AdSlot
+              label="Banner Top - Hero"
+              slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_GAME_TOP}
+              autoRefresh
+              refreshIntervalMs={60000}
+              minHeight={90}
+            />
+          </div>
+
           <GamePlayer
             iframeUrl={game.iframeUrl}
             title={game.title}
@@ -182,6 +192,19 @@ export default async function GamePage({ params }: GamePageProps) {
           </div>
         </div>
 
+        {/* Right Sidebar Ad */}
+        <aside className="hidden md:block w-full md:w-[300px] shrink-0 sticky top-24">
+          <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 mb-4">
+             <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3 text-center">Spaço Patrocinado</p>
+             <AdSlot
+               label="Sidebar Skyscraper"
+               slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR}
+               minHeight={600}
+               autoRefresh
+               refreshIntervalMs={60000}
+             />
+          </div>
+        </aside>
       </div>
 
       <AdSlot
