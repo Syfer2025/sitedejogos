@@ -27,6 +27,11 @@ export type GameRecord = {
   ratingCount: number;
   isFavorited?: boolean;
   userRating?: number;
+  // SEO fields
+  longDescription: string;
+  tips: string;
+  controls: string;
+  faqJson: string;
 };
 
 type ListGamesOptions = {
@@ -90,6 +95,10 @@ function mapGame(game: Game): GameRecord {
     ratingCount: 0,
     createdAt: game.createdAt.toISOString(),
     updatedAt: game.updatedAt.toISOString(),
+    longDescription: game.longDescription,
+    tips: game.tips,
+    controls: game.controls,
+    faqJson: game.faqJson,
   };
 }
 
@@ -516,6 +525,10 @@ export async function createGame(data: CreateGameInput) {
       featured: data.featured,
       isPublished: data.isPublished,
       popularityScore: data.featured ? 10 : 0,
+      longDescription: (data as any).longDescription ?? "",
+      tips: (data as any).tips ?? "",
+      controls: (data as any).controls ?? "",
+      faqJson: (data as any).faqJson ?? "",
     },
   });
 
