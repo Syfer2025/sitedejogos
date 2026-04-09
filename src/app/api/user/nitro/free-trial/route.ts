@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Nao autenticado." }, { status: 401 });
   }
 
-  const user = await prisma.playerUser.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { hadFreeTrial: true, isPremium: true },
   });
@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
   }
 
   await grantPremium(session.user.id, FREE_TRIAL_DAYS);
-  await prisma.playerUser.update({
+  await prisma.user.update({
     where: { id: session.user.id },
     data: { hadFreeTrial: true },
   });

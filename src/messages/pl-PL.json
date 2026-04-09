@@ -57,7 +57,11 @@
     "hasAccount": "Masz już konto?",
     "forgotPassword": "Nie pamiętasz hasła?",
     "invalidCredentials": "Nieprawidłowy e-mail lub hasło.",
-    "emailTaken": "Ten e-mail jest już zajęty."
+    "emailTaken": "Ten e-mail jest już zajęty.",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "Poziom",

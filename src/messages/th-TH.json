@@ -57,7 +57,11 @@
     "hasAccount": "มีบัญชีอยู่แล้ว?",
     "forgotPassword": "ลืมรหัสผ่าน?",
     "invalidCredentials": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
-    "emailTaken": "อีเมลนี้ถูกใช้งานแล้ว"
+    "emailTaken": "อีเมลนี้ถูกใช้งานแล้ว",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "เลเวล",

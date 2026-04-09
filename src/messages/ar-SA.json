@@ -57,7 +57,11 @@
     "hasAccount": "لديك حساب بالفعل؟",
     "forgotPassword": "نسيت كلمة المرور؟",
     "invalidCredentials": "البريد الإلكتروني أو كلمة المرور غير صالحة.",
-    "emailTaken": "هذا البريد الإلكتروني مستخدم بالفعل."
+    "emailTaken": "هذا البريد الإلكتروني مستخدم بالفعل.",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "المستوى",

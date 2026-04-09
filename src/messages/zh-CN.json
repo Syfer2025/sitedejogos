@@ -57,7 +57,11 @@
     "hasAccount": "已有账户？",
     "forgotPassword": "忘记密码？",
     "invalidCredentials": "电子邮件或密码无效。",
-    "emailTaken": "此电子邮件已被占用。"
+    "emailTaken": "此电子邮件已被占用。",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "等级",

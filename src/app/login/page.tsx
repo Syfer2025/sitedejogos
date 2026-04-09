@@ -5,6 +5,8 @@ import type { FormEvent } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { signIn } from "next-auth/react";
+import { useTranslate } from "../components/LocaleContext";
 
 import { getAnalyticsSessionId } from "@/lib/analytics";
 
@@ -117,8 +119,14 @@ export default function LoginPage() {
   }
 
   async function handleSocialLogin(provider: string) {
-    // In production, redirect to OAuth flow
-    setError(`Login via ${provider} será integrado com OAuth em produção.`);
+    try {
+      setLoading(true);
+      setError(null);
+      await signIn(provider.toLowerCase(), { callbackUrl: redirectTo });
+    } catch {
+      setError(`Erro ao iniciar login com ${provider}.`);
+      setLoading(false);
+    }
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -148,37 +156,52 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        mode === "login" ? "/api/auth/user/login" : "/api/auth/user/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(
-            mode === "login"
-              ? {
-                  email,
-                  password,
-                  sessionId: getAnalyticsSessionId(),
-                  referrer: document.referrer || undefined,
-                }
-              : {
-                  displayName,
-                  email,
-                  password,
-                  sessionId: getAnalyticsSessionId(),
-                  referrer: document.referrer || undefined,
-                },
-          ),
-        },
-      );
+      if (mode === "login") {
+        const result = await signIn("credentials", {
+          email,
+          password,
+          redirect: false,
+          callbackUrl: redirectTo,
+        });
+
+        if (result?.error) {
+          setError("Email ou senha inválidos.");
+          setLoading(false);
+          return;
+        }
+
+        router.replace(redirectTo);
+        router.refresh();
+        return;
+      }
+
+      // Registration remains custom via API
+      const response = await fetch("/api/auth/user/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          displayName,
+          email,
+          password,
+          sessionId: getAnalyticsSessionId(),
+          referrer: document.referrer || undefined,
+        }),
+      });
 
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        setError(data.message || "Não foi possível concluir a autenticação.");
+        setError(data.message || "Não foi possível concluir o cadastro.");
         setLoading(false);
         return;
       }
+
+      // Auto-login after registration
+      await signIn("credentials", {
+        email,
+        password,
+        callbackUrl: redirectTo,
+      });
 
       router.replace(redirectTo);
       router.refresh();
@@ -188,6 +211,7 @@ export default function LoginPage() {
     }
   }
 
+  const t = useTranslate();
   const isRegister = mode === "register";
 
   return (
@@ -200,12 +224,12 @@ export default function LoginPage() {
             <span className="text-lg font-bold text-white">N</span>
           </div>
           <h1 className="mt-3 text-lg font-semibold tracking-tight text-slate-50">
-            {isRegister ? "Criar sua conta" : "Entrar no Gasty Games"}
+            {isRegister ? t("auth.registerTitle") : t("auth.loginTitle")}
           </h1>
           <p className="mt-1 text-xs text-slate-400">
             {isRegister
-              ? "Cadastre-se para salvar favoritos, acompanhar seu progresso e competir no ranking."
-              : "Acesse sua conta para continuar de onde parou."}
+              ? t("auth.registerSubtitle")
+              : t("auth.loginSubtitle")}
           </p>
         </div>
 
@@ -220,7 +244,7 @@ export default function LoginPage() {
                 : "text-slate-300 hover:text-slate-50"
             }`}
           >
-            Entrar
+            {t("common.login")}
           </button>
           <button
             type="button"
@@ -231,7 +255,7 @@ export default function LoginPage() {
                 : "text-slate-300 hover:text-slate-50"
             }`}
           >
-            Criar conta
+            {t("common.register")}
           </button>
         </div>
 
@@ -243,7 +267,7 @@ export default function LoginPage() {
             className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
           >
             <GoogleIcon />
-            Continuar com Google
+            {t("auth.googleLogin")}
           </button>
           <div className="grid grid-cols-2 gap-2">
             <button
@@ -252,7 +276,7 @@ export default function LoginPage() {
               className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2.5 text-xs font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
             >
               <FacebookIcon />
-              Facebook
+              {t("auth.facebookLogin")}
             </button>
             <button
               type="button"
@@ -260,7 +284,7 @@ export default function LoginPage() {
               className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2.5 text-xs font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
             >
               <AppleIcon />
-              Apple
+              {t("auth.appleLogin")}
             </button>
           </div>
         </div>
@@ -268,7 +292,7 @@ export default function LoginPage() {
         {/* ── Divider ── */}
         <div className="flex items-center gap-3 mb-4">
           <div className="flex-1 h-px bg-slate-800" />
-          <span className="text-[10px] uppercase tracking-[0.15em] text-slate-500 font-medium">ou com email</span>
+          <span className="text-[10px] uppercase tracking-[0.15em] text-slate-500 font-medium">{t("auth.orEmail")}</span>
           <div className="flex-1 h-px bg-slate-800" />
         </div>
 

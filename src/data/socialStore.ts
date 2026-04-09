@@ -177,7 +177,7 @@ export async function getFriendCount(userId: string): Promise<number> {
 export async function listFriendLeaderboard(userId: string) {
   const friends = await listFriends(userId);
 
-  const userProfile = await prisma.playerUser.findUnique({
+  const userProfile = await prisma.user.findUnique({
     where: { id: userId },
     select: {
       id: true,
@@ -215,7 +215,7 @@ export async function listFriendLeaderboard(userId: string) {
 }
 
 export async function findPlayerByEmail(email: string) {
-  return prisma.playerUser.findUnique({
+  return prisma.user.findUnique({
     where: { email },
     select: { id: true, displayName: true, avatarUrl: true, level: true },
   });

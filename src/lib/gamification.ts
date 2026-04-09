@@ -7,6 +7,8 @@ export const ACHIEVEMENT_CRITERIA_TYPES = [
   "profile_completed",
   "xp_total",
   "level_reached",
+  "ratings_total",
+  "ads_total",
 ] as const;
 
 export type AchievementCriteriaType = (typeof ACHIEVEMENT_CRITERIA_TYPES)[number];
@@ -20,6 +22,8 @@ export const ACHIEVEMENT_CRITERIA_LABELS: Record<AchievementCriteriaType, string
   profile_completed: "Perfil completo",
   xp_total: "XP total",
   level_reached: "Nível alcançado",
+  ratings_total: "Avaliações feitas",
+  ads_total: "Anúncios premiados assistidos",
 };
 
 export type AchievementDefinitionInput = {
@@ -233,6 +237,39 @@ export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
     xpReward: 160,
     isActive: true,
   },
+  {
+    key: "reviewer1",
+    title: "Crítico amador",
+    description: "Avaliou seu primeiro jogo com estrelas.",
+    icon: "📜",
+    imageUrl: "",
+    criteriaType: "ratings_total",
+    threshold: 1,
+    xpReward: 20,
+    isActive: true,
+  },
+  {
+    key: "reviewer10",
+    title: "Voz do arcade",
+    description: "Deixou sua marca em 10 jogos diferentes através de avaliações.",
+    icon: "📢",
+    imageUrl: "",
+    criteriaType: "ratings_total",
+    threshold: 10,
+    xpReward: 60,
+    isActive: true,
+  },
+  {
+    key: "supporter1",
+    title: "Patrocinador local",
+    description: "Ajudou o portal assistindo a um anúncio premiado.",
+    icon: "📺",
+    imageUrl: "",
+    criteriaType: "ads_total",
+    threshold: 1,
+    xpReward: 30,
+    isActive: true,
+  },
 ];
 
 export type AchievementKey = (typeof DEFAULT_ACHIEVEMENT_DEFINITIONS)[number]["key"];
@@ -246,6 +283,8 @@ export type AchievementEvaluationSnapshot = {
   hasProfileSetup: boolean;
   totalXp: number;
   level: number;
+  totalRatings: number;
+  totalAds: number;
 };
 
 export type AchievementProgress = {
@@ -276,6 +315,10 @@ export function matchesAchievementCriteria(
       return snapshot.totalXp >= definition.threshold;
     case "level_reached":
       return snapshot.level >= definition.threshold;
+    case "ratings_total":
+      return snapshot.totalRatings >= definition.threshold;
+    case "ads_total":
+      return snapshot.totalAds >= definition.threshold;
     default:
       return false;
   }
@@ -315,6 +358,12 @@ export function getAchievementProgress(
     case "level_reached":
       currentValue = snapshot.level;
       break;
+    case "ratings_total":
+      currentValue = snapshot.totalRatings;
+      break;
+    case "ads_total":
+      currentValue = snapshot.totalAds;
+      break;
   }
 
   const boundedCurrentValue = Math.min(Math.max(currentValue, 0), targetValue);
@@ -335,7 +384,9 @@ export type GamificationEventType =
   | "login"
   | "favorite_add"
   | "game_play"
-  | "profile_update";
+  | "profile_update"
+  | "rating_add"
+  | "ad_reward_view";
 
 export const EVENT_XP_REWARDS: Record<GamificationEventType, number> = {
   register: 50,
@@ -343,6 +394,8 @@ export const EVENT_XP_REWARDS: Record<GamificationEventType, number> = {
   favorite_add: 10,
   game_play: 5,
   profile_update: 20,
+  rating_add: 10,
+  ad_reward_view: 15,
 };
 
 export function getLevelFromXp(xp: number) {

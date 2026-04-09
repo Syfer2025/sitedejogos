@@ -57,7 +57,11 @@
     "hasAccount": "Sudah mempunyai akaun?",
     "forgotPassword": "Lupa kata laluan?",
     "invalidCredentials": "Emel atau kata laluan tidak sah.",
-    "emailTaken": "Emel ini telah digunakan."
+    "emailTaken": "Emel ini telah digunakan.",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "Tahap",

@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
 
     // Check if user already owns it
     // @ts-ignore - Prisma IDE sync lag
-    const userRow = await (prisma.playerUser as any).findUnique({
+    const userRow = await (prisma.user as any).findUnique({
       where: { id: session.user.id },
       select: { coins: true, unlockedAvatars: true, unlockedCovers: true },
     });
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     const newUnlockedString = unlockedArr.join(",");
 
     // @ts-ignore - Prisma IDE sync lag
-    await (prisma.playerUser as any).update({
+    await (prisma.user as any).update({
       where: { id: session.user.id },
       data: itemType === "avatar" 
         ? { unlockedAvatars: newUnlockedString }

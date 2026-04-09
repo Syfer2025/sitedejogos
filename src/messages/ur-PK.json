@@ -57,7 +57,11 @@
     "hasAccount": "پہلے سے اکاؤنٹ ہے؟",
     "forgotPassword": "پاس ورڈ بھول گئے؟",
     "invalidCredentials": "ای میل یا پاس ورڈ غلط ہے۔",
-    "emailTaken": "یہ ای میل پہلے سے زیر استعمال ہے۔"
+    "emailTaken": "یہ ای میل پہلے سے زیر استعمال ہے۔",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "لیول",

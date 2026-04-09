@@ -57,7 +57,11 @@
     "hasAccount": "Schon ein Konto?",
     "forgotPassword": "Passwort vergessen?",
     "invalidCredentials": "Ungültige E-Mail oder Passwort.",
-    "emailTaken": "Diese E-Mail-Adresse wird bereits verwendet."
+    "emailTaken": "Diese E-Mail-Adresse wird bereits verwendet.",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "Level",

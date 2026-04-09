@@ -1,7 +1,13 @@
 import type { GamificationEventType } from "@/lib/gamification";
 import { getLocaleContentLocale, type Locale } from "@/lib/locale";
 
-export const DAILY_MISSION_KINDS = ["favorite_add", "profile_update", "game_play"] as const;
+export const DAILY_MISSION_KINDS = [
+  "favorite_add",
+  "profile_update",
+  "game_play",
+  "rating_add",
+  "ad_reward_view",
+] as const;
 export type DailyMissionKind = (typeof DAILY_MISSION_KINDS)[number];
 
 export type DailyMissionRecord = {
@@ -30,6 +36,8 @@ const DAILY_MISSION_LINKS: Record<DailyMissionKind, string> = {
   favorite_add: "/#catalogo",
   profile_update: "/account",
   game_play: "/#catalogo",
+  rating_add: "/#catalogo",
+  ad_reward_view: "/#catalogo",
 };
 
 export function getDailyMissionHref(kind: DailyMissionKind) {
@@ -50,6 +58,22 @@ export function selectDailyMissionTemplate(context: DailyMissionAssignmentContex
       kind: "profile_update" as const,
       targetCount: 1,
       rewardXp: 25,
+    };
+  }
+
+  if (Math.random() > 0.6) {
+    return {
+      kind: "rating_add" as const,
+      targetCount: 1,
+      rewardXp: 25,
+    };
+  }
+
+  if (Math.random() > 0.8) {
+    return {
+      kind: "ad_reward_view" as const,
+      targetCount: 1,
+      rewardXp: 35,
     };
   }
 
@@ -85,6 +109,22 @@ export function selectDailyMissionTemplateFromEvent(event: GamificationEventType
     };
   }
 
+  if (event === "rating_add") {
+    return {
+      kind: "rating_add" as const,
+      targetCount: 1,
+      rewardXp: 25,
+    };
+  }
+
+  if (event === "ad_reward_view") {
+    return {
+      kind: "ad_reward_view" as const,
+      targetCount: 1,
+      rewardXp: 35,
+    };
+  }
+
   return null;
 }
 
@@ -108,6 +148,12 @@ export function buildDailyMission(input: DailyMissionPresentationInput) {
           profileTitle: "Update your player profile today.",
           profileDescription:
             "Set avatar, bio or favorite categories to sharpen your recommendations and player hub.",
+          ratingTitle: "Rate 1 game today.",
+          ratingDescription:
+            "Give 1 to 5 stars to any game to help other players find the best content in the portal.",
+          adTitle: "Watch 1 rewarded ad today.",
+          adDescription:
+            "Support the portal and earn bonus XP by watching a short video highlight.",
           gamePlayTitle: (targetCount: number) => `Play ${targetCount} game(s) today.`,
           gamePlayDescription:
             "Keep your activity warm, stack XP and give the portal a stronger signal about what deserves priority in your feed.",
@@ -136,6 +182,12 @@ export function buildDailyMission(input: DailyMissionPresentationInput) {
           profileTitle: "Actualiza tu perfil de jugador hoy.",
           profileDescription:
             "Configura avatar, bio o categorías favoritas para mejorar tus recomendaciones y tu hub personal.",
+          ratingTitle: "Califica 1 juego hoy.",
+          ratingDescription:
+            "Da de 1 a 5 estrellas a cualquier juego para ayudar a otros a encontrar lo mejor del portal.",
+          adTitle: "Mira 1 anuncio premiado hoy.",
+          adDescription:
+            "Apoya al portal y gana XP extra mirando un corto video destacado.",
           gamePlayTitle: (targetCount: number) => `Juega ${targetCount} partida(s) hoy.`,
           gamePlayDescription:
             "Mantén tu actividad encendida, suma XP y ayuda al portal a entender qué debe subir en tu feed.",
@@ -163,6 +215,12 @@ export function buildDailyMission(input: DailyMissionPresentationInput) {
           profileTitle: "Atualize seu perfil de jogador hoje.",
           profileDescription:
             "Ajuste avatar, bio ou categorias favoritas para melhorar recomendações e deixar seu hub mais preciso.",
+          ratingTitle: "Avalie 1 jogo hoje.",
+          ratingDescription:
+            "Dê de 1 a 5 estrelas em qualquer jogo para ajudar outros jogadores e melhorar o catálogo.",
+          adTitle: "Veja 1 anúncio premiado hoje.",
+          adDescription:
+            "Apoie o portal e ganhe XP bônus assistindo a um rápido vídeo de destaque.",
           gamePlayTitle: (targetCount: number) => `Jogue ${targetCount} partida(s) hoje.`,
           gamePlayDescription:
             "Mantenha a atividade aquecida, some XP e dê um sinal mais forte ao portal sobre o que merece subir no seu feed.",
@@ -241,6 +299,32 @@ export function buildDailyMission(input: DailyMissionPresentationInput) {
       progressValue: copy.progressValue(input.mission.progressCount, input.mission.targetCount),
       href: getDailyMissionHref(input.mission.kind),
       ctaLabel: copy.accountCta,
+      isCompleted: false,
+    };
+  }
+
+  if (input.mission.kind === "rating_add") {
+    return {
+      variant: "rating_add" as const,
+      title: copy.ratingTitle,
+      description: copy.ratingDescription,
+      progressLabel: copy.progressLabel,
+      progressValue: copy.progressValue(input.mission.progressCount, input.mission.targetCount),
+      href: getDailyMissionHref(input.mission.kind),
+      ctaLabel: copy.actionCta,
+      isCompleted: false,
+    };
+  }
+
+  if (input.mission.kind === "ad_reward_view") {
+    return {
+      variant: "ad_reward_view" as const,
+      title: copy.adTitle,
+      description: copy.adDescription,
+      progressLabel: copy.progressLabel,
+      progressValue: copy.progressValue(input.mission.progressCount, input.mission.targetCount),
+      href: getDailyMissionHref(input.mission.kind),
+      ctaLabel: copy.actionCta,
       isCompleted: false,
     };
   }

@@ -47,7 +47,7 @@ export async function getAnalyticsOverview(windowDays = 14) {
           },
         },
       }),
-      prisma.playerUser.count(),
+      prisma.user.count(),
       prisma.game.count({
         where: {
           isPublished: true,

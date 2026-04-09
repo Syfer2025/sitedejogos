@@ -73,6 +73,8 @@ function createAchievementSnapshot(input: {
   favoriteCount: number;
   uniqueGamesPlayed: number;
   totalGamesPlayed: number;
+  totalRatings: number;
+  totalAds: number;
 }): AchievementEvaluationSnapshot {
   return {
     accountCreated: true,
@@ -85,6 +87,8 @@ function createAchievementSnapshot(input: {
     ),
     totalXp: input.xp,
     level: input.level,
+    totalRatings: input.totalRatings,
+    totalAds: input.totalAds,
   };
 }
 
@@ -103,7 +107,13 @@ export async function listPlayerAchievements(userId: string, options?: { limit?:
 }
 
 function isDailyMissionKind(value: string): value is DailyMissionKind {
-  return value === "favorite_add" || value === "profile_update" || value === "game_play";
+  return (
+    value === "favorite_add" ||
+    value === "profile_update" ||
+    value === "game_play" ||
+    value === "rating_add" ||
+    value === "ad_reward_view"
+  );
 }
 
 function mapDailyMission(mission: {
@@ -148,7 +158,7 @@ async function createPlayerNotification(input: {
 
 async function loadDailyMissionAssignmentContext(userId: string) {
   const [user, favoriteCount] = await Promise.all([
-    prisma.playerUser.findUnique({
+    prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -305,6 +315,10 @@ async function syncDailyMissionProgress(userId: string, event: GamificationEvent
         ? "salvar um favorito"
         : updated.kind === "profile_update"
         ? "atualizar o perfil"
+        : updated.kind === "rating_add"
+        ? "avaliar um jogo"
+        : updated.kind === "ad_reward_view"
+        ? "ver um anúncio"
         : "jogar hoje";
 
     await createPlayerNotification({
@@ -322,7 +336,7 @@ async function syncDailyMissionProgress(userId: string, event: GamificationEvent
 }
 
 async function syncDailyEngagement(userId: string) {
-  const user = await prisma.playerUser.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       id: userId,
     },
@@ -340,7 +354,7 @@ async function syncDailyEngagement(userId: string) {
   const now = new Date();
 
   if (!user.lastEngagedAt) {
-    const updated = await prisma.playerUser.update({
+    const updated = await prisma.user.update({
       where: {
         id: userId,
       },
@@ -378,7 +392,7 @@ async function syncDailyEngagement(userId: string) {
   const nextStreak = dayDiff === 1 ? user.currentStreak + 1 : 1;
   const nextLongest = Math.max(user.longestStreak, nextStreak);
 
-  const updated = await prisma.playerUser.update({
+  const updated = await prisma.user.update({
     where: {
       id: userId,
     },
@@ -417,7 +431,7 @@ async function grantXp(userId: string, amount: number, reason: string) {
     return null;
   }
 
-  const current = await prisma.playerUser.findUnique({
+  const current = await prisma.user.findUnique({
     where: {
       id: userId,
     },
@@ -434,7 +448,7 @@ async function grantXp(userId: string, amount: number, reason: string) {
   const nextXp = current.xp + amount;
   const nextLevel = getLevelFromXp(nextXp);
 
-  const updated = await prisma.playerUser.update({
+  const updated = await prisma.user.update({
     where: {
       id: userId,
     },
@@ -509,8 +523,16 @@ async function unlockAchievement(userId: string, definition: AchievementDefiniti
 }
 
 async function evaluateAchievements(userId: string) {
-  const [user, favoriteCount, playedGamesCount, playedGamesAgg, definitions] = await Promise.all([
-    prisma.playerUser.findUnique({
+  const [
+    user,
+    favoriteCount,
+    playedGamesCount,
+    playedGamesAgg,
+    ratingsCount,
+    adsCount,
+    definitions,
+  ] = await Promise.all([
+    prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -541,6 +563,16 @@ async function evaluateAchievements(userId: string) {
         playCount: true,
       },
     }),
+    prisma.gameRating.count({
+      where: {
+        userId,
+      },
+    }),
+    prisma.rewardedAdView.count({
+      where: {
+        userId,
+      },
+    }),
     listAchievementDefinitions(),
   ]);
 
@@ -560,6 +592,8 @@ async function evaluateAchievements(userId: string) {
     favoriteCount,
     uniqueGamesPlayed: playedGamesCount,
     totalGamesPlayed: totalPlays,
+    totalRatings: ratingsCount,
+    totalAds: adsCount,
   });
 
   for (const definition of definitions) {
@@ -586,7 +620,7 @@ export async function applyGamificationEvent(
     event === "login" ? Boolean(streakState?.isNewDay) : baseReward > 0;
 
   const prevLevel = shouldGrantBaseXp
-    ? (await prisma.playerUser.findUnique({ where: { id: userId }, select: { level: true } }))?.level ?? 1
+    ? (await prisma.user.findUnique({ where: { id: userId }, select: { level: true } }))?.level ?? 1
     : 0;
 
   const xpResult = shouldGrantBaseXp ? await grantXp(userId, baseReward, event) : null;
@@ -630,8 +664,10 @@ export async function getPlayerGamificationOverview(userId: string) {
     favoriteCount,
     uniqueGamesPlayed,
     totalGamesPlayedAgg,
+    ratingsCount,
+    adsCount,
   ] = await Promise.all([
-    prisma.playerUser.findUnique({
+    prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -700,6 +736,16 @@ export async function getPlayerGamificationOverview(userId: string) {
         playCount: true,
       },
     }),
+    prisma.gameRating.count({
+      where: {
+        userId,
+      },
+    }),
+    prisma.rewardedAdView.count({
+      where: {
+        userId,
+      },
+    }),
   ]);
 
   if (!user) {
@@ -716,6 +762,8 @@ export async function getPlayerGamificationOverview(userId: string) {
     favoriteCount,
     uniqueGamesPlayed,
     totalGamesPlayed: totalGamesPlayedAgg._sum.playCount ?? 0,
+    totalRatings: ratingsCount,
+    totalAds: adsCount,
   });
 
   return {

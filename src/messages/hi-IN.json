@@ -57,7 +57,11 @@
     "hasAccount": "पहले से ही एक खाता है?",
     "forgotPassword": "पासवर्ड भूल गए?",
     "invalidCredentials": "अमान्य ईमेल या पासवर्ड।",
-    "emailTaken": "यह ईमेल पहले से ही उपयोग में है।"
+    "emailTaken": "यह ईमेल पहले से ही उपयोग में है।",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "स्तर",

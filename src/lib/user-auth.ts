@@ -29,7 +29,7 @@ export async function clearExpiredPlayerSessions() {
 
 export async function registerPlayer(input: PlayerRegisterInput) {
   const email = normalizePlayerEmail(input.email);
-  const existing = await prisma.playerUser.findUnique({ where: { email } });
+  const existing = await prisma.user.findUnique({ where: { email } });
 
   if (existing) {
     return {
@@ -39,7 +39,7 @@ export async function registerPlayer(input: PlayerRegisterInput) {
   }
 
   const passwordHash = await hash(input.password, 10);
-  const user = await prisma.playerUser.create({
+  const user = await prisma.user.create({
     data: {
       email,
       displayName: input.displayName.trim(),
@@ -55,7 +55,7 @@ export async function registerPlayer(input: PlayerRegisterInput) {
 
 export async function verifyPlayerCredentials(input: PlayerLoginInput) {
   const email = normalizePlayerEmail(input.email);
-  const user = await prisma.playerUser.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {
     return { ok: false as const, reason: "invalid" as const };

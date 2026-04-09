@@ -36,7 +36,7 @@ const globalForPrisma = globalThis as typeof globalThis & {
 const REQUIRED_PRISMA_DELEGATES = [
   "game",
   "adminSession",
-  "playerUser",
+  "user",
   "playerSession",
   "favoriteGame",
   "recentlyPlayed",
@@ -51,6 +51,8 @@ const REQUIRED_PRISMA_DELEGATES = [
   "gameRating",
   "rewardedAdView",
   "playerDailyMission",
+  "account",
+  "verificationToken",
 ] as const;
 
 function createPrismaClient() {

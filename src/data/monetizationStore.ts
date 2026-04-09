@@ -59,7 +59,7 @@ export async function addCoins(
   reason: string,
 ) {
   await prisma.$transaction([
-    prisma.playerUser.update({
+    prisma.user.update({
       where: { id: userId },
       data: { coins: { increment: amount } },
     }),
@@ -74,7 +74,7 @@ export async function spendCoins(
   amount: number,
   reason: string,
 ) {
-  const user = await prisma.playerUser.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { coins: true },
   });
@@ -84,7 +84,7 @@ export async function spendCoins(
   }
 
   await prisma.$transaction([
-    prisma.playerUser.update({
+    prisma.user.update({
       where: { id: userId },
       data: { coins: { decrement: amount } },
     }),
@@ -95,7 +95,7 @@ export async function spendCoins(
 }
 
 export async function getPlayerCoins(userId: string): Promise<number> {
-  const user = await prisma.playerUser.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { coins: true },
   });
@@ -125,7 +125,7 @@ export async function unlockTheme(userId: string, themeId: string) {
   const theme = PROFILE_THEMES.find((t) => t.id === themeId);
   if (!theme) throw new Error("Tema não encontrado.");
 
-  const user = await prisma.playerUser.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { isPremium: true, coins: true, profileTheme: true },
   });
@@ -140,7 +140,7 @@ export async function unlockTheme(userId: string, themeId: string) {
     await spendCoins(userId, theme.cost, "theme_unlock");
   }
 
-  await prisma.playerUser.update({
+  await prisma.user.update({
     where: { id: userId },
     data: { profileTheme: themeId },
   });
@@ -153,7 +153,7 @@ export async function unlockTheme(userId: string, themeId: string) {
 // ──────────────────────────────────────────
 
 export async function isPlayerPremium(userId: string): Promise<boolean> {
-  const user = await prisma.playerUser.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { isPremium: true, premiumUntil: true },
   });
@@ -169,14 +169,14 @@ export async function grantPremium(userId: string, durationDays: number) {
     Date.now() + durationDays * 24 * 60 * 60 * 1000,
   );
 
-  await prisma.playerUser.update({
+  await prisma.user.update({
     where: { id: userId },
     data: { isPremium: true, premiumUntil },
   });
 }
 
 export async function getPlayerMonetizationProfile(userId: string) {
-  const user = await prisma.playerUser.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
       coins: true,
@@ -195,4 +195,16 @@ export async function getPlayerMonetizationProfile(userId: string) {
     profileTheme: user.profileTheme,
     currentTheme: getTheme(user.profileTheme),
   };
+}
+
+export async function trackAdReward(userId: string, rewardType: string, rewardAmount: number) {
+  const result = await prisma.rewardedAdView.create({
+    data: {
+      userId,
+      rewardType,
+      rewardAmount,
+    },
+  });
+
+  return result;
 }

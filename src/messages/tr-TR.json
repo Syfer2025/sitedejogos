@@ -57,7 +57,11 @@
     "hasAccount": "Zaten bir hesabınız var mı?",
     "forgotPassword": "Şifrenizi mi unuttunuz?",
     "invalidCredentials": "Geçersiz e-posta veya şifre.",
-    "emailTaken": "Bu e-posta adresi zaten kullanımda."
+    "emailTaken": "Bu e-posta adresi zaten kullanımda.",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "Seviye",

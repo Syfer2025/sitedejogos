@@ -57,7 +57,11 @@
     "hasAccount": "Đã có tài khoản?",
     "forgotPassword": "Quên mật khẩu?",
     "invalidCredentials": "Email hoặc mật khẩu không hợp lệ.",
-    "emailTaken": "Email này đã được sử dụng."
+    "emailTaken": "Email này đã được sử dụng.",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "Cấp độ",

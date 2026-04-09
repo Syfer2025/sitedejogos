@@ -57,7 +57,11 @@
     "hasAccount": "Уже есть аккаунт?",
     "forgotPassword": "Забыли пароль?",
     "invalidCredentials": "Неверный адрес почты или пароль.",
-    "emailTaken": "Этот адрес почты уже используется."
+    "emailTaken": "Этот адрес почты уже используется.",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "Уровень",

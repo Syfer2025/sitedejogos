@@ -55,11 +55,13 @@ model AdminSession {
   @@index([expiresAt])
 }
 
-model PlayerUser {
+model User {
   id           String           @id @default(cuid())
   email        String           @unique
+  emailVerified DateTime?
   displayName  String
-  passwordHash String
+  image        String           @default("")
+  passwordHash String?
   avatarUrl    String           @default("")
   coverUrl     String           @default("")
   bio          String           @default("")
@@ -94,6 +96,36 @@ model PlayerUser {
   coinTransactions CoinTransaction[]
   rewardedAdViews  RewardedAdView[]
   hadFreeTrial     Boolean          @default(false)
+  accounts         Account[]
+
+  @@map("PlayerUser")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? 
+  access_token      String? 
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? 
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model PlayerSession {
@@ -105,7 +137,7 @@ model PlayerSession {
   expiresAt DateTime
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  user      PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, expiresAt])
 }
@@ -116,7 +148,7 @@ model FavoriteGame {
   gameId    String
   createdAt DateTime   @default(now())
   game      Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user      PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, gameId])
   @@index([userId, createdAt])
@@ -130,7 +162,7 @@ model RecentlyPlayed {
   lastPlayedAt DateTime   @default(now())
   createdAt    DateTime   @default(now())
   game         Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user         PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, gameId])
   @@index([userId, lastPlayedAt])
@@ -146,7 +178,7 @@ model AnalyticsEvent {
   gameId    String?
   referrer  String?
   createdAt DateTime    @default(now())
-  user      PlayerUser? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user      User? @relation(fields: [userId], references: [id], onDelete: SetNull)
   game      Game?       @relation(fields: [gameId], references: [id], onDelete: SetNull)
 
   @@index([type, createdAt])
@@ -167,7 +199,7 @@ model PlayerAchievement {
   imageUrl    String     @default("")
   xpReward    Int        @default(0)
   unlockedAt  DateTime   @default(now())
-  user        PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, key])
   @@index([userId, unlockedAt])
@@ -219,7 +251,7 @@ model PlayerNotification {
   isRead    Boolean    @default(false)
   createdAt DateTime   @default(now())
   readAt    DateTime?
-  user      PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([userId, isRead, createdAt])
@@ -237,7 +269,7 @@ model PlayerDailyMission {
   completedAt   DateTime?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
-  user          PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, dayToken])
   @@index([dayToken, isCompleted])
@@ -253,8 +285,8 @@ model Friendship {
   status     String     @default("pending") // pending | accepted | rejected
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
-  sender     PlayerUser @relation("FriendshipSender", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver   PlayerUser @relation("FriendshipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User @relation("FriendshipSender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User @relation("FriendshipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
 
   @@unique([senderId, receiverId])
   @@index([receiverId, status])
@@ -273,7 +305,7 @@ model GameComment {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   game      Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user      PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([gameId, createdAt])
   @@index([userId, createdAt])
@@ -288,7 +320,7 @@ model CoinTransaction {
   amount    Int        // positive = earned, negative = spent
   reason    String     // streak_reward, mission_complete, daily_login, purchase, theme_unlock, etc.
   createdAt DateTime   @default(now())
-  user      PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
@@ -304,7 +336,7 @@ model GameRating {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   game      Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user      PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, gameId]) // Each user can only rate a game once
   @@index([gameId, value])   // Helpful for stats
@@ -319,7 +351,7 @@ model RewardedAdView {
   rewardType   String     // coins | avatar_unlock | theme_unlock
   rewardAmount Int        @default(50)
   createdAt    DateTime   @default(now())
-  user         PlayerUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }

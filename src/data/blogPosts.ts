@@ -178,7 +178,7 @@ async function notifyPlayersAboutBlogPublication(post: BlogPostRecord) {
   });
 
   const notifiedUsers = new Set(existingNotifications.map((notification) => notification.userId));
-  const players = await prisma.playerUser.findMany({
+  const players = await prisma.user.findMany({
     select: { id: true },
   });
 

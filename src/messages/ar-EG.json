@@ -57,7 +57,11 @@
     "hasAccount": "عندك حساب فعلاً؟",
     "forgotPassword": "نسيت كلمة المرور؟",
     "invalidCredentials": "الإيميل أو الباسورد غلط.",
-    "emailTaken": "الإيميل ده مستخدم قبل كده."
+    "emailTaken": "الإيميل ده مستخدم قبل كده.",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "المستوى",

@@ -57,7 +57,11 @@
     "hasAccount": "ইতিমধ্যেই অ্যাকাউন্ট আছে?",
     "forgotPassword": "পাসওয়ার্ড ভুলে গেছেন?",
     "invalidCredentials": "অকার্যকর ইমেল বা পাসওয়ার্ড।",
-    "emailTaken": "এই ইমেলটি ইতিমধ্যেই ব্যবহার করা হচ্ছে।"
+    "emailTaken": "এই ইমেলটি ইতিমধ্যেই ব্যবহার করা হচ্ছে।",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "স্তর",

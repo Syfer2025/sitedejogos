@@ -131,7 +131,7 @@ function mapLeaderboardPlayer(user: {
 }
 
 export async function getPlayerProfile(userId: string) {
-  const user = await prisma.playerUser.findUnique({
+  const user = await prisma.user.findUnique({
     where: {
       id: userId,
     },
@@ -164,7 +164,7 @@ export async function updatePlayerProfile(
   input: PlayerProfileUpdateInput,
 ) {
   try {
-    const user = await prisma.playerUser.update({
+    const user = await prisma.user.update({
       where: {
         id: userId,
       },
@@ -394,7 +394,7 @@ export async function getPlayerGameState(userId: string, gameId: string) {
 
 export async function listRecommendedGames(userId: string, limit = 6) {
   const [profile, favorites, history] = await Promise.all([
-    prisma.playerUser.findUnique({
+    prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -526,7 +526,7 @@ export async function listRecommendedGames(userId: string, limit = 6) {
 
 export async function getPlayerTasteProfile(userId: string): Promise<PlayerTasteProfile | null> {
   const [profile, favorites, history] = await Promise.all([
-    prisma.playerUser.findUnique({
+    prisma.user.findUnique({
       where: {
         id: userId,
       },
@@ -592,7 +592,7 @@ export async function getPlayerTasteProfile(userId: string): Promise<PlayerTaste
 }
 
 export async function listTopPlayers(limit = 5) {
-  const players = await prisma.playerUser.findMany({
+  const players = await prisma.user.findMany({
     orderBy: [{ xp: "desc" }, { currentStreak: "desc" }, { createdAt: "asc" }],
     take: limit,
     select: {
@@ -676,7 +676,7 @@ export async function listTopPlayers(limit = 5) {
 }
 
 export async function getPlayerLeaderboardPosition(userId: string) {
-  const user = await prisma.playerUser.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
       xp: true,
@@ -689,7 +689,7 @@ export async function getPlayerLeaderboardPosition(userId: string) {
     return null;
   }
 
-  const betterPlayers = await prisma.playerUser.count({
+  const betterPlayers = await prisma.user.count({
     where: {
       OR: [
         { xp: { gt: user.xp } },

@@ -57,7 +57,11 @@
     "hasAccount": "Already have an account?",
     "forgotPassword": "Forgot your password?",
     "invalidCredentials": "Invalid email or password.",
-    "emailTaken": "This email is already in use."
+    "emailTaken": "This email is already in use.",
+    "googleLogin": "Continue with Google",
+    "facebookLogin": "Facebook",
+    "appleLogin": "Apple",
+    "orEmail": "or with email"
   },
   "player": {
     "level": "Level",
