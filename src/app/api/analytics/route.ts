@@ -5,7 +5,6 @@ import { recordAnalyticsEvent } from "@/data/analyticsStore";
 import { publicAnalyticsEventSchema } from "@/lib/analytics";
 import { getClientIp } from "@/lib/admin-auth";
 import { consumeRateLimit } from "@/lib/rate-limit";
-import { getPlayerSessionFromRequest } from "@/lib/user-auth";
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -59,9 +58,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: true, rateLimited: true });
   }
 
-  const playerSession = await getPlayerSessionFromRequest(req);
-
-  await recordAnalyticsEvent({
+  // Fire-and-forget: don't await DB write, skip session lookup to save a query
+  recordAnalyticsEvent({
     type: parsed.data.type,
     path: parsed.data.path,
     destinationPath:
@@ -71,9 +69,8 @@ export async function POST(req: NextRequest) {
         ? parsed.data.destinationPath
         : undefined,
     sessionId: parsed.data.sessionId,
-    userId: playerSession?.user.id,
     referrer: parsed.data.referrer,
-  });
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true }, { status: 202 });
 }

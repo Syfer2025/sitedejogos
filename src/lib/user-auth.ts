@@ -9,6 +9,21 @@ import type { PlayerLoginInput, PlayerRegisterInput } from "@/lib/user-schema";
 export const PLAYER_SESSION_COOKIE = "player_session";
 export const PLAYER_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 14;
 
+// ── In-memory session cache (5-min TTL) ──
+const SESSION_CACHE_TTL_MS = 5 * 60 * 1000;
+const sessionCache = new Map<string, { data: any; expiresAt: number }>();
+
+// ── Throttled cleanup: run clearExpiredPlayerSessions at most once per 10 min ──
+let lastCleanupAt = 0;
+const CLEANUP_INTERVAL_MS = 10 * 60 * 1000;
+
+async function maybeCleanupExpiredSessions() {
+  const now = Date.now();
+  if (now - lastCleanupAt < CLEANUP_INTERVAL_MS) return;
+  lastCleanupAt = now;
+  clearExpiredPlayerSessions().catch(() => {});
+}
+
 function hashToken(token: string) {
   return createHash("sha256").update(token).digest("hex");
 }
@@ -57,7 +72,7 @@ export async function verifyPlayerCredentials(input: PlayerLoginInput) {
   const email = normalizePlayerEmail(input.email);
   const user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user) {
+  if (!user || !user.passwordHash) {
     return { ok: false as const, reason: "invalid" as const };
   }
 
@@ -91,11 +106,19 @@ export async function createPlayerSession(input: {
 }
 
 export async function getPlayerSession(token: string) {
-  await clearExpiredPlayerSessions();
+  // Throttled cleanup instead of running on every request
+  maybeCleanupExpiredSessions();
+
+  // Check in-memory cache first
+  const cacheKey = hashToken(token);
+  const cached = sessionCache.get(cacheKey);
+  if (cached && cached.expiresAt > Date.now()) {
+    return cached.data;
+  }
 
   const session = await prisma.playerSession.findUnique({
     where: {
-      tokenHash: hashToken(token),
+      tokenHash: cacheKey,
     },
     include: {
       user: {
@@ -116,8 +139,15 @@ export async function getPlayerSession(token: string) {
 
   if (session.expiresAt.getTime() <= Date.now()) {
     await prisma.playerSession.deleteMany({ where: { id: session.id } });
+    sessionCache.delete(cacheKey);
     return null;
   }
+
+  // Cache the session for 5 minutes
+  sessionCache.set(cacheKey, {
+    data: session,
+    expiresAt: Date.now() + SESSION_CACHE_TTL_MS,
+  });
 
   return session;
 }
@@ -132,9 +162,11 @@ export async function getPlayerSessionFromRequest(request: NextRequest) {
 }
 
 export async function deletePlayerSession(token: string) {
+  const tokenHash = hashToken(token);
+  sessionCache.delete(tokenHash);
   await prisma.playerSession.deleteMany({
     where: {
-      tokenHash: hashToken(token),
+      tokenHash,
     },
   });
 }

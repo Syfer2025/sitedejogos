@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { listGames, listCategories } from "@/data/gamesStore";
+
+export const revalidate = 600; // 10 min — category pages update slowly
 import { slugify } from "@/lib/game-schema";
 import { getCategorySeoContent } from "@/lib/category-seo-content";
 import { AdSlot } from "../../components/AdSlot";

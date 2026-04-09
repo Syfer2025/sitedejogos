@@ -5,6 +5,8 @@ import { cookies } from "next/headers";
 import { notFound } from "next/navigation";
 
 import { getBlogPostBySlug } from "@/data/blogPosts";
+
+export const revalidate = 3600; // 1 hour — blog content rarely changes
 import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
 
 import { AdSlot } from "../../components/AdSlot";

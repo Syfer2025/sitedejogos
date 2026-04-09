@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { recordAnalyticsEvent } from "@/data/analyticsStore";
 import { incrementGameViews } from "@/data/gamesStore";
 import { consumeRateLimit } from "@/lib/rate-limit";
-import { getPlayerSessionFromRequest } from "@/lib/user-auth";
 
 type RouteContext = {
   params: Promise<{ slug: string }>;
@@ -38,20 +37,19 @@ export async function POST(
   }
 
   const game = await incrementGameViews(slug);
-  const playerSession = await getPlayerSessionFromRequest(req);
 
   if (!game) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await recordAnalyticsEvent({
+  // Fire-and-forget: analytics write doesn't need to block the response
+  recordAnalyticsEvent({
     type: "game_view",
     path: `/games/${slug}`,
     sessionId,
-    userId: playerSession?.user.id,
     gameId: game.id,
     referrer,
-  });
+  }).catch(() => {});
 
   return NextResponse.json({ ok: true, views: game.views });
 }

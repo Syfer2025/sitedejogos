@@ -320,19 +320,67 @@ export async function listCategoryShowcasesPage(
 
   const selectedCategories = orderedCategories.slice(offset, offset + limit);
 
-  const items = await Promise.all(
-    selectedCategories.map(async (category) => ({
+  // Single batched query instead of N separate queries (one per category)
+  const sortBy = options.sortBy ?? "popular";
+  const orderBy: Prisma.GameOrderByWithRelationInput[] =
+    sortBy === "newest"
+      ? [{ createdAt: "desc" }]
+      : [{ views: "desc" }, { popularityScore: "desc" }, { createdAt: "desc" }];
+
+  const include: any = {
+    ratings: { select: { value: true, userId: true } },
+  };
+  if (options.currentUserId) {
+    include.favorites = {
+      where: { userId: options.currentUserId },
+      select: { id: true },
+    };
+  }
+
+  const allGames = await prisma.game.findMany({
+    where: {
+      isPublished: true,
+      category: { in: selectedCategories },
+    },
+    orderBy,
+    include,
+  });
+
+  // Partition by category in JS
+  const gamesByCategory = new Map<string, typeof allGames>();
+  for (const game of allGames) {
+    let list = gamesByCategory.get(game.category);
+    if (!list) {
+      list = [];
+      gamesByCategory.set(game.category, list);
+    }
+    list.push(game);
+  }
+
+  function mapBatchedGame(game: any): GameRecord {
+    const record = mapGame(game);
+    const ratings: any[] = game.ratings || [];
+    const count = ratings.length;
+    const avg = count > 0 ? ratings.reduce((sum: number, r: any) => sum + r.value, 0) / count : 0;
+    return {
+      ...record,
+      avgRating: Number(avg.toFixed(1)),
+      ratingCount: count,
+      isFavorited: options.currentUserId ? (game.favorites?.length ?? 0) > 0 : false,
+    };
+  }
+
+  const items = selectedCategories.map((category) => {
+    let categoryGames = gamesByCategory.get(category) ?? [];
+    if (sortBy === "random") {
+      categoryGames = fisherYatesShuffle(categoryGames);
+    }
+    return {
       category,
       totalGames: countMap.get(category) ?? 0,
-      games: await listGames({
-        category,
-        publishedOnly: true,
-        limit: gamesPerCategory,
-        sortBy: options.sortBy ?? "popular",
-        currentUserId: options.currentUserId,
-      }),
-    })),
-  );
+      games: categoryGames.slice(0, gamesPerCategory).map(mapBatchedGame),
+    };
+  });
 
   const visibleItems = items.filter((entry) => entry.games.length > 0);
   const nextOffset = offset + selectedCategories.length;
@@ -532,13 +580,15 @@ export async function rateGame(userId: string, gameId: string, value: number) {
 }
 
 export async function getGameRatingStats(gameId: string) {
-  const ratings = await prisma.gameRating.findMany({
+  const result = await prisma.gameRating.aggregate({
     where: { gameId },
-    select: { value: true },
+    _avg: { value: true },
+    _count: { value: true },
   });
-  const count = ratings.length;
-  const avg = count > 0 ? ratings.reduce((sum, r) => sum + r.value, 0) / count : 0;
-  return { avgRating: Number(avg.toFixed(1)), ratingCount: count };
+  return {
+    avgRating: Number((result._avg.value ?? 0).toFixed(1)),
+    ratingCount: result._count.value,
+  };
 }
 
 export async function getUserGameRating(userId: string, gameId: string) {

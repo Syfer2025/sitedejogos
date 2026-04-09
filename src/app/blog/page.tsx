@@ -3,6 +3,8 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 
 import { listPublishedBlogPosts } from "@/data/blogPosts";
+
+export const revalidate = 3600; // 1 hour — blog list rarely changes
 import { getLocaleContentLocale, LOCALE_COOKIE_NAME, resolveLocale, type Locale } from "@/lib/locale";
 
 import { AdSlot } from "../components/AdSlot";
