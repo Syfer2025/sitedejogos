@@ -193,13 +193,13 @@ export default async function GamePage({ params }: GamePageProps) {
         </div>
 
         {/* Right Sidebar Ad */}
-        <aside className="hidden md:block w-full md:w-[300px] shrink-0 sticky top-24">
+        <aside className="hidden md:block w-full md:w-[300px] shrink-0 sticky top-32 mt-36">
           <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 mb-4">
              <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3 text-center">Spaço Patrocinado</p>
              <AdSlot
                label="Sidebar Skyscraper"
                slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR}
-               minHeight={250}
+               minHeight={300}
                autoRefresh
                refreshIntervalMs={60000}
              />
