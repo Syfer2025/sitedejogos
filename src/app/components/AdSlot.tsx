@@ -96,10 +96,25 @@ export function AdSlot({
   const canRenderAds = Boolean(ADSENSE_CLIENT_ID && slot);
   const adBlocked = useAdBlockDetected();
   const insRef = useRef<HTMLModElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [adFailed, setAdFailed] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [inView, setInView] = useState(false);
 
   const interval = Math.max(refreshIntervalMs, MIN_REFRESH_INTERVAL);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+      },
+      { rootMargin: "200px" }
+    );
+
+    if (containerRef.current) observer.observe(containerRef.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   const pushAd = useCallback(() => {
     if (!canRenderAds || typeof window === "undefined" || adBlocked) return;
@@ -111,8 +126,10 @@ export function AdSlot({
     }
   }, [canRenderAds, adBlocked]);
 
-  // Push ad on mount / refresh
+  // Push ad on mount / refresh, BUT ONLY IF IN VIEW
   useEffect(() => {
+    if (!inView) return;
+
     pushAd();
 
     const timer = setTimeout(() => {
@@ -124,11 +141,11 @@ export function AdSlot({
     }, 3000);
 
     return () => clearTimeout(timer);
-  }, [pushAd, refreshKey]);
+  }, [pushAd, refreshKey, inView]);
 
   // Auto-refresh: increment key to force remount of <ins>
   useEffect(() => {
-    if (!autoRefresh || !canRenderAds || adBlocked) return;
+    if (!autoRefresh || !canRenderAds || adBlocked || !inView) return;
 
     const tick = setInterval(() => {
       // Pause refresh when tab is hidden (AdSense policy)
@@ -138,12 +155,12 @@ export function AdSlot({
     }, interval);
 
     return () => clearInterval(tick);
-  }, [autoRefresh, canRenderAds, adBlocked, interval]);
+  }, [autoRefresh, canRenderAds, adBlocked, interval, inView]);
 
   const showNativeFallback = adBlocked || adFailed;
 
   return (
-    <div className="my-4 w-full">
+    <div ref={containerRef} className="my-4 w-full">
       <div className="overflow-hidden rounded-2xl border border-dashed border-slate-700/80 bg-slate-950/70 px-3 py-3">
         {!showNativeFallback && (
           <div className="mb-2 flex items-center justify-between gap-3 text-[9px] uppercase tracking-[0.18em] text-slate-500">
