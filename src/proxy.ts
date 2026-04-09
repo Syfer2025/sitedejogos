@@ -1,5 +1,6 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { LOCALE_COOKIE_NAME, SUPPORTED_LOCALES } from "@/lib/locale";
 
 const ADMIN_SESSION_COOKIE = "admin_session";
 
@@ -23,7 +24,7 @@ function buildContentSecurityPolicy() {
 }
 
 export function proxy(req: NextRequest) {
-  const { pathname } = req.nextUrl;
+  const { pathname, searchParams } = req.nextUrl;
 
   const isAdminPath =
     pathname.startsWith("/admin") && !pathname.startsWith("/admin/login");
@@ -38,7 +39,20 @@ export function proxy(req: NextRequest) {
     }
   }
 
-  const res = NextResponse.next();
+  // SEO: Detect ?lang= query param and sync with cookie
+  const lang = searchParams.get("lang");
+  let res = NextResponse.next();
+
+  if (lang && SUPPORTED_LOCALES.includes(lang as any)) {
+    const currentLocale = req.cookies.get(LOCALE_COOKIE_NAME)?.value;
+    if (currentLocale !== lang) {
+      res.cookies.set(LOCALE_COOKIE_NAME, lang, {
+        path: "/",
+        maxAge: 31536000,
+        sameSite: "lax",
+      });
+    }
+  }
 
   res.headers.set("Content-Security-Policy", buildContentSecurityPolicy());
   res.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
