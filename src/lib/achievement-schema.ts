@@ -40,6 +40,12 @@ export const createAchievementDefinitionInputSchema = z.object({
     .int("Use um XP inteiro.")
     .min(0, "O XP mínimo é 0.")
     .max(100000, "O XP máximo é 100000."),
+  coinReward: z.coerce
+    .number()
+    .int("Use um valor de moedas inteiro.")
+    .min(0, "O valor de moedas mínimo é 0.")
+    .max(100000, "O valor de moedas máximo é 100000.")
+    .default(0),
   isActive: z.coerce.boolean().default(true),
 });
 

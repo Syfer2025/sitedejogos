@@ -75,6 +75,7 @@ function createAchievementSnapshot(input: {
   totalGamesPlayed: number;
   totalRatings: number;
   totalAds: number;
+  totalComments: number;
 }): AchievementEvaluationSnapshot {
   return {
     accountCreated: true,
@@ -89,6 +90,7 @@ function createAchievementSnapshot(input: {
     level: input.level,
     totalRatings: input.totalRatings,
     totalAds: input.totalAds,
+    totalComments: input.totalComments,
   };
 }
 
@@ -321,15 +323,18 @@ async function syncDailyMissionProgress(userId: string, event: GamificationEvent
         ? "ver um anúncio"
         : "jogar hoje";
 
+    const coinReward = 25; // 25 coins for completing the daily mission
+
     await createPlayerNotification({
       userId,
       kind: "daily_mission",
       title: "Missão diária concluída",
-      message: `Você concluiu a missão de ${kindLabel} e recebeu +${updated.rewardXp} XP.`,
+      message: `Você concluiu a missão de ${kindLabel} e recebeu +${updated.rewardXp} XP e +${coinReward} moedas.`,
       link: getDailyMissionHref(isDailyMissionKind(updated.kind) ? updated.kind : "game_play"),
     });
 
     await grantXp(userId, updated.rewardXp, `daily_mission:${updated.kind}`);
+    await addCoins(userId, coinReward, `daily_mission:${updated.kind}`);
   }
 
   return completedNow;
@@ -504,20 +509,26 @@ async function unlockAchievement(userId: string, definition: AchievementDefiniti
       icon: definition.icon,
       imageUrl: definition.imageUrl,
       xpReward: definition.xpReward,
+      coinReward: definition.coinReward,
     },
   });
 
   const titlePrefix = definition.icon ? `${definition.icon} ` : "";
+  const coinMessage = definition.coinReward > 0 ? ` e +${definition.coinReward} moedas` : "";
 
   await createPlayerNotification({
     userId,
     kind: "achievement",
     title: `${titlePrefix}${definition.title}`,
-    message: `${definition.description} +${definition.xpReward} XP.`,
+    message: `${definition.description} +${definition.xpReward} XP${coinMessage}.`,
     link: "/account",
   });
 
   await grantXp(userId, definition.xpReward, `achievement:${definition.key}`);
+  
+  if (definition.coinReward > 0) {
+    await addCoins(userId, definition.coinReward, `achievement:${definition.key}`);
+  }
 
   return true;
 }
@@ -530,6 +541,7 @@ async function evaluateAchievements(userId: string) {
     playedGamesAgg,
     ratingsCount,
     adsCount,
+    commentsCount,
     definitions,
   ] = await Promise.all([
     prisma.user.findUnique({
@@ -573,6 +585,12 @@ async function evaluateAchievements(userId: string) {
         userId,
       },
     }),
+    prisma.gameComment.count({
+      where: {
+        userId,
+        isHidden: false,
+      },
+    }),
     listAchievementDefinitions(),
   ]);
 
@@ -594,6 +612,7 @@ async function evaluateAchievements(userId: string) {
     totalGamesPlayed: totalPlays,
     totalRatings: ratingsCount,
     totalAds: adsCount,
+    totalComments: commentsCount,
   });
 
   for (const definition of definitions) {
@@ -615,7 +634,15 @@ export async function applyGamificationEvent(
   event: GamificationEventType,
 ) {
   const streakState = await syncDailyEngagement(userId);
-  const baseReward = EVENT_XP_REWARDS[event];
+  let baseReward = EVENT_XP_REWARDS[event];
+  
+  // Apply streak multiplier for login (up to +35 XP bonus, making it 50 Max)
+  if (event === "login" && streakState) {
+    const activeStreak = streakState.currentStreak;
+    const streakBonus = Math.min(35, (activeStreak - 1) * 5); // +5 per day maxed at 35 (so base 15 + 35 = 50 max)
+    baseReward += streakBonus;
+  }
+
   const shouldGrantBaseXp =
     event === "login" ? Boolean(streakState?.isNewDay) : baseReward > 0;
 
@@ -625,13 +652,10 @@ export async function applyGamificationEvent(
 
   const xpResult = shouldGrantBaseXp ? await grantXp(userId, baseReward, event) : null;
 
-  // ── Coin rewards ──
-  // Removed automatic coin injection for login, streaks, achievements, and missions to
-  // stop polluting the local currency economy. Only Level Up grants a coin bonus.
-
-  // Level up coin bonus
+  // Level up coin bonus (Nível Alcançado * 10 moedas de bônus)
   if (xpResult && xpResult.level > prevLevel) {
-    await addCoins(userId, COIN_REWARDS.level_up, "level_up");
+    const levelUpCoins = xpResult.level * 10;
+    await addCoins(userId, levelUpCoins, "level_up");
   }
 
   const unlockedAchievements = await evaluateAchievements(userId);
@@ -666,6 +690,7 @@ export async function getPlayerGamificationOverview(userId: string) {
     totalGamesPlayedAgg,
     ratingsCount,
     adsCount,
+    commentsCount,
   ] = await Promise.all([
     prisma.user.findUnique({
       where: {
@@ -746,6 +771,12 @@ export async function getPlayerGamificationOverview(userId: string) {
         userId,
       },
     }),
+    prisma.gameComment.count({
+      where: {
+        userId,
+        isHidden: false,
+      },
+    }),
   ]);
 
   if (!user) {
@@ -764,6 +795,7 @@ export async function getPlayerGamificationOverview(userId: string) {
     totalGamesPlayed: totalGamesPlayedAgg._sum.playCount ?? 0,
     totalRatings: ratingsCount,
     totalAds: adsCount,
+    totalComments: commentsCount,
   });
 
   return {

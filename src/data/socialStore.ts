@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { applyGamificationEvent } from "@/data/gamificationStore";
 
 // ──────────────────────────────────────────
 // Friends
@@ -263,6 +264,11 @@ export async function createComment(
         },
       },
     },
+  });
+
+  // Gamification hook
+  await applyGamificationEvent(userId, "comment_add").catch((e) => {
+    console.error("Failed to apply comment gamification:", e);
   });
 
   return {

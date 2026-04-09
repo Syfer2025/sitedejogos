@@ -124,6 +124,7 @@ const GUEST_ACHIEVEMENT_SNAPSHOT: AchievementEvaluationSnapshot = {
   level: 1,
   totalRatings: 0,
   totalAds: 0,
+  totalComments: 0,
 };
 
 const LEADERBOARD_SEALS = [

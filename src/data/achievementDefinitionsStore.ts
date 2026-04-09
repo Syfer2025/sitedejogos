@@ -23,6 +23,7 @@ export type AchievementDefinitionRecord = {
   criteriaType: AchievementCriteriaType;
   threshold: number;
   xpReward: number;
+  coinReward: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
@@ -38,6 +39,7 @@ function mapAchievementDefinition(definition: {
   criteriaType: string;
   threshold: number;
   xpReward: number;
+  coinReward: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -54,6 +56,7 @@ function mapAchievementDefinition(definition: {
     criteriaType: definition.criteriaType as AchievementCriteriaType,
     threshold: definition.threshold,
     xpReward: definition.xpReward,
+    coinReward: definition.coinReward,
     isActive: definition.isActive,
     createdAt: definition.createdAt.toISOString(),
     updatedAt: definition.updatedAt.toISOString(),
@@ -142,6 +145,7 @@ export async function createAchievementDefinition(input: CreateAchievementDefini
       criteriaType: input.criteriaType,
       threshold: input.threshold,
       xpReward: input.xpReward,
+      coinReward: input.coinReward,
       isActive: input.isActive,
     },
   });
@@ -178,6 +182,7 @@ export async function updateAchievementDefinition(
         ...(input.criteriaType !== undefined ? { criteriaType: input.criteriaType } : {}),
         ...(input.threshold !== undefined ? { threshold: input.threshold } : {}),
         ...(input.xpReward !== undefined ? { xpReward: input.xpReward } : {}),
+        ...(input.coinReward !== undefined ? { coinReward: input.coinReward } : {}),
         ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
       },
     });

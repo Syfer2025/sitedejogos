@@ -198,6 +198,7 @@ model PlayerAchievement {
   icon        String
   imageUrl    String     @default("")
   xpReward    Int        @default(0)
+  coinReward  Int        @default(0)
   unlockedAt  DateTime   @default(now())
   user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -215,6 +216,7 @@ model AchievementDefinition {
   criteriaType String
   threshold    Int      @default(1)
   xpReward     Int      @default(0)
+  coinReward   Int      @default(0)
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

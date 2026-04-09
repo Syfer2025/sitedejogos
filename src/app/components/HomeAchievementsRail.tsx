@@ -87,6 +87,8 @@ function getAchievementRequirementLabel(
         return `${number} ratings`;
       case "ads_total":
         return `${number} ads viewed`;
+      case "comments_total":
+        return `${number} comments`;
     }
   }
 
@@ -112,6 +114,8 @@ function getAchievementRequirementLabel(
         return `${number} valoraciones`;
       case "ads_total":
         return `${number} anuncios vistos`;
+      case "comments_total":
+        return `${number} comentarios`;
     }
   }
 
@@ -136,6 +140,8 @@ function getAchievementRequirementLabel(
       return `${number} avaliações`;
     case "ads_total":
       return `${number} vídeos assistidos`;
+    case "comments_total":
+      return `${number} comentários`;
   }
 }
 
@@ -182,6 +188,8 @@ function getAchievementUnlockHint(
         return `${number} more rating${remaining === 1 ? "" : "s"} to unlock.`;
       case "ads_total":
         return `${number} more ad view${remaining === 1 ? "" : "s"} to unlock.`;
+      case "comments_total":
+        return `${number} more comment${remaining === 1 ? "" : "s"} to unlock.`;
     }
   }
 
@@ -207,6 +215,8 @@ function getAchievementUnlockHint(
         return `Falta${remaining === 1 ? "n" : "n"} ${number} valoracion${remaining === 1 ? "es" : "es"} para desbloquear.`;
       case "ads_total":
         return `Falta${remaining === 1 ? "n" : "n"} ${number} anuncio${remaining === 1 ? "" : "s"} para desbloquear.`;
+      case "comments_total":
+        return `Falta${remaining === 1 ? "n" : "n"} ${number} comentario${remaining === 1 ? "" : "s"} para desbloquear.`;
     }
   }
 
@@ -231,6 +241,8 @@ function getAchievementUnlockHint(
       return `Falta${remaining === 1 ? "m" : "m"} ${number} avaliaç${remaining === 1 ? "ão" : "ões"} para desbloquear.`;
     case "ads_total":
       return `Falta${remaining === 1 ? "m" : "m"} ${number} vídeo${remaining === 1 ? "" : "s"} para desbloquear.`;
+    case "comments_total":
+      return `Falta${remaining === 1 ? "m" : "m"} ${number} comentári${remaining === 1 ? "o" : "os"} para desbloquear.`;
   }
 }
 

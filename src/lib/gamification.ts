@@ -9,6 +9,7 @@ export const ACHIEVEMENT_CRITERIA_TYPES = [
   "level_reached",
   "ratings_total",
   "ads_total",
+  "comments_total",
 ] as const;
 
 export type AchievementCriteriaType = (typeof ACHIEVEMENT_CRITERIA_TYPES)[number];
@@ -24,7 +25,9 @@ export const ACHIEVEMENT_CRITERIA_LABELS: Record<AchievementCriteriaType, string
   level_reached: "Nível alcançado",
   ratings_total: "Avaliações feitas",
   ads_total: "Anúncios premiados assistidos",
+  comments_total: "Comentários feitos",
 };
+
 
 export type AchievementDefinitionInput = {
   key: string;
@@ -35,10 +38,176 @@ export type AchievementDefinitionInput = {
   criteriaType: AchievementCriteriaType;
   threshold: number;
   xpReward: number;
+  coinReward: number;
   isActive: boolean;
 };
 
 export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
+  // ── Trilha: Exploração do Catálogo (Unique Games) ──
+  {
+    key: "explorer_bronze",
+    title: "Primeira Ficha",
+    description: "Jogou seu primeiro título diferente.",
+    icon: "🥉",
+    imageUrl: "",
+    criteriaType: "unique_games_played",
+    threshold: 1,
+    xpReward: 20,
+    coinReward: 10,
+    isActive: true,
+  },
+  {
+    key: "explorer_silver",
+    title: "Scout do Catálogo",
+    description: "Experimentou 10 jogos diferentes dentro do portal.",
+    icon: "🥈",
+    imageUrl: "",
+    criteriaType: "unique_games_played",
+    threshold: 10,
+    xpReward: 100,
+    coinReward: 50,
+    isActive: true,
+  },
+  {
+    key: "explorer_gold",
+    title: "Mapa Completo",
+    description: "Passou por 50 jogos diferentes e virou referência do catálogo.",
+    icon: "🥇",
+    imageUrl: "",
+    criteriaType: "unique_games_played",
+    threshold: 50,
+    xpReward: 250,
+    coinReward: 150,
+    isActive: true,
+  },
+  {
+    key: "explorer_diamond",
+    title: "Mestre do Arcade",
+    description: "Dominou 250 jogos diferentes. Uma verdadeira lenda.",
+    icon: "💎",
+    imageUrl: "",
+    criteriaType: "unique_games_played",
+    threshold: 250,
+    xpReward: 1000,
+    coinReward: 500,
+    isActive: true,
+  },
+
+  // ── Trilha: Coleção Pessoal (Favorites) ──
+  {
+    key: "collector_bronze",
+    title: "Curador Iniciante",
+    description: "Salvou seu primeiro jogo nos favoritos.",
+    icon: "🥉",
+    imageUrl: "",
+    criteriaType: "favorites_total",
+    threshold: 1,
+    xpReward: 20,
+    coinReward: 10,
+    isActive: true,
+  },
+  {
+    key: "collector_silver",
+    title: "Prateleira Premium",
+    description: "Acumulou 15 jogos favoritos.",
+    icon: "🥈",
+    imageUrl: "",
+    criteriaType: "favorites_total",
+    threshold: 15,
+    xpReward: 100,
+    coinReward: 50,
+    isActive: true,
+  },
+
+  // ── Trilha: Comunidade e Voz (Comments/Ratings) ──
+  {
+    key: "voice_bronze",
+    title: "Voz Ativa",
+    description: "Deixou seu primeiro comentário em um jogo.",
+    icon: "🥉",
+    imageUrl: "",
+    criteriaType: "comments_total",
+    threshold: 1,
+    xpReward: 20,
+    coinReward: 0,
+    isActive: true,
+  },
+  {
+    key: "voice_silver",
+    title: "Crítico de Elite",
+    description: "Deixou 15 comentários pelo portal.",
+    icon: "🥈",
+    imageUrl: "",
+    criteriaType: "comments_total",
+    threshold: 15,
+    xpReward: 120,
+    coinReward: 50,
+    isActive: true,
+  },
+  {
+    key: "rater_bronze",
+    title: "Crítico Amador",
+    description: "Avaliou seu primeiro jogo.",
+    icon: "🥉",
+    imageUrl: "",
+    criteriaType: "ratings_total",
+    threshold: 1,
+    xpReward: 15,
+    coinReward: 0,
+    isActive: true,
+  },
+  {
+    key: "rater_silver",
+    title: "Voz do Arcade",
+    description: "Avaliou 25 jogos diferentes.",
+    icon: "🥈",
+    imageUrl: "",
+    criteriaType: "ratings_total",
+    threshold: 25,
+    xpReward: 120,
+    coinReward: 40,
+    isActive: true,
+  },
+
+  // ── Trilha: Dedicação Diária (Streak) ──
+  {
+    key: "streak_bronze",
+    title: "Aquecimento",
+    description: "Manteve uma sequência de 3 dias ativos.",
+    icon: "🥉",
+    imageUrl: "",
+    criteriaType: "current_streak",
+    threshold: 3,
+    xpReward: 30,
+    coinReward: 15,
+    isActive: true,
+  },
+  {
+    key: "streak_silver",
+    title: "Imparável",
+    description: "Manteve uma sequência de 7 dias ativos.",
+    icon: "🥈",
+    imageUrl: "",
+    criteriaType: "current_streak",
+    threshold: 7,
+    xpReward: 100,
+    coinReward: 50,
+    isActive: true,
+  },
+  {
+    key: "streak_gold",
+    title: "Fiel ao Hub",
+    description: "Voltou ao portal por 30 dias seguidos.",
+    icon: "🥇",
+    imageUrl: "",
+    criteriaType: "current_streak",
+    threshold: 30,
+    xpReward: 500,
+    coinReward: 250,
+    isActive: true,
+  },
+
+  // ── Conquistas Isoladas e Especiais ──
   {
     key: "welcome",
     title: "Boas-vindas ao Nexus",
@@ -47,227 +216,32 @@ export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
     imageUrl: "/achievements/nexus-welcome.gif",
     criteriaType: "account_created",
     threshold: 1,
-    xpReward: 25,
-    isActive: true,
-  },
-  {
-    key: "firstGame",
-    title: "Primeira ficha",
-    description: "Jogou seu primeiro título com a conta conectada.",
-    icon: "🎮",
-    imageUrl: "",
-    criteriaType: "unique_games_played",
-    threshold: 1,
-    xpReward: 20,
-    isActive: true,
-  },
-  {
-    key: "explorer",
-    title: "Explorador do arcade",
-    description: "Jogou pelo menos 5 jogos diferentes.",
-    icon: "🧭",
-    imageUrl: "",
-    criteriaType: "unique_games_played",
-    threshold: 5,
-    xpReward: 35,
-    isActive: true,
-  },
-  {
-    key: "catalogScout",
-    title: "Scout do catálogo",
-    description: "Experimentou 10 jogos diferentes dentro do portal.",
-    icon: "🛰️",
-    imageUrl: "",
-    criteriaType: "unique_games_played",
-    threshold: 10,
-    xpReward: 55,
-    isActive: true,
-  },
-  {
-    key: "catalogLegend",
-    title: "Mapa completo",
-    description: "Passou por 25 jogos diferentes e virou referência do catálogo.",
-    icon: "🗺️",
-    imageUrl: "",
-    criteriaType: "unique_games_played",
-    threshold: 25,
-    xpReward: 110,
-    isActive: true,
-  },
-  {
-    key: "firstFavorite",
-    title: "Colecionador iniciante",
-    description: "Salvou seu primeiro jogo nos favoritos.",
-    icon: "⭐",
-    imageUrl: "",
-    criteriaType: "favorites_total",
-    threshold: 1,
-    xpReward: 20,
-    isActive: true,
-  },
-  {
-    key: "collector",
-    title: "Curador de coleção",
-    description: "Acumulou 5 jogos favoritos.",
-    icon: "🗂",
-    imageUrl: "",
-    criteriaType: "favorites_total",
-    threshold: 5,
-    xpReward: 40,
-    isActive: true,
-  },
-  {
-    key: "premiumShelf",
-    title: "Prateleira premium",
-    description: "Montou uma seleção com 12 jogos favoritos.",
-    icon: "💎",
-    imageUrl: "",
-    criteriaType: "favorites_total",
-    threshold: 12,
-    xpReward: 70,
-    isActive: true,
-  },
-  {
-    key: "personalMuseum",
-    title: "Museu pessoal",
-    description: "Guardou 25 jogos na sua vitrine de favoritos.",
-    icon: "🏛️",
-    imageUrl: "",
-    criteriaType: "favorites_total",
-    threshold: 25,
-    xpReward: 125,
-    isActive: true,
-  },
-  {
-    key: "streak3",
-    title: "Ritmo quente",
-    description: "Manteve uma sequência de 3 dias ativos.",
-    icon: "🔥",
-    imageUrl: "",
-    criteriaType: "current_streak",
-    threshold: 3,
-    xpReward: 30,
-    isActive: true,
-  },
-  {
-    key: "streak7",
-    title: "Semana perfeita",
-    description: "Manteve uma sequência de 7 dias ativos.",
-    icon: "🏆",
-    imageUrl: "",
-    criteriaType: "current_streak",
-    threshold: 7,
-    xpReward: 60,
-    isActive: true,
-  },
-  {
-    key: "streak14",
-    title: "Quinzena elétrica",
-    description: "Voltou ao portal por 14 dias seguidos.",
-    icon: "⚡",
-    imageUrl: "",
-    criteriaType: "current_streak",
-    threshold: 14,
-    xpReward: 95,
+    xpReward: 50,
+    coinReward: 0,
     isActive: true,
   },
   {
     key: "profileComplete",
-    title: "Perfil calibrado",
+    title: "Perfil Calibrado",
     description: "Preencheu avatar, bio ou categorias favoritas.",
     icon: "🛠",
     imageUrl: "",
     criteriaType: "profile_completed",
     threshold: 1,
-    xpReward: 20,
+    xpReward: 25,
+    coinReward: 25,
     isActive: true,
   },
   {
-    key: "marathon",
-    title: "Maratona arcade",
-    description: "Chegou a 10 partidas registradas na conta.",
-    icon: "🚀",
-    imageUrl: "",
-    criteriaType: "games_played_total",
-    threshold: 10,
-    xpReward: 50,
-    isActive: true,
-  },
-  {
-    key: "extendedSession",
-    title: "Sessão prolongada",
-    description: "Registrou 25 partidas e mostrou fôlego no portal.",
-    icon: "🕹️",
-    imageUrl: "",
-    criteriaType: "games_played_total",
-    threshold: 25,
-    xpReward: 80,
-    isActive: true,
-  },
-  {
-    key: "xp250",
-    title: "Motor ligado",
-    description: "Acumulou 250 XP em ações dentro do hub.",
-    icon: "💠",
-    imageUrl: "",
-    criteriaType: "xp_total",
-    threshold: 250,
-    xpReward: 65,
-    isActive: true,
-  },
-  {
-    key: "level5",
-    title: "Piloto do Nexus",
-    description: "Alcançou o nível 5 e entrou no ritmo do portal.",
-    icon: "👑",
-    imageUrl: "",
-    criteriaType: "level_reached",
-    threshold: 5,
-    xpReward: 90,
-    isActive: true,
-  },
-  {
-    key: "level10",
-    title: "Lenda do hub",
-    description: "Alcançou o nível 10 e cravou presença entre os veteranos.",
-    icon: "🌟",
-    imageUrl: "",
-    criteriaType: "level_reached",
-    threshold: 10,
-    xpReward: 160,
-    isActive: true,
-  },
-  {
-    key: "reviewer1",
-    title: "Crítico amador",
-    description: "Avaliou seu primeiro jogo com estrelas.",
-    icon: "📜",
-    imageUrl: "",
-    criteriaType: "ratings_total",
-    threshold: 1,
-    xpReward: 20,
-    isActive: true,
-  },
-  {
-    key: "reviewer10",
-    title: "Voz do arcade",
-    description: "Deixou sua marca em 10 jogos diferentes através de avaliações.",
-    icon: "📢",
-    imageUrl: "",
-    criteriaType: "ratings_total",
-    threshold: 10,
-    xpReward: 60,
-    isActive: true,
-  },
-  {
-    key: "supporter1",
-    title: "Patrocinador local",
+    key: "sponsor",
+    title: "Patrocinador Local",
     description: "Ajudou o portal assistindo a um anúncio premiado.",
     icon: "📺",
     imageUrl: "",
     criteriaType: "ads_total",
     threshold: 1,
-    xpReward: 30,
+    xpReward: 25,
+    coinReward: 15,
     isActive: true,
   },
 ];
@@ -285,6 +259,7 @@ export type AchievementEvaluationSnapshot = {
   level: number;
   totalRatings: number;
   totalAds: number;
+  totalComments: number;
 };
 
 export type AchievementProgress = {
@@ -319,6 +294,8 @@ export function matchesAchievementCriteria(
       return snapshot.totalRatings >= definition.threshold;
     case "ads_total":
       return snapshot.totalAds >= definition.threshold;
+    case "comments_total":
+      return snapshot.totalComments >= definition.threshold;
     default:
       return false;
   }
@@ -364,6 +341,9 @@ export function getAchievementProgress(
     case "ads_total":
       currentValue = snapshot.totalAds;
       break;
+    case "comments_total":
+      currentValue = snapshot.totalComments;
+      break;
   }
 
   const boundedCurrentValue = Math.min(Math.max(currentValue, 0), targetValue);
@@ -386,29 +366,50 @@ export type GamificationEventType =
   | "game_play"
   | "profile_update"
   | "rating_add"
-  | "ad_reward_view";
+  | "ad_reward_view"
+  | "comment_add";
 
 export const EVENT_XP_REWARDS: Record<GamificationEventType, number> = {
-  register: 50,
+  register: 100,
   login: 15,
-  favorite_add: 10,
-  game_play: 5,
-  profile_update: 20,
-  rating_add: 10,
-  ad_reward_view: 15,
+  favorite_add: 5,
+  game_play: 10,
+  profile_update: 25,
+  rating_add: 15,
+  ad_reward_view: 25,
+  comment_add: 20,
 };
 
 export function getLevelFromXp(xp: number) {
-  return Math.max(1, Math.floor(xp / 100) + 1);
+  if (xp < 1000) return Math.floor(xp / 100) + 1; // 1 to 10
+  if (xp < 3500) return Math.floor((xp - 1000) / 250) + 11; // 11 to 20
+  if (xp < 18500) return Math.floor((xp - 3500) / 500) + 21; // 21 to 50
+  return Math.floor((xp - 18500) / 1000) + 51; // 51+
 }
 
 export function getLevelRange(level: number) {
   const currentLevel = Math.max(level, 1);
+  let currentLevelXp = 0;
+  let nextLevelXp = 100;
+
+  if (currentLevel <= 10) {
+    currentLevelXp = (currentLevel - 1) * 100;
+    nextLevelXp = currentLevel * 100;
+  } else if (currentLevel <= 20) {
+    currentLevelXp = 1000 + (currentLevel - 11) * 250;
+    nextLevelXp = currentLevelXp + 250;
+  } else if (currentLevel <= 50) {
+    currentLevelXp = 3500 + (currentLevel - 21) * 500;
+    nextLevelXp = currentLevelXp + 500;
+  } else {
+    currentLevelXp = 18500 + (currentLevel - 51) * 1000;
+    nextLevelXp = currentLevelXp + 1000;
+  }
 
   return {
     currentLevel,
-    currentLevelXp: (currentLevel - 1) * 100,
-    nextLevelXp: currentLevel * 100,
+    currentLevelXp,
+    nextLevelXp,
   };
 }
 
