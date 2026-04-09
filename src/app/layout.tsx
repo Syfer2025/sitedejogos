@@ -10,7 +10,7 @@ import { LocaleProvider } from "./components/LocaleContext";
 import { AdBlockProvider } from "./components/AdBlockDetector";
 import { MobileBottomNav } from "./components/MobileBottomNav";
 import { PageAnalyticsTracker } from "./components/PageAnalyticsTracker";
-import { LOCALE_COOKIE_NAME, resolveLocale, type Locale } from "@/lib/locale";
+import { LOCALE_COOKIE_NAME, resolveLocale, type Locale, SUPPORTED_LOCALES } from "@/lib/locale";
 import { getDictionary } from "@/lib/i18n";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 import { isPlayerPremium } from "@/data/monetizationStore";
