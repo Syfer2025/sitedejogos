@@ -121,7 +121,9 @@ const GUEST_ACHIEVEMENT_SNAPSHOT: AchievementEvaluationSnapshot = {
   currentStreak: 0,
   hasProfileSetup: false,
   totalXp: 0,
-  level: 0,
+  level: 1,
+  totalRatings: 0,
+  totalAds: 0,
 };
 
 const LEADERBOARD_SEALS = [
