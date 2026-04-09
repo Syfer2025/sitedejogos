@@ -47,10 +47,14 @@ export default async function RootLayout({
   const cookieStore = await cookies();
   const initialLocale = resolveLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value);
   const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
-  const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
+
+  // Parallelize independent calls instead of sequential awaits
+  const [playerSession, dict] = await Promise.all([
+    playerToken ? getPlayerSession(playerToken) : null,
+    getDictionary(initialLocale),
+  ]);
   const premium = playerSession ? await isPlayerPremium(playerSession.user.id) : false;
   const adsenseClientId = premium ? undefined : process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
-  const dict = await getDictionary(initialLocale);
   const t = { ...dict.common, ...dict.home };
 
   async function logoutPlayer() {

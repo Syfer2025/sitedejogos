@@ -260,7 +260,6 @@ export default async function Home({
 
   const [
     featuredGames,
-    newGames,
     popularGames,
     categories,
     themeSectionsPage,
@@ -276,13 +275,12 @@ export default async function Home({
     friendLeaderboard,
     achievementDefinitions,
   ] = await Promise.all([
-    listGames({ publishedOnly: true, featured: true, limit: 8, sortBy: "random", currentUserId }),
-    listGames({ publishedOnly: true, limit: 8, sortBy: "newest", currentUserId }),
-    listGames({ publishedOnly: true, limit: 12, sortBy: "random", currentUserId }),
+    listGames({ publishedOnly: true, featured: true, limit: 18, sortBy: "random", currentUserId }),
+    listGames({ publishedOnly: true, limit: 24, sortBy: "random", currentUserId }),
     listCategories({ order: "editorial" }),
     listCategoryShowcasesPage({
       limit: 4,
-      gamesPerCategory: 12,
+      gamesPerCategory: 18,
       sortBy: "random",
       categoryOrder: "editorial",
       currentUserId,
@@ -305,7 +303,7 @@ export default async function Home({
     continuePlayingGames,
     recommendedGames,
     featuredGames,
-    allGames: popularGames.length > 0 ? popularGames : newGames,
+    allGames: popularGames,
   });
   const heroGame = hero.game;
   const missionCard = buildDailyMission({
@@ -482,16 +480,6 @@ export default async function Home({
 
           {/* In-feed ad */}
           <AdSlot label="Feed" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_FEED} minHeight={100} />
-
-          {/* New releases */}
-          <section>
-            <SectionTitle title={t.newLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/new" count={newGames.length} />
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-5 2xl:grid-cols-6 gap-2 lg:gap-3 stagger-children">
-              {newGames.map((game) => (
-                <HomeGameCard key={game.id} game={game as any} />
-              ))}
-            </div>
-          </section>
 
           {/* Pre-blog ad */}
           <AdSlot label="Conteúdo" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_CONTENT} minHeight={100} />
