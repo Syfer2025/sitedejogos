@@ -117,6 +117,51 @@ export default async function GamePage({ params }: GamePageProps) {
         }
       ]
     },
+  // Parse FAQ for schema and UI
+  let faqSchemaItems: any[] = [];
+  try {
+    if (game.faqJson) {
+      const parsedFaq = JSON.parse(game.faqJson);
+      if (Array.isArray(parsedFaq)) {
+        faqSchemaItems = parsedFaq.map((item: any) => ({
+          "@type": "Question",
+          "name": item.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": item.answer
+          }
+        }));
+      }
+    }
+  } catch (e) {
+    console.error("Failed to parse faqJson for game", game.slug);
+  }
+
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": siteUrl
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": game.category,
+          "item": `${siteUrl}/category/${slugify(game.category)}`
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": game.title,
+          "item": `${siteUrl}/games/${game.slug}`
+        }
+      ]
+    },
     {
       "@context": "https://schema.org",
       "@type": ["VideoGame", "SoftwareApplication"],
@@ -139,7 +184,14 @@ export default async function GamePage({ params }: GamePageProps) {
             },
           }
         : {}),
-    }
+    },
+    ...(faqSchemaItems.length > 0
+      ? [{
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          "mainEntity": faqSchemaItems
+        }]
+      : [])
   ];
 
   return (
@@ -217,7 +269,7 @@ export default async function GamePage({ params }: GamePageProps) {
               />
 
               {/* Game Guide Section for SEO */}
-              {(game.longDescription || game.controls || game.tips) && (
+              {(game.longDescription || game.controls || game.tips || faqSchemaItems.length > 0) && (
                 <div className="mt-8 space-y-8 border-t border-slate-800/60 pt-8">
                   {game.longDescription && (
                     <article className="prose prose-invert prose-slate max-w-none">
@@ -253,6 +305,24 @@ export default async function GamePage({ params }: GamePageProps) {
                       </div>
                     )}
                   </div>
+
+                  {/* FAQ Section */}
+                  {faqSchemaItems.length > 0 && (
+                    <div className="space-y-4">
+                      <h2 className="text-base font-semibold text-slate-100 flex items-center gap-2 mb-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                        {t(dict, "common.faq")}
+                      </h2>
+                      <div className="grid grid-cols-1 gap-3">
+                        {faqSchemaItems.map((item, idx) => (
+                          <div key={idx} className="rounded-xl border border-slate-800/60 bg-slate-900/20 p-4">
+                            <h3 className="text-sm font-medium text-slate-200 mb-1">{item.name}</h3>
+                            <p className="text-sm text-slate-400 leading-relaxed">{item.acceptedAnswer.text}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
