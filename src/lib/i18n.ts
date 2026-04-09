@@ -1,5 +1,35 @@
 import { resolveLocale, type Locale } from "./locale";
 
+// Static import map — Turbopack cannot resolve template-literal dynamic imports
+// so each locale must be an explicit import() call.
+const dictionaryLoaders: Record<string, () => Promise<{ default: any }>> = {
+  "en-US": () => import("@/messages/en-US.json"),
+  "zh-CN": () => import("@/messages/zh-CN.json"),
+  "hi-IN": () => import("@/messages/hi-IN.json"),
+  "pt-BR": () => import("@/messages/pt-BR.json"),
+  "tr-TR": () => import("@/messages/tr-TR.json"),
+  "id-ID": () => import("@/messages/id-ID.json"),
+  "vi-VN": () => import("@/messages/vi-VN.json"),
+  "de-DE": () => import("@/messages/de-DE.json"),
+  "fil-PH": () => import("@/messages/fil-PH.json"),
+  "es-MX": () => import("@/messages/es-MX.json"),
+  "en-GB": () => import("@/messages/en-GB.json"),
+  "fr-FR": () => import("@/messages/fr-FR.json"),
+  "th-TH": () => import("@/messages/th-TH.json"),
+  "ur-PK": () => import("@/messages/ur-PK.json"),
+  "en-NG": () => import("@/messages/en-NG.json"),
+  "ar-EG": () => import("@/messages/ar-EG.json"),
+  "ms-MY": () => import("@/messages/ms-MY.json"),
+  "es-CO": () => import("@/messages/es-CO.json"),
+  "ru-RU": () => import("@/messages/ru-RU.json"),
+  "es-AR": () => import("@/messages/es-AR.json"),
+  "es-ES": () => import("@/messages/es-ES.json"),
+  "en-CA": () => import("@/messages/en-CA.json"),
+  "pl-PL": () => import("@/messages/pl-PL.json"),
+  "ar-SA": () => import("@/messages/ar-SA.json"),
+  "bn-BD": () => import("@/messages/bn-BD.json"),
+};
+
 // Cache for dictionaries to avoid repeated imports
 const dictionaries: Record<string, any> = {};
 
@@ -14,26 +44,26 @@ export async function getDictionary(locale: Locale) {
     return dictionaries[resolved];
   }
 
-  try {
-    // In Next.js, dynamic imports with template literals are supported
-    // but they generate a chunk for every file in the directory.
-    console.log(`[i18n] Loading dictionary for: ${resolved}`);
-    const dictionary = (await import(`@/messages/${resolved}.json`)).default;
-    dictionaries[resolved] = dictionary;
-    return dictionary;
-  } catch (error) {
-    console.error(`[i18n] FAILED to load dictionary for locale: ${resolved}`, error);
-    
-    // Fallback to English if the specific locale fails
-    if (resolved !== "en-US") {
-      console.log(`[i18n] FALLING BACK to en-US for: ${resolved}`);
-      return getDictionary("en-US");
+  const loader = dictionaryLoaders[resolved];
+
+  if (loader) {
+    try {
+      const dictionary = (await loader()).default;
+      dictionaries[resolved] = dictionary;
+      return dictionary;
+    } catch (error) {
+      console.error(`[i18n] FAILED to load dictionary for locale: ${resolved}`, error);
     }
-    
-    // Final fallback if even English fails
-    console.log(`[i18n] CRITICAL FALLBACK to pt-BR`);
-    return (await import(`@/messages/pt-BR.json`)).default;
   }
+
+  // Fallback to English, then Portuguese
+  if (resolved !== "en-US") {
+    return getDictionary("en-US");
+  }
+
+  const fallback = (await dictionaryLoaders["pt-BR"]()).default;
+  dictionaries["pt-BR"] = fallback;
+  return fallback;
 }
 
 /**
