@@ -18,7 +18,8 @@
     "admin": "एडमिन",
     "home": "होम",
     "playInstantly": "अपने ब्राउज़र में तुरंत खेलें",
-    "noInstalls": "कोई इंस्टॉल नहीं • ब्राउज़र गेमप्ले"
+    "noInstalls": "कोई इंस्टॉल नहीं • ब्राउज़र गेमप्ले",
+    "languages": "Languages"
   },
   "home": {
     "heroKicker": "क्यूरेटेड HTML5 चयन",
@@ -39,7 +40,8 @@
     "missionLabel": "आज का मिशन",
     "heroPersonalizedContinue": "अपनी यात्रा फिर से शुरू करें",
     "heroPersonalizedRecommended": "आपके लिए अनुशंसित",
-    "heroPersonalizedFeatured": "पोर्टल स्पॉटलाइट"
+    "heroPersonalizedFeatured": "पोर्टल स्पॉटलाइट",
+    "anonymousHint": "Login or create an account to save your progress."
   },
   "auth": {
     "loginTitle": "Gasty Games में लॉगिन करें",
@@ -71,7 +73,30 @@
     "noHistory": "आपका गेम इतिहास खाली है।",
     "unlocked": "अनलॉक",
     "locked": "लॉक",
-    "achievementsSubtitle": "जले हुए बैज आपके हैं। धुंधले अगले लक्ष्य हैं।"
+    "achievementsSubtitle": "जले हुए बैज आपके हैं। धुंधले अगले लक्ष्य हैं।",
+    "levelLabel": "Level {level}",
+    "levelUp": "XP → Level {level}",
+    "guestName": "Guest",
+    "guestHint": "Create an account to save your journey.",
+    "rankingRange": "Positions {start} to {end}",
+    "rankingEmptySlot": "Empty slot in ranking",
+    "rankingEmptySlotHint": "New players appear here as they earn XP.",
+    "friendRanking": "Friend ranking",
+    "you": "you",
+    "memberSince": "Member since {date}",
+    "wallet": "Your Wallet",
+    "walletSubtitle": "Manage your credits and themes.",
+    "social": "Social Network",
+    "socialSubtitle": "Your friends and rivals.",
+    "journey": "My Journey",
+    "journeySubtitle": "Daily missions and achievements.",
+    "library": "My Library",
+    "librarySubtitle": "Your favorites and recommendations.",
+    "editProfile": "Edit Profile",
+    "editProfileSubtitle": "Customize your visual identity.",
+    "notificationsSubtitle": "Portal alerts.",
+    "startMission": "START MISSION",
+    "yourAchievements": "Your Achievements"
   },
   "game": {
     "views": "दृश्य",

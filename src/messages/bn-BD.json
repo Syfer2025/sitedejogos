@@ -18,7 +18,8 @@
     "admin": "অ্যাডমিন",
     "home": "হোম",
     "playInstantly": "আপনার ব্রাউজারে অবিলম্বে খেলুন",
-    "noInstalls": "কোনো ইন্সটলেশন নেই • ব্রাউজার গেমপ্লে"
+    "noInstalls": "কোনো ইন্সটলেশন নেই • ব্রাউজার গেমপ্লে",
+    "languages": "Languages"
   },
   "home": {
     "heroKicker": "কিউরেটেড HTML5 নির্বাচন",
@@ -39,7 +40,8 @@
     "missionLabel": "আজকের মিশন",
     "heroPersonalizedContinue": "আপনার যাত্রা পুনরায় শুরু করুন",
     "heroPersonalizedRecommended": "আপনার প্রোফাইলের জন্য প্রস্তাবিত",
-    "heroPersonalizedFeatured": "পোর্টাল স্পটলাইট"
+    "heroPersonalizedFeatured": "পোর্টাল স্পটলাইট",
+    "anonymousHint": "Login or create an account to save your progress."
   },
   "auth": {
     "loginTitle": "Gasty Games এ লগইন করুন",
@@ -71,7 +73,30 @@
     "noHistory": "আপনার গেমের ইতিহাস খালি।",
     "unlocked": "আনলক করা",
     "locked": "লক করা",
-    "achievementsSubtitle": "রঙিন ব্যাজগুলো আপনার। আবছাগুলো পরবর্তী লক্ষ্য।"
+    "achievementsSubtitle": "রঙিন ব্যাজগুলো আপনার। আবছাগুলো পরবর্তী লক্ষ্য।",
+    "levelLabel": "Level {level}",
+    "levelUp": "XP → Level {level}",
+    "guestName": "Guest",
+    "guestHint": "Create an account to save your journey.",
+    "rankingRange": "Positions {start} to {end}",
+    "rankingEmptySlot": "Empty slot in ranking",
+    "rankingEmptySlotHint": "New players appear here as they earn XP.",
+    "friendRanking": "Friend ranking",
+    "you": "you",
+    "memberSince": "Member since {date}",
+    "wallet": "Your Wallet",
+    "walletSubtitle": "Manage your credits and themes.",
+    "social": "Social Network",
+    "socialSubtitle": "Your friends and rivals.",
+    "journey": "My Journey",
+    "journeySubtitle": "Daily missions and achievements.",
+    "library": "My Library",
+    "librarySubtitle": "Your favorites and recommendations.",
+    "editProfile": "Edit Profile",
+    "editProfileSubtitle": "Customize your visual identity.",
+    "notificationsSubtitle": "Portal alerts.",
+    "startMission": "START MISSION",
+    "yourAchievements": "Your Achievements"
   },
   "game": {
     "views": "ভিউ",

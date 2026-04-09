@@ -18,7 +18,8 @@
     "admin": "管理员",
     "home": "首页",
     "playInstantly": "在浏览器中立即开始",
-    "noInstalls": "无需安装 • 浏览器即玩"
+    "noInstalls": "无需安装 • 浏览器即玩",
+    "languages": "Languages"
   },
   "home": {
     "heroKicker": "精选 HTML5 游戏",
@@ -39,7 +40,8 @@
     "missionLabel": "今日任务",
     "heroPersonalizedContinue": "继续您的旅程",
     "heroPersonalizedRecommended": "为您推荐",
-    "heroPersonalizedFeatured": "门户亮点"
+    "heroPersonalizedFeatured": "门户亮点",
+    "anonymousHint": "Login or create an account to save your progress."
   },
   "auth": {
     "loginTitle": "登录 Gasty Games",
@@ -71,7 +73,30 @@
     "noHistory": "您的游戏历史为空。",
     "unlocked": "已解锁",
     "locked": "已锁定",
-    "achievementsSubtitle": "发亮的徽章是您的。灰暗的是下一个目标。"
+    "achievementsSubtitle": "发亮的徽章是您的。灰暗的是下一个目标。",
+    "levelLabel": "Level {level}",
+    "levelUp": "XP → Level {level}",
+    "guestName": "Guest",
+    "guestHint": "Create an account to save your journey.",
+    "rankingRange": "Positions {start} to {end}",
+    "rankingEmptySlot": "Empty slot in ranking",
+    "rankingEmptySlotHint": "New players appear here as they earn XP.",
+    "friendRanking": "Friend ranking",
+    "you": "you",
+    "memberSince": "Member since {date}",
+    "wallet": "Your Wallet",
+    "walletSubtitle": "Manage your credits and themes.",
+    "social": "Social Network",
+    "socialSubtitle": "Your friends and rivals.",
+    "journey": "My Journey",
+    "journeySubtitle": "Daily missions and achievements.",
+    "library": "My Library",
+    "librarySubtitle": "Your favorites and recommendations.",
+    "editProfile": "Edit Profile",
+    "editProfileSubtitle": "Customize your visual identity.",
+    "notificationsSubtitle": "Portal alerts.",
+    "startMission": "START MISSION",
+    "yourAchievements": "Your Achievements"
   },
   "game": {
     "views": "次浏览",

@@ -56,8 +56,8 @@ export function LanguageSwitcher() {
     // This ensures Server Components update on the next render.
     await setLocaleAction(next);
     
-    // 3. Force a refresh to show the server-side changes
-    router.refresh();
+    // 3. Force a complete reload to ensure all server caches and client states are reset
+    window.location.reload();
   }
 
   return (

@@ -17,18 +17,21 @@ export async function getDictionary(locale: Locale) {
   try {
     // In Next.js, dynamic imports with template literals are supported
     // but they generate a chunk for every file in the directory.
+    console.log(`[i18n] Loading dictionary for: ${resolved}`);
     const dictionary = (await import(`@/messages/${resolved}.json`)).default;
     dictionaries[resolved] = dictionary;
     return dictionary;
   } catch (error) {
-    console.error(`Failed to load dictionary for locale: ${resolved}`, error);
+    console.error(`[i18n] FAILED to load dictionary for locale: ${resolved}`, error);
     
     // Fallback to English if the specific locale fails
     if (resolved !== "en-US") {
+      console.log(`[i18n] FALLING BACK to en-US for: ${resolved}`);
       return getDictionary("en-US");
     }
     
     // Final fallback if even English fails
+    console.log(`[i18n] CRITICAL FALLBACK to pt-BR`);
     return (await import(`@/messages/pt-BR.json`)).default;
   }
 }

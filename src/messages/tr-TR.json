@@ -18,7 +18,8 @@
     "admin": "Admin",
     "home": "Anasayfa",
     "playInstantly": "Tarayıcınızda anında oynayın",
-    "noInstalls": "Kurulum yok • Tarayıcıda oyun keyfi"
+    "noInstalls": "Kurulum yok • Tarayıcıda oyun keyfi",
+    "languages": "Languages"
   },
   "home": {
     "heroKicker": "Özel HTML5 Seçkisi",
@@ -39,7 +40,8 @@
     "missionLabel": "Günün görevi",
     "heroPersonalizedContinue": "Yolculuğunuza devam edin",
     "heroPersonalizedRecommended": "Profilinize özel öneriler",
-    "heroPersonalizedFeatured": "Portalın öne çıkanı"
+    "heroPersonalizedFeatured": "Portalın öne çıkanı",
+    "anonymousHint": "Login or create an account to save your progress."
   },
   "auth": {
     "loginTitle": "Gasty Games'e Giriş Yap",
@@ -71,7 +73,30 @@
     "noHistory": "Oyun geçmişiniz boş.",
     "unlocked": "Kilit açıldı",
     "locked": "Kilitli",
-    "achievementsSubtitle": "Yanan rozetler sizindir. Soluk olanlar ise sıradaki hedeflerdir."
+    "achievementsSubtitle": "Yanan rozetler sizindir. Soluk olanlar ise sıradaki hedeflerdir.",
+    "levelLabel": "Level {level}",
+    "levelUp": "XP → Level {level}",
+    "guestName": "Guest",
+    "guestHint": "Create an account to save your journey.",
+    "rankingRange": "Positions {start} to {end}",
+    "rankingEmptySlot": "Empty slot in ranking",
+    "rankingEmptySlotHint": "New players appear here as they earn XP.",
+    "friendRanking": "Friend ranking",
+    "you": "you",
+    "memberSince": "Member since {date}",
+    "wallet": "Your Wallet",
+    "walletSubtitle": "Manage your credits and themes.",
+    "social": "Social Network",
+    "socialSubtitle": "Your friends and rivals.",
+    "journey": "My Journey",
+    "journeySubtitle": "Daily missions and achievements.",
+    "library": "My Library",
+    "librarySubtitle": "Your favorites and recommendations.",
+    "editProfile": "Edit Profile",
+    "editProfileSubtitle": "Customize your visual identity.",
+    "notificationsSubtitle": "Portal alerts.",
+    "startMission": "START MISSION",
+    "yourAchievements": "Your Achievements"
   },
   "game": {
     "views": "görüntülenme",

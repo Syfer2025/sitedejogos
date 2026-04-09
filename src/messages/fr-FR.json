@@ -18,7 +18,8 @@
     "admin": "Admin",
     "home": "Accueil",
     "playInstantly": "Jouez instantanément dans votre navigateur",
-    "noInstalls": "Sans installation • Jeu sur navigateur"
+    "noInstalls": "Sans installation • Jeu sur navigateur",
+    "languages": "Languages"
   },
   "home": {
     "heroKicker": "Sélection HTML5 Curatée",
@@ -39,7 +40,8 @@
     "missionLabel": "Mission du jour",
     "heroPersonalizedContinue": "Reprenez votre aventure",
     "heroPersonalizedRecommended": "Recommandé pour votre profil",
-    "heroPersonalizedFeatured": "À l'honneur sur le portail"
+    "heroPersonalizedFeatured": "À l'honneur sur le portail",
+    "anonymousHint": "Login or create an account to save your progress."
   },
   "auth": {
     "loginTitle": "Se connecter à Gasty Games",
@@ -71,7 +73,30 @@
     "noHistory": "Votre historique de jeu est vide.",
     "unlocked": "Débloqué",
     "locked": "Verrouillé",
-    "achievementsSubtitle": "Les badges allumés sont les vôtres. Les sombres sont les prochains objectifs."
+    "achievementsSubtitle": "Les badges allumés sont les vôtres. Les sombres sont les prochains objectifs.",
+    "levelLabel": "Level {level}",
+    "levelUp": "XP → Level {level}",
+    "guestName": "Guest",
+    "guestHint": "Create an account to save your journey.",
+    "rankingRange": "Positions {start} to {end}",
+    "rankingEmptySlot": "Empty slot in ranking",
+    "rankingEmptySlotHint": "New players appear here as they earn XP.",
+    "friendRanking": "Friend ranking",
+    "you": "you",
+    "memberSince": "Member since {date}",
+    "wallet": "Your Wallet",
+    "walletSubtitle": "Manage your credits and themes.",
+    "social": "Social Network",
+    "socialSubtitle": "Your friends and rivals.",
+    "journey": "My Journey",
+    "journeySubtitle": "Daily missions and achievements.",
+    "library": "My Library",
+    "librarySubtitle": "Your favorites and recommendations.",
+    "editProfile": "Edit Profile",
+    "editProfileSubtitle": "Customize your visual identity.",
+    "notificationsSubtitle": "Portal alerts.",
+    "startMission": "START MISSION",
+    "yourAchievements": "Your Achievements"
   },
   "game": {
     "views": "vues",

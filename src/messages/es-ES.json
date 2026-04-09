@@ -18,7 +18,8 @@
     "admin": "Admin",
     "home": "Inicio",
     "playInstantly": "Juega al instante en tu navegador",
-    "noInstalls": "Sin instalación • Juego en navegador"
+    "noInstalls": "Sin instalación • Juego en navegador",
+    "languages": "Languages"
   },
   "home": {
     "heroKicker": "Selección HTML5 Curada",
@@ -39,7 +40,8 @@
     "missionLabel": "Misión de hoy",
     "heroPersonalizedContinue": "Retoma tu partida",
     "heroPersonalizedRecommended": "Recomendado para tu perfil",
-    "heroPersonalizedFeatured": "Destacado del portal"
+    "heroPersonalizedFeatured": "Destacado del portal",
+    "anonymousHint": "Login or create an account to save your progress."
   },
   "auth": {
     "loginTitle": "Entrar en Gasty Games",
@@ -71,7 +73,30 @@
     "noHistory": "Tu historial de juegos está vacío.",
     "unlocked": "Desbloqueado",
     "locked": "Bloqueado",
-    "achievementsSubtitle": "Las insignias encendidas son tuyas. Las opacas son los próximos objetivos."
+    "achievementsSubtitle": "Las insignias encendidas son tuyas. Las opacas son los próximos objetivos.",
+    "levelLabel": "Level {level}",
+    "levelUp": "XP → Level {level}",
+    "guestName": "Guest",
+    "guestHint": "Create an account to save your journey.",
+    "rankingRange": "Positions {start} to {end}",
+    "rankingEmptySlot": "Empty slot in ranking",
+    "rankingEmptySlotHint": "New players appear here as they earn XP.",
+    "friendRanking": "Friend ranking",
+    "you": "you",
+    "memberSince": "Member since {date}",
+    "wallet": "Your Wallet",
+    "walletSubtitle": "Manage your credits and themes.",
+    "social": "Social Network",
+    "socialSubtitle": "Your friends and rivals.",
+    "journey": "My Journey",
+    "journeySubtitle": "Daily missions and achievements.",
+    "library": "My Library",
+    "librarySubtitle": "Your favorites and recommendations.",
+    "editProfile": "Edit Profile",
+    "editProfileSubtitle": "Customize your visual identity.",
+    "notificationsSubtitle": "Portal alerts.",
+    "startMission": "START MISSION",
+    "yourAchievements": "Your Achievements"
   },
   "game": {
     "views": "visualizaciones",

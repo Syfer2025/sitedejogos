@@ -18,7 +18,8 @@
     "admin": "ایڈمن",
     "home": "ہوم",
     "playInstantly": "اپنے براؤزر میں فوری کھیلیں",
-    "noInstalls": "کوئی انسٹالیشن نہیں • براؤزر گیم پلے"
+    "noInstalls": "کوئی انسٹالیشن نہیں • براؤزر گیم پلے",
+    "languages": "Languages"
   },
   "home": {
     "heroKicker": "منتخب HTML5 گلدستہ",
@@ -39,7 +40,8 @@
     "missionLabel": "آج کا مشن",
     "heroPersonalizedContinue": "اپنا سفر دوبارہ شروع کریں",
     "heroPersonalizedRecommended": "آپ کے پروفائل کے لیے تجویز کردہ",
-    "heroPersonalizedFeatured": "پورٹل اسپاٹ لائٹ"
+    "heroPersonalizedFeatured": "پورٹل اسپاٹ لائٹ",
+    "anonymousHint": "Login or create an account to save your progress."
   },
   "auth": {
     "loginTitle": "Gasty Games میں لاگ ان کریں",
@@ -71,7 +73,30 @@
     "noHistory": "آپ کی گیم کی تاریخ خالی ہے۔",
     "unlocked": "ان لاک",
     "locked": "لاک",
-    "achievementsSubtitle": "روشن بیجز آپ کے ہیں۔ دھندلے اگلے اہداف ہیں۔"
+    "achievementsSubtitle": "روشن بیجز آپ کے ہیں۔ دھندلے اگلے اہداف ہیں۔",
+    "levelLabel": "Level {level}",
+    "levelUp": "XP → Level {level}",
+    "guestName": "Guest",
+    "guestHint": "Create an account to save your journey.",
+    "rankingRange": "Positions {start} to {end}",
+    "rankingEmptySlot": "Empty slot in ranking",
+    "rankingEmptySlotHint": "New players appear here as they earn XP.",
+    "friendRanking": "Friend ranking",
+    "you": "you",
+    "memberSince": "Member since {date}",
+    "wallet": "Your Wallet",
+    "walletSubtitle": "Manage your credits and themes.",
+    "social": "Social Network",
+    "socialSubtitle": "Your friends and rivals.",
+    "journey": "My Journey",
+    "journeySubtitle": "Daily missions and achievements.",
+    "library": "My Library",
+    "librarySubtitle": "Your favorites and recommendations.",
+    "editProfile": "Edit Profile",
+    "editProfileSubtitle": "Customize your visual identity.",
+    "notificationsSubtitle": "Portal alerts.",
+    "startMission": "START MISSION",
+    "yourAchievements": "Your Achievements"
   },
   "game": {
     "views": "مناظر",
