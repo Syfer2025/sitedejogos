@@ -58,7 +58,7 @@ export default async function GamePage({ params }: GamePageProps) {
     notFound();
   }
 
-  const relatedGames = await listRelatedGames(game, 8);
+  const relatedGames = await listRelatedGames(game, 11);
   const cookieStore = await cookies();
   const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
   const playerSession = playerToken ? await getPlayerSession(playerToken) : null;
