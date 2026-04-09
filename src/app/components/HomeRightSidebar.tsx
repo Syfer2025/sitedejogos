@@ -23,6 +23,7 @@ import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 
 import { AdSlot } from "./AdSlot";
 import { HomeAchievementsRail } from "./HomeAchievementsRail";
+import { RewardedAdButton } from "./RewardedAdButton";
 import { RightSidebarShell } from "./RightSidebarShell";
 import { TrackedLink } from "./TrackedLink";
 
@@ -476,9 +477,16 @@ export async function HomeRightSidebar() {
           )}
         </div>
 
+        {/* Rewarded Ad CTA */}
+        {playerSession && (
+          <div className="animate-fade-in-up transition-all duration-300">
+            <RewardedAdButton isPremium={playerSession.user.isPremium} />
+          </div>
+        )}
+
         {/* Sidebar ad */}
-        <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 overflow-hidden">
-          <AdSlot label="Sidebar" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR} minHeight={250} />
+        <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 overflow-hidden sticky top-[104px] z-10 w-full mb-4">
+          <AdSlot label="Sidebar" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR} minHeight={600} adFormat="sticky" isPremium={playerSession?.user.isPremium} />
         </div>
 
         {/* Friend leaderboard */}

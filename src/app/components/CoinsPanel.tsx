@@ -141,7 +141,7 @@ export function CoinsPanel() {
       </div>
 
       {/* Rewarded Ads */}
-      <RewardedAdButton isAuthenticated={true} />
+      <RewardedAdButton isPremium={data.isPremium} />
 
       {/* Themes */}
       <div>

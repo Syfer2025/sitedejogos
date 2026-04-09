@@ -17,6 +17,8 @@ type AdSlotProps = {
   minHeight?: number;
   autoRefresh?: boolean;
   refreshIntervalMs?: number;
+  adFormat?: "auto" | "rectangle" | "vertical" | "sticky";
+  isPremium?: boolean;
 };
 
 const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
@@ -92,7 +94,14 @@ export function AdSlot({
   minHeight = 160,
   autoRefresh = false,
   refreshIntervalMs = 45_000,
+  adFormat = "auto",
+  isPremium = false,
 }: AdSlotProps) {
+  // Se for premium, não renderiza publicidade nem ocupa espaço (Height = 0)
+  if (isPremium) {
+    return null;
+  }
+
   const canRenderAds = Boolean(ADSENSE_CLIENT_ID && slot);
   const adBlocked = useAdBlockDetected();
   const insRef = useRef<HTMLModElement>(null);
@@ -100,6 +109,7 @@ export function AdSlot({
   const [adFailed, setAdFailed] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [inView, setInView] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const interval = Math.max(refreshIntervalMs, MIN_REFRESH_INTERVAL);
 
@@ -130,15 +140,20 @@ export function AdSlot({
   useEffect(() => {
     if (!inView) return;
 
+    setIsLoaded(false);
     pushAd();
 
     const timer = setTimeout(() => {
       const el = insRef.current;
       if (el) {
         const rendered = el.offsetHeight > 0 && el.querySelector("iframe, ins") !== null;
-        if (!rendered) setAdFailed(true);
+        if (!rendered) {
+          setAdFailed(true);
+        } else {
+          setIsLoaded(true);
+        }
       }
-    }, 3000);
+    }, 2500);
 
     return () => clearTimeout(timer);
   }, [pushAd, refreshKey, inView]);
@@ -159,37 +174,50 @@ export function AdSlot({
 
   const showNativeFallback = adBlocked || adFailed;
 
+  const widthClass = adFormat === "vertical" ? "w-[300px] mx-auto" : "w-full";
+  const stickyClass = adFormat === "sticky" ? "sticky top-[104px]" : "";
+
   return (
-    <div ref={containerRef} className="my-4 w-full">
-      <div className="overflow-hidden rounded-2xl border border-dashed border-slate-700/80 bg-slate-950/70 px-3 py-3">
+    <div ref={containerRef} className={`my-4 ${widthClass} ${stickyClass}`}>
+      <div className="relative overflow-hidden rounded-2xl border border-dashed border-slate-700/80 bg-slate-950/70 p-3 flex flex-col justify-center">
         {!showNativeFallback && (
-          <div className="mb-2 flex items-center justify-between gap-3 text-[9px] uppercase tracking-[0.18em] text-slate-500">
+          <div className="absolute top-2 left-3 right-3 z-10 flex items-center justify-between gap-3 text-[9px] uppercase tracking-[0.18em] text-slate-500 opacity-80 mix-blend-screen pointer-events-none">
             <span>Publicidade</span>
             <span>{label}</span>
           </div>
         )}
 
-        {showNativeFallback ? (
-          <NativePromo minHeight={minHeight} label={label} />
-        ) : canRenderAds ? (
-          <ins
-            key={refreshKey}
-            ref={insRef}
-            className="adsbygoogle block w-full overflow-hidden"
-            style={{ minHeight }}
-            data-ad-client={ADSENSE_CLIENT_ID}
-            data-ad-slot={slot}
-            data-ad-format="auto"
-            data-full-width-responsive="true"
+        {/* Anti-CLS Skeleton */}
+        {!isLoaded && !showNativeFallback && canRenderAds && (
+          <div 
+            className="absolute inset-x-3 bottom-3 top-7 animate-pulse rounded-xl bg-slate-800/50" 
+            style={{ minHeight: `${minHeight}px` }} 
           />
-        ) : (
-          <div
-            className="flex w-full items-center justify-center rounded-xl bg-slate-900/65 text-[11px] text-slate-400"
-            style={{ minHeight }}
-          >
-            Configure NEXT_PUBLIC_ADSENSE_CLIENT_ID e informe o slot para exibir um anúncio real.
-          </div>
         )}
+
+        <div className={`relative z-0 flex items-center justify-center w-full transition-opacity duration-500 ${isLoaded || showNativeFallback ? "opacity-100" : "opacity-0"}`} style={{ minHeight }}>
+          {showNativeFallback ? (
+            <NativePromo minHeight={minHeight} label={label} />
+          ) : canRenderAds ? (
+            <ins
+              key={refreshKey}
+              ref={insRef}
+              className="adsbygoogle block w-full overflow-hidden"
+              style={adFormat === "sticky" ? { minHeight: Math.max(minHeight, 600) } : { minHeight }}
+              data-ad-client={ADSENSE_CLIENT_ID}
+              data-ad-slot={slot}
+              data-ad-format={adFormat === "sticky" ? "vertical" : adFormat}
+              data-full-width-responsive="true"
+            />
+          ) : (
+            <div
+              className="flex w-full h-full items-center justify-center rounded-xl bg-slate-900/65 text-[11px] text-slate-400 p-4 text-center"
+              style={{ minHeight }}
+            >
+              Configure NEXT_PUBLIC_ADSENSE_CLIENT_ID e slot para exibir o Ad.
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

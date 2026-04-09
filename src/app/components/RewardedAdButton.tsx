@@ -1,122 +1,130 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-
-type RewardStatus = {
-  allowed: boolean;
-  viewsToday: number;
-  maxViews: number;
-  cooldownRemaining: number;
-};
+import { useState, useEffect } from "react";
+import { claimRewardedAdReward } from "@/app/actions/monetization";
 
 type RewardedAdButtonProps = {
-  isAuthenticated: boolean;
+  isPremium: boolean;
 };
 
-export function RewardedAdButton({ isAuthenticated }: RewardedAdButtonProps) {
-  const [status, setStatus] = useState<RewardStatus | null>(null);
-  const [phase, setPhase] = useState<"idle" | "watching" | "rewarded" | "error">("idle");
-  const [countdown, setCountdown] = useState(0);
-  const [earnedCoins, setEarnedCoins] = useState(0);
+export function RewardedAdButton({ isPremium }: RewardedAdButtonProps) {
+  const [status, setStatus] = useState<"idle" | "loading" | "watching" | "claiming" | "cooldown">("idle");
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [message, setMessage] = useState<{ text: string, type: "success" | "error" } | null>(null);
 
-  const fetchStatus = useCallback(async () => {
-    if (!isAuthenticated) return;
-    try {
-      const res = await fetch("/api/user/rewarded-ad");
-      if (res.ok) setStatus(await res.json());
-    } catch {
-      // silent
-    }
-  }, [isAuthenticated]);
-
+  // Um cooldown de 3 minutos para evitar spam massivo
   useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus]);
-
-  // Countdown timer for "watching" phase
-  useEffect(() => {
-    if (phase !== "watching" || countdown <= 0) return;
-    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
-    return () => clearTimeout(timer);
-  }, [phase, countdown]);
-
-  // When countdown reaches 0, claim reward
-  useEffect(() => {
-    if (phase !== "watching" || countdown > 0) return;
-
-    async function claim() {
-      try {
-        const res = await fetch("/api/user/rewarded-ad", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ rewardType: "coins" }),
+    if (status === "cooldown") {
+      const tick = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            setStatus("idle");
+            setMessage(null);
+            return 0;
+          }
+          return prev - 1;
         });
-        if (res.ok) {
-          const data = await res.json();
-          setEarnedCoins(data.coins ?? 50);
-          setPhase("rewarded");
-          fetchStatus();
-          setTimeout(() => setPhase("idle"), 3000);
-        } else {
-          setPhase("error");
-          setTimeout(() => setPhase("idle"), 2000);
-        }
-      } catch {
-        setPhase("error");
-        setTimeout(() => setPhase("idle"), 2000);
-      }
+      }, 1000);
+      return () => clearInterval(tick);
     }
+  }, [status]);
 
-    claim();
-  }, [phase, countdown, fetchStatus]);
-
-  function handleWatch() {
-    if (!isAuthenticated || !status?.allowed) return;
-    setPhase("watching");
-    setCountdown(5);
+  if (isPremium) {
+    return null; // Premium users don't need to watch ads for small coin injections
   }
 
-  if (!isAuthenticated) return null;
+  const handleWatchAd = async () => {
+    if (status !== "idle") return;
 
-  const remaining = status ? status.maxViews - status.viewsToday : 0;
+    setStatus("loading");
+    setMessage(null);
+    
+    // Simulação do AdSense Rewarded / H5 Ads (Como o AdSense standard de display/vignette já roda global, o rewarded geralmente é em iframe ou tag especifica)
+    // Para simplificar a experiência sem depender de aprovação manual do Google AdManager, simularemos o timeout de um vídeo de 15s.
+    setTimeout(() => {
+      setStatus("watching");
+      let count = 10;
+      const interval = setInterval(() => {
+        count--;
+        if (count <= 0) {
+          clearInterval(interval);
+          finishAdAndClaim();
+        }
+      }, 1000);
+    }, 800);
+  };
+
+  const finishAdAndClaim = async () => {
+    setStatus("claiming");
+    try {
+      const result = await claimRewardedAdReward();
+      
+      if (result.success) {
+        setMessage({ text: `Vídeo concluído! Você recebeu +${result.coinsGranted} moedas.`, type: "success" });
+      } else {
+        setMessage({ text: result.error ?? "Erro ao resgatar.", type: "error" });
+      }
+    } catch {
+      setMessage({ text: "Ocorreu um problema de conexão.", type: "error" });
+    } finally {
+      setStatus("cooldown");
+      setTimeLeft(180); // 3 minutos cooldown
+    }
+  };
+
+  if (status === "watching") {
+    return (
+      <div className="flex w-full items-center justify-center gap-3 rounded-xl border border-cyan-500/50 bg-cyan-950/40 py-3 px-4 shadow-[0_0_15px_rgba(34,211,238,0.2)]">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-cyan-400 border-t-transparent" />
+        <span className="text-xs font-semibold text-cyan-200">Assistindo anúncio para recompensa...</span>
+      </div>
+    );
+  }
+
+  if (status === "claiming") {
+    return (
+      <div className="flex w-full items-center justify-center gap-3 rounded-xl border border-amber-500/50 bg-amber-950/40 py-3 px-4">
+        <span className="text-xl animate-bounce">🪙</span>
+        <span className="text-xs font-semibold text-amber-200">Enviando moedas ao cofre...</span>
+      </div>
+    );
+  }
+
+  if (status === "cooldown") {
+    return (
+      <div className="flex w-full flex-col items-center justify-center gap-2 rounded-xl border border-slate-700/50 bg-slate-900/50 py-3 px-4 text-center">
+        {message && (
+          <p className={`text-[10px] font-bold ${message.type === "success" ? "text-emerald-400" : "text-red-400"}`}>
+            {message.type === "success" ? "✅" : "❌"} {message.text}
+          </p>
+        )}
+        <div className="flex items-center gap-2 opacity-70 mt-1">
+          <span className="text-lg">🕒</span>
+          <span className="text-[11px] font-medium tracking-wide text-slate-400">
+            Novo anúncio em {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
+          </span>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="rounded-xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/10 p-4">
-      {phase === "rewarded" ? (
-        <div className="flex flex-col items-center gap-2 py-2 animate-fade-in">
-          <span className="text-2xl">🪙</span>
-          <p className="text-sm font-bold text-amber-300">+{earnedCoins} moedas!</p>
-          <p className="text-[10px] text-slate-400">Recompensa adicionada ao seu saldo</p>
-        </div>
-      ) : phase === "watching" ? (
-        <div className="flex flex-col items-center gap-3 py-2">
-          <p className="text-xs font-bold text-slate-200 uppercase tracking-wider">Assistindo anuncio...</p>
-          <div className="relative h-2 w-full rounded-full bg-slate-800 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-all duration-1000 ease-linear"
-              style={{ width: `${((5 - countdown) / 5) * 100}%` }}
-            />
-          </div>
-          <span className="text-xs text-slate-400 tabular-nums">{countdown}s</span>
-        </div>
-      ) : (
-        <div className="flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-xs font-bold text-slate-100">Ganhe moedas gratis</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">
-              Assista um anuncio e ganhe 50 moedas. {remaining > 0 ? `${remaining}x restantes hoje.` : "Limite diario atingido."}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={handleWatch}
-            disabled={!status?.allowed || phase !== "idle"}
-            className="shrink-0 rounded-lg bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2 text-xs font-bold text-slate-950 transition-all hover:from-amber-400 hover:to-orange-400 active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed"
-          >
-            Assistir
-          </button>
-        </div>
-      )}
-    </div>
+    <button
+      type="button"
+      onClick={handleWatchAd}
+      disabled={status !== "idle"}
+      className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl border border-purple-500/40 bg-gradient-to-r from-purple-900/40 to-fuchsia-900/40 py-3 px-4 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:border-purple-400/60 hover:shadow-purple-500/25 active:scale-[0.98]"
+    >
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-400/0 via-white/5 to-fuchsia-400/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <span className="relative z-10 text-2xl group-hover:animate-pulse">📺</span>
+      <div className="relative z-10 flex flex-col items-start leading-tight">
+        <span className="text-xs font-bold uppercase tracking-widest text-fuchsia-100">
+          Apoiar & Ganhar
+        </span>
+        <span className="text-[10px] text-fuchsia-300/80">
+          Assista um vídeo e ganhe +50 Moedas
+        </span>
+      </div>
+    </button>
   );
 }
