@@ -157,21 +157,21 @@ export default function LoginPage() {
 
     try {
       if (mode === "login") {
-        const result = await signIn("credentials", {
-          email,
-          password,
-          redirect: false,
-          callbackUrl: redirectTo,
+        const response = await fetch("/api/auth/user/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
         });
 
-        if (result?.error) {
-          setError("Email ou senha inválidos.");
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+          setError(data.message || "Email ou senha inválidos.");
           setLoading(false);
           return;
         }
 
-        router.replace(redirectTo);
-        router.refresh();
+        window.location.href = redirectTo;
         return;
       }
 
@@ -196,15 +196,8 @@ export default function LoginPage() {
         return;
       }
 
-      // Auto-login after registration
-      await signIn("credentials", {
-        email,
-        password,
-        callbackUrl: redirectTo,
-      });
-
-      router.replace(redirectTo);
-      router.refresh();
+      // O endpoint de registro já configura o cookie `PLAYER_SESSION_COOKIE` na resposta.
+      window.location.href = redirectTo;
     } catch {
       setError("Falha inesperada. Tente novamente.");
       setLoading(false);

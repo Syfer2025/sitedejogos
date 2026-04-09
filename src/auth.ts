@@ -55,14 +55,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           email: user.email,
           name: user.displayName,
           image: user.image || user.avatarUrl,
+          isPremium: user.isPremium,
         };
       },
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+        // @ts-ignore
+        token.isPremium = user.isPremium;
+      }
+      return token;
+    },
+    async session({ session, token }) {
       if (session.user) {
-        session.user.id = user.id;
+        session.user.id = token.id as string;
+        // @ts-ignore
+        session.user.isPremium = token.isPremium as boolean;
       }
       return session;
     },
@@ -72,6 +83,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     error: "/login",
   },
   session: {
-    strategy: "database", // Use database sessions since we have the adapter
+    strategy: "jwt",
   },
 });
