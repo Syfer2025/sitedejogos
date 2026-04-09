@@ -83,6 +83,10 @@ function getAchievementRequirementLabel(
         return `${number} XP`;
       case "level_reached":
         return `Reach level ${number}`;
+      case "ratings_total":
+        return `${number} ratings`;
+      case "ads_total":
+        return `${number} ads viewed`;
     }
   }
 
@@ -104,6 +108,10 @@ function getAchievementRequirementLabel(
         return `${number} XP`;
       case "level_reached":
         return `Nivel ${number}`;
+      case "ratings_total":
+        return `${number} valoraciones`;
+      case "ads_total":
+        return `${number} anuncios vistos`;
     }
   }
 
@@ -124,6 +132,10 @@ function getAchievementRequirementLabel(
       return `${number} XP`;
     case "level_reached":
       return `Nível ${number}`;
+    case "ratings_total":
+      return `${number} avaliações`;
+    case "ads_total":
+      return `${number} vídeos assistidos`;
   }
 }
 
@@ -166,6 +178,10 @@ function getAchievementUnlockHint(
         return `${number} more XP to unlock.`;
       case "level_reached":
         return `${number} more level${remaining === 1 ? "" : "s"} to unlock.`;
+      case "ratings_total":
+        return `${number} more rating${remaining === 1 ? "" : "s"} to unlock.`;
+      case "ads_total":
+        return `${number} more ad view${remaining === 1 ? "" : "s"} to unlock.`;
     }
   }
 
@@ -187,6 +203,10 @@ function getAchievementUnlockHint(
         return `Faltan ${number} XP para desbloquear.`;
       case "level_reached":
         return `Falta${remaining === 1 ? "" : "n"} ${number} nivel${remaining === 1 ? "" : "es"} para desbloquear.`;
+      case "ratings_total":
+        return `Falta${remaining === 1 ? "n" : "n"} ${number} valoracion${remaining === 1 ? "es" : "es"} para desbloquear.`;
+      case "ads_total":
+        return `Falta${remaining === 1 ? "n" : "n"} ${number} anuncio${remaining === 1 ? "" : "s"} para desbloquear.`;
     }
   }
 
@@ -207,6 +227,10 @@ function getAchievementUnlockHint(
       return `Faltam ${number} XP para desbloquear.`;
     case "level_reached":
       return `Falta${remaining === 1 ? "" : "m"} ${number} ${remaining === 1 ? "nível" : "níveis"} para desbloquear.`;
+    case "ratings_total":
+      return `Falta${remaining === 1 ? "m" : "m"} ${number} avaliaç${remaining === 1 ? "ão" : "ões"} para desbloquear.`;
+    case "ads_total":
+      return `Falta${remaining === 1 ? "m" : "m"} ${number} vídeo${remaining === 1 ? "" : "s"} para desbloquear.`;
   }
 }
 
