@@ -58,7 +58,7 @@ export async function generateMetadata({
       title: game.title,
       description: game.description,
       images: [game.thumbnail],
-      type: "video.game",
+      type: "website",
     },
     twitter: {
       card: "summary_large_image",
