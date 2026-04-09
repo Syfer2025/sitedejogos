@@ -426,17 +426,23 @@ export async function getGameBySlug(slug: string, publishedOnly = false) {
   return mapGame(game);
 }
 
-export async function listRelatedGames(game: Pick<GameRecord, "category" | "slug">, limit = 4) {
-  const sameCategory = await prisma.game.findMany({
+export async function listRelatedGames(game: Pick<GameRecord, "category" | "slug" | "tags">, limit = 4) {
+  // Pre-calculate tag filters for the query
+  const tagFilters = (game.tags || []).map((tag) => ({
+    tags: { contains: tag },
+  }));
+
+  // Match: Same category OR share at least one tag
+  const candidates = await prisma.game.findMany({
     where: {
       isPublished: true,
       slug: { not: game.slug },
-      ...(game.category ? { category: game.category } : {}),
+      OR: [{ category: game.category }, ...tagFilters],
     },
     include: {
-      ratings: { select: { value: true } }
+      ratings: { select: { value: true } },
     } as any,
-    take: limit,
+    take: 32, // Large pool to rank and pick from
   });
 
   const mapWithRatings = (g: any): GameRecord => {
@@ -447,25 +453,53 @@ export async function listRelatedGames(game: Pick<GameRecord, "category" | "slug
     return { ...record, avgRating: Number(avg.toFixed(1)), ratingCount: count };
   };
 
-  if (sameCategory.length >= limit) {
-    return sameCategory.map(mapWithRatings);
-  }
+  // Rank by similarity and popularity in JS
+  const ranked = candidates.map((c) => {
+    const cTags = normalizeTags(c.tags);
+    const commonTags = (game.tags || []).filter((t) => cTags.includes(t)).length;
+    const sameCategory = c.category === game.category ? 1 : 0;
 
-  const fallback = await prisma.game.findMany({
-    where: {
-      isPublished: true,
-      slug: {
-        notIn: [game.slug, ...sameCategory.map((entry) => entry.slug)],
-      },
-    },
-    orderBy: [{ featured: "desc" }, { popularityScore: "desc" }, { views: "desc" }],
-    include: {
-      ratings: { select: { value: true } }
-    } as any,
-    take: limit - sameCategory.length,
+    // SCORING: Tags weight 2x, Category weight 1x
+    // We add a tiny random factor (0 to 0.5) to keep the list fresh
+    const similarityScore = commonTags * 2 + sameCategory + Math.random() * 0.5;
+
+    return {
+      game: mapWithRatings(c),
+      similarityScore,
+      popularity: c.popularityScore + c.views / 200,
+    };
   });
 
-  return [...sameCategory, ...fallback].map(mapWithRatings);
+  // Sort: Similarity first, then popularity
+  ranked.sort((a, b) => {
+    if (Math.floor(b.similarityScore) !== Math.floor(a.similarityScore)) {
+      return b.similarityScore - a.similarityScore;
+    }
+    return b.popularity - a.popularity;
+  });
+
+  let finalGames = ranked.slice(0, limit).map((r) => r.game);
+
+  // Global fallback if even with tags/category we don't have enough (rare)
+  if (finalGames.length < limit) {
+    const fallback = await prisma.game.findMany({
+      where: {
+        isPublished: true,
+        slug: {
+          notIn: [game.slug, ...finalGames.map((entry) => entry.slug)],
+        },
+      },
+      orderBy: [{ featured: "desc" }, { popularityScore: "desc" }, { views: "desc" }],
+      include: {
+        ratings: { select: { value: true } },
+      } as any,
+      take: limit - finalGames.length,
+    });
+
+    finalGames = [...finalGames, ...fallback.map(mapWithRatings)];
+  }
+
+  return finalGames;
 }
 
 export async function createGame(data: CreateGameInput) {

@@ -33,7 +33,7 @@ export function RelatedGamesSection({ games, dict }: { games: RelatedGame[], dic
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
         {games.map((game, index) => (
           <React.Fragment key={game.id}>
-          {index === 2 && (
+          {index === 4 && (
             <div className="group relative rounded-xl overflow-hidden bg-slate-950/70 border border-slate-800/80 p-2 flex flex-col items-center justify-center">
               <span className="text-[9px] uppercase text-slate-500 mb-1">Patrocinado</span>
               <div className="w-full h-full flex items-center justify-center min-h-[140px] overflow-hidden">
