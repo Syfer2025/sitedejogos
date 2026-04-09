@@ -144,7 +144,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   src={game.thumbnail}
                   alt={game.title}
                   fill
-                  sizes="(max-width: 768px) 50vw, 20vw"
+                  unoptimized
                   className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                 />
                 {game.featured ? (

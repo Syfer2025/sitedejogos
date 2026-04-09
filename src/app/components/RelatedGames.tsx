@@ -39,7 +39,7 @@ export function RelatedGamesSection({ games }: { games: RelatedGame[] }) {
                 src={game.thumbnail}
                 alt={game.title}
                 fill
-                sizes="(max-width: 768px) 50vw, 25vw"
+                unoptimized
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />

@@ -42,7 +42,7 @@ export function ActivityFeed({ history, locale }: ActivityFeedProps) {
                       src={entry.game.thumbnail}
                       alt={entry.game.title}
                       fill
-                      sizes="128px"
+                      unoptimized
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                   </div>

@@ -283,7 +283,7 @@ export default async function AccountPage() {
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {favorites.map(f => (
                       <Link key={f.id} href={`/games/${f.game.slug}`} className="group relative aspect-video overflow-hidden rounded-2xl border border-white/5 bg-slate-900 transition-all hover:border-white/20">
-                        <Image src={f.game.thumbnail} alt={f.game.title} fill sizes="(max-width: 768px) 45vw, 30vw" className="object-cover transition-transform group-hover:scale-110" />
+                        <Image src={f.game.thumbnail} alt={f.game.title} fill unoptimized className="object-cover transition-transform group-hover:scale-110" />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent p-4 flex items-end">
                           <span className="text-xs font-black text-white">{f.game.title}</span>
                         </div>

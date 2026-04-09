@@ -27,7 +27,7 @@ export function CatalogGameCard({
           src={game.thumbnail}
           alt={game.title}
           fill
-          sizes="(max-width: 768px) 50vw, (max-width: 1280px) 25vw, 20vw"
+          unoptimized
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
