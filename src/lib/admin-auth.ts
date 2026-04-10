@@ -23,7 +23,17 @@ export function getClientIp(request: NextRequest) {
 
 export async function verifyAdminCredentials(email: string, password: string) {
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
-  const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH?.trim();
+  let adminPasswordHash = process.env.ADMIN_PASSWORD_HASH?.trim();
+
+  // Support for Base64 encoded hash to prevent shell interpolation issues in production (Vercel)
+  const b64Hash = process.env.ADMIN_PASSWORD_HASH_B64?.trim();
+  if (b64Hash) {
+    try {
+      adminPasswordHash = Buffer.from(b64Hash, "base64").toString("utf8");
+    } catch (e) {
+      console.error("[AdminAuth] Error decoding ADMIN_PASSWORD_HASH_B64:", e);
+    }
+  }
 
   if (!adminEmail || !adminPasswordHash) {
     return { ok: false as const, reason: "missing_config" as const };
