@@ -332,8 +332,6 @@ export async function syncGameMonetizeFeedPage(options: SyncOptions = {}): Promi
       continue;
     }
 
-    const parsedPayload = createGameInputSchema.safeParse(mappedItem);
-
     if (!parsedPayload.success) {
       result.skipped += 1;
       result.items.push({
@@ -341,6 +339,18 @@ export async function syncGameMonetizeFeedPage(options: SyncOptions = {}): Promi
         title: mappedItem.title,
         status: "skipped",
         reason: parsedPayload.error.issues[0]?.message ?? "Payload inválido.",
+      });
+      continue;
+    }
+
+    // Filtro de Qualidade: Descrição rica e tags mínimas
+    if (mappedItem.description.length < 200 || mappedItem.tags.length < 3) {
+      result.skipped += 1;
+      result.items.push({
+        sourceId,
+        title: mappedItem.title,
+        status: "skipped",
+        reason: `Metadados insuficientes (Desc: ${mappedItem.description.length}, Tags: ${mappedItem.tags.length})`,
       });
       continue;
     }

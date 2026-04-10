@@ -13,7 +13,7 @@ function generateSlug(title: string, hash: string) {
 
 async function main() {
   const amount = 200;
-  const targetUrl = `https://catalog.api.gamedistribution.com/api/v2.0/rss/All/?collection=all&categories=All&type=all&amount=${amount}&format=json`;
+  const targetUrl = `https://catalog.api.gamedistribution.com/api/v2.0/rss/All/?collection=popular&categories=All&type=all&amount=${amount}&format=json`;
   console.log(`[Game Sync] Fetching catalog from: ${targetUrl}`);
 
   const res = await fetch(targetUrl);
@@ -40,7 +40,14 @@ async function main() {
     
     const rawCat = Array.isArray(item.Category) && item.Category[0] ? item.Category[0] : "Arcade";
     const category = rawCat === "Action" ? "Ação" : rawCat === "Racing" ? "Corrida" : rawCat;
-    const tags = Array.isArray(item.Tag) ? item.Tag.join(",") : "";
+    const tagsArr = Array.isArray(item.Tag) ? item.Tag : [];
+    const tags = tagsArr.join(",");
+
+    // Filtro de Qualidade: Descrição rica e tags mínimas
+    if (description.length < 200 || tagsArr.length < 3) {
+      console.log(`[Skip] ${title} - Metadados insuficientes (Desc: ${description.length}, Tags: ${tagsArr.length})`);
+      continue;
+    }
 
     const existingGame = await prisma.game.findFirst({
       where: {
