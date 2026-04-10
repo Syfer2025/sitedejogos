@@ -116,7 +116,14 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head />
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#a855f7" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Gasty Games" />
+      </head>
       {adsenseClientId ? (
         <Script
           async
@@ -155,6 +162,8 @@ export default async function RootLayout({
 
                   <div className="hidden md:flex items-center gap-1 text-xs font-medium text-slate-300">
                     <Link href="/" className="rounded-md px-3 py-1.5 transition-all duration-150 hover:bg-slate-800/60 hover:text-white">{t.home}</Link>
+                    <Link href="/new-games" className="rounded-md px-3 py-1.5 transition-all duration-150 hover:bg-slate-800/60 hover:text-white">New</Link>
+                    <Link href="/trending" className="rounded-md px-3 py-1.5 transition-all duration-150 hover:bg-slate-800/60 hover:text-white">Trending</Link>
                     <Link href="/blog" className="rounded-md px-3 py-1.5 transition-all duration-150 hover:bg-slate-800/60 hover:text-white">{t.blog}</Link>
                   </div>
                 </div>

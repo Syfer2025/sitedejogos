@@ -5,6 +5,7 @@ import { listGames, listCategories } from "@/data/gamesStore";
 import { slugify } from "@/lib/game-schema";
 import { SUPPORTED_LOCALES } from "@/lib/locale";
 import { SITE_CONFIG } from "@/lib/config";
+import { COLLECTIONS } from "@/lib/collections";
 
 const SITE_URL = SITE_CONFIG.url;
 
@@ -17,7 +18,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     listCategories({ order: "editorial" }),
   ]);
 
-  const staticRoutes = ["", "/blog", "/privacy", "/terms", "/contact"];
+  const staticRoutes = ["", "/blog", "/new-games", "/trending", "/privacy", "/terms", "/contact"];
 
   // Base routes (canonical)
   const canonicalRoutes: MetadataRoute.Sitemap = [
@@ -44,6 +45,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.85,
+    })),
+    ...COLLECTIONS.map((col) => ({
+      url: `${SITE_URL}/collections/${col.slug}`,
+      lastModified: new Date(),
+      changeFrequency: "weekly" as const,
+      priority: 0.8,
     })),
   ];
 

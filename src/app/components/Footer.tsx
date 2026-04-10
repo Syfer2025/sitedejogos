@@ -5,6 +5,7 @@ import { useLocale } from "./LocaleContext";
 import { getDictionary } from "@/lib/i18n";
 import { useEffect, useState } from "react";
 import { SITE_CONFIG } from "@/lib/config";
+import { NewsletterForm } from "./NewsletterForm";
 
 export function Footer() {
   const { locale } = useLocale();
@@ -21,6 +22,11 @@ export function Footer() {
   return (
     <footer className="mt-auto border-t border-slate-800/60 bg-slate-950 px-4 py-12 md:px-6">
       <div className="mx-auto max-w-6xl">
+        {/* Newsletter strip */}
+        <div className="mb-10 rounded-2xl border border-slate-800 bg-slate-900/60 px-6 py-6">
+          <NewsletterForm />
+        </div>
+
         <div className="grid grid-cols-1 gap-12 md:grid-cols-4 md:gap-8">
           {/* Logo & Desc */}
           <div className="col-span-1 md:col-span-2">

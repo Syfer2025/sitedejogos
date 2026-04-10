@@ -385,3 +385,16 @@ model CategoryContent {
   generatedAt     DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
+
+// ──────────────────────────────────────────
+// Newsletter Subscribers
+// ──────────────────────────────────────────
+model NewsletterSubscriber {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  locale       String   @default("pt-BR")
+  subscribedAt DateTime @default(now())
+  active       Boolean  @default(true)
+
+  @@index([active, subscribedAt])
+}
