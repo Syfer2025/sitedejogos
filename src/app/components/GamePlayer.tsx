@@ -102,7 +102,7 @@ export function GamePlayer({ iframeUrl, title, toolbarExtra, isPremium = false }
     <>
       <div
         ref={containerRef}
-        className="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-[0_0_35px_rgba(15,23,42,0.9)] aspect-[16/10] sm:aspect-video w-full"
+        className="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-950 shadow-[0_0_35px_rgba(15,23,42,0.9)] aspect-video w-full"
       >
         {/* Anti-AdBlock Wall (hard level - skipped for premium) */}
         {showWall && !isPremium && (

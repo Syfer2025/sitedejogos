@@ -11,6 +11,7 @@ import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
 
 import { AdSlot } from "../../components/AdSlot";
 import { BlogViewTracker } from "../../components/BlogAnalyticsTrackers";
+import { Footer } from "../../components/Footer";
 
 type BlogPostPageProps = {
   params: Promise<{ slug: string }>;
@@ -52,70 +53,76 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 md:py-10">
-      <AdSlot
-        label="Banner superior - Artigo"
-        slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_TOP}
-      />
+    <div className="h-full overflow-y-auto scrollbar-thin">
+      <div className="mx-auto max-w-3xl space-y-6 px-4 py-6 md:py-10 animate-fade-in">
+        <AdSlot
+          label="Banner superior - Artigo"
+          slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_TOP}
+        />
 
-      <article className="space-y-5">
-        <BlogViewTracker path={`/blog/${post.slug}`} />
-        <header className="space-y-3">
-          <div className="flex flex-wrap gap-2 text-[10px] uppercase tracking-wide text-slate-400">
-            <span className="rounded-full border border-slate-700/80 bg-slate-900/80 px-2 py-0.5 text-slate-300">
-              {post.category}
-            </span>
-            <span>{new Date(post.publishedAt).toLocaleDateString(locale)}</span>
-            <span>{post.readingTime}</span>
-          </div>
-          <h1 className="text-xl font-semibold tracking-tight text-slate-50 md:text-3xl">
-            {post.title}
-          </h1>
-          <p className="text-sm text-slate-400">{post.excerpt}</p>
-        </header>
+        <article className="space-y-5">
+          <BlogViewTracker path={`/blog/${post.slug}`} />
+          <header className="space-y-3">
+            <div className="flex flex-wrap gap-2 text-[10px] uppercase tracking-wide text-slate-400">
+              <span className="rounded-full border border-slate-700/80 bg-slate-900/80 px-2 py-0.5 text-slate-300">
+                {post.category}
+              </span>
+              <span>{new Date(post.publishedAt).toLocaleDateString(locale)}</span>
+              <span>{post.readingTime}</span>
+            </div>
+            <h1 className="text-xl font-semibold tracking-tight text-slate-50 md:text-3xl">
+              {post.title}
+            </h1>
+            <p className="text-sm text-slate-400">{post.excerpt}</p>
+          </header>
 
-        {post.coverImageUrl ? (
-          <div className="relative aspect-[16/9] overflow-hidden rounded-[28px] border border-slate-800 bg-slate-950">
-            <Image
-              src={post.coverImageUrl}
-              alt={post.title}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 768px"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-          </div>
-        ) : null}
+          {post.coverImageUrl ? (
+            <div className="relative aspect-[16/9] overflow-hidden rounded-[28px] border border-slate-800 bg-slate-950">
+              <Image
+                src={post.coverImageUrl}
+                alt={post.title}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 768px"
+                className="object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+            </div>
+          ) : null}
 
-        <div className="prose prose-invert prose-sm max-w-none prose-headings:text-slate-50 prose-p:text-slate-200 prose-li:text-slate-200">
-          {post.content.split("\n\n").map((block) => {
-            const key = `${post.id}-${block.slice(0, 24)}`;
-            const isList = block.startsWith("-");
+          <div className="prose prose-invert prose-sm max-w-none prose-headings:text-slate-50 prose-p:text-slate-200 prose-li:text-slate-200">
+            {post.content.split("\n\n").map((block) => {
+              const key = `${post.id}-${block.slice(0, 24)}`;
+              const isList = block.startsWith("-");
 
-            if (isList) {
+              if (isList) {
+                return (
+                  <ul key={key}>
+                    {block.split("\n").map((item) => (
+                      <li key={`${key}-${item}`}>{item.replace(/^-\s*/, "")}</li>
+                    ))}
+                  </ul>
+                );
+              }
+
               return (
-                <ul key={key}>
-                  {block.split("\n").map((item) => (
-                    <li key={`${key}-${item}`}>{item.replace(/^-\s*/, "")}</li>
-                  ))}
-                </ul>
+                <p key={key} className="whitespace-pre-wrap">
+                  {block}
+                </p>
               );
-            }
+            })}
+          </div>
+        </article>
 
-            return (
-              <p key={key} className="whitespace-pre-wrap">
-                {block}
-              </p>
-            );
-          })}
+        <AdSlot
+          label="Banner inferior - Artigo"
+          slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_BOTTOM}
+        />
+
+        <div className="mt-12 pt-8 border-t border-slate-800/40">
+          <Footer />
         </div>
-      </article>
-
-      <AdSlot
-        label="Banner inferior - Artigo"
-        slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_ARTICLE_BOTTOM}
-      />
+      </div>
     </div>
   );
 }

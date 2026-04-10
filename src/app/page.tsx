@@ -35,6 +35,7 @@ import { HomeRightSidebar } from "./components/HomeRightSidebar";
 import { HomeThemeCatalog } from "./components/HomeThemeCatalog";
 import { TrackedLink } from "./components/TrackedLink";
 import { CatalogGameCard } from "./components/CatalogGameCard";
+import { Footer } from "./components/Footer";
 
 type HomeGame = Pick<
   GameRecord,
@@ -496,6 +497,11 @@ export default async function Home({
               </div>
             </section>
           ) : null}
+
+          {/* Footer inside scrolling area */}
+          <div className="pt-8 border-t border-slate-800/40">
+            <Footer />
+          </div>
         </div>
       </main>
 

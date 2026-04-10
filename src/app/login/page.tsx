@@ -300,281 +300,282 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-black flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-[420px] rounded-2xl border border-slate-800 bg-slate-950/80 p-6 shadow-[0_0_50px_rgba(15,23,42,0.9)]">
+    <div className="h-full overflow-y-auto scrollbar-thin">
+      <div className="min-h-full bg-gradient-to-b from-slate-950 via-slate-900 to-black flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-[420px] rounded-2xl border border-slate-800 bg-slate-950/80 p-6 shadow-[0_0_50px_rgba(15,23,42,0.9)] scale-95 md:scale-100 transition-transform">
 
-        {/* ── Header ── */}
-        <div className="mb-5 text-center">
-          <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-400 via-purple-500 to-fuchsia-500 shadow-[0_0_25px_rgba(34,211,238,0.6)]">
-            <span className="text-lg font-bold text-white">N</span>
-          </div>
-          <h1 className="mt-3 text-lg font-semibold tracking-tight text-slate-50">
-            {isRegister ? t("auth.registerTitle") : t("auth.loginTitle")}
-          </h1>
-          <p className="mt-1 text-xs text-slate-400">
-            {isRegister
-              ? t("auth.registerSubtitle")
-              : t("auth.loginSubtitle")}
-          </p>
-        </div>
-
-        {/* ── Mode Toggle ── */}
-        <div className="flex rounded-full border border-slate-800 bg-slate-900/70 p-1 text-xs mb-5">
-          <button
-            type="button"
-            onClick={() => updateMode("login")}
-            className={`flex-1 rounded-full px-3 py-2 font-medium transition-colors ${
-              mode === "login"
-                ? "bg-cyan-400 text-slate-950"
-                : "text-slate-300 hover:text-slate-50"
-            }`}
-          >
-            {t("common.login")}
-          </button>
-          <button
-            type="button"
-            onClick={() => updateMode("register")}
-            className={`flex-1 rounded-full px-3 py-2 font-medium transition-colors ${
-              mode === "register"
-                ? "bg-cyan-400 text-slate-950"
-                : "text-slate-300 hover:text-slate-50"
-            }`}
-          >
-            {t("common.register")}
-          </button>
-        </div>
-
-        {/* ── Social Login ── */}
-        <div className="space-y-2 mb-4">
-          <button
-            type="button"
-            onClick={() => handleSocialLogin("Google")}
-            className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
-          >
-            <GoogleIcon />
-            {t("auth.googleLogin")}
-          </button>
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("Facebook")}
-              className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2.5 text-xs font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
-            >
-              <FacebookIcon />
-              {t("auth.facebookLogin")}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleSocialLogin("Apple")}
-              className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2.5 text-xs font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
-            >
-              <AppleIcon />
-              {t("auth.appleLogin")}
-            </button>
-          </div>
-        </div>
-
-        {/* ── Divider ── */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="flex-1 h-px bg-slate-800" />
-          <span className="text-[10px] uppercase tracking-[0.15em] text-slate-500 font-medium">{t("auth.orEmail")}</span>
-          <div className="flex-1 h-px bg-slate-800" />
-        </div>
-
-        {/* ── Email Form ── */}
-        <form onSubmit={handleSubmit} className="space-y-3">
-          {isRegister && (
-            <div>
-              <label className="mb-1 block text-xs font-medium text-slate-300">
-                Nome de exibição
-              </label>
-              <input
-                type="text"
-                required
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/50"
-                placeholder="Ex.: Alex"
-              />
+          {/* ── Header ── */}
+          <div className="mb-5 text-center">
+            <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-400 via-purple-500 to-fuchsia-500 shadow-[0_0_25px_rgba(34,211,238,0.6)]">
+              <span className="text-lg font-bold text-white">N</span>
             </div>
-          )}
-
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-300">
-              Email
-            </label>
-            <input
-              type="email"
-              required
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/50"
-              placeholder="voce@email.com"
-            />
+            <h1 className="mt-3 text-lg font-semibold tracking-tight text-slate-50">
+              {isRegister ? t("auth.registerTitle") : t("auth.loginTitle")}
+            </h1>
+            <p className="mt-1 text-xs text-slate-400">
+              {isRegister
+                ? t("auth.registerSubtitle")
+                : t("auth.loginSubtitle")}
+            </p>
           </div>
 
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-300">
-              Senha
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                required
-                autoComplete={isRegister ? "new-password" : "current-password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 pr-10 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/50"
-                placeholder={isRegister ? "Mínimo 8 caracteres" : "Sua senha"}
-              />
+          {/* ── Mode Toggle ── */}
+          <div className="flex rounded-full border border-slate-800 bg-slate-900/70 p-1 text-xs mb-5">
+            <button
+              type="button"
+              onClick={() => updateMode("login")}
+              className={`flex-1 rounded-full px-3 py-2 font-medium transition-colors ${
+                mode === "login"
+                  ? "bg-cyan-400 text-slate-950"
+                  : "text-slate-300 hover:text-slate-50"
+              }`}
+            >
+              {t("common.login")}
+            </button>
+            <button
+              type="button"
+              onClick={() => updateMode("register")}
+              className={`flex-1 rounded-full px-3 py-2 font-medium transition-colors ${
+                mode === "register"
+                  ? "bg-cyan-400 text-slate-950"
+                  : "text-slate-300 hover:text-slate-50"
+              }`}
+            >
+              {t("common.register")}
+            </button>
+          </div>
+
+          {/* ── Social Login ── */}
+          <div className="space-y-2 mb-4">
+            <button
+              type="button"
+              onClick={() => handleSocialLogin("Google")}
+              className="w-full flex items-center justify-center gap-3 rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
+            >
+              <GoogleIcon />
+              {t("auth.googleLogin")}
+            </button>
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 text-xs px-1 py-0.5 transition-colors"
-                tabIndex={-1}
+                onClick={() => handleSocialLogin("Facebook")}
+                className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2.5 text-xs font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
               >
-                {showPassword ? "🙈" : "👁️"}
+                <FacebookIcon />
+                {t("auth.facebookLogin")}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSocialLogin("Apple")}
+                className="flex items-center justify-center gap-2 rounded-xl border border-slate-800 bg-slate-900/60 px-3 py-2.5 text-xs font-medium text-slate-200 transition-all hover:bg-slate-800/80 hover:border-slate-700 active:scale-[0.98]"
+              >
+                <AppleIcon />
+                {t("auth.appleLogin")}
               </button>
             </div>
-
-            {/* Forgot Password (login only) */}
-            {!isRegister && (
-              <div className="mt-1 text-right">
-                <Link href="/forgot-password" className="text-[11px] text-cyan-300 hover:text-cyan-200 font-medium">
-                  {t("auth.forgotPassword")}
-                </Link>
-              </div>
-            )}
-
-            {/* Password Strength (register only) */}
-            {isRegister && password.length > 0 && (
-              <div className="mt-2 space-y-2">
-                {/* Strength bar */}
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 flex gap-1">
-                    {[1, 2, 3, 4].map((i) => (
-                      <div
-                        key={i}
-                        className="flex-1 h-1.5 rounded-full transition-colors duration-300"
-                        style={{
-                          backgroundColor:
-                            i <= strength.level ? strength.color : "rgba(51,65,85,0.4)",
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <span
-                    className="text-[10px] font-semibold whitespace-nowrap"
-                    style={{ color: strength.color }}
-                  >
-                    {strength.label}
-                  </span>
-                </div>
-
-                {/* Requirements checklist */}
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1">
-                  {strength.checks.map((check) => (
-                    <span
-                      key={check.label}
-                      className={`text-[10px] flex items-center gap-1 ${
-                        check.passed ? "text-emerald-400" : "text-slate-500"
-                      }`}
-                    >
-                      <span className="text-[8px]">{check.passed ? "✓" : "○"}</span>
-                      {check.label}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Confirm Password (register only) */}
-          {isRegister && (
+          {/* ── Divider ── */}
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex-1 h-px bg-slate-800" />
+            <span className="text-[10px] uppercase tracking-[0.15em] text-slate-500 font-medium">{t("auth.orEmail")}</span>
+            <div className="flex-1 h-px bg-slate-800" />
+          </div>
+
+          {/* ── Email Form ── */}
+          <form onSubmit={handleSubmit} className="space-y-3">
+            {isRegister && (
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-300">
+                  Nome de exibição
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/50"
+                  placeholder="Ex.: Alex"
+                />
+              </div>
+            )}
+
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-300">
-                Confirmar senha
+                Email
               </label>
               <input
-                type={showPassword ? "text" : "password"}
+                type="email"
                 required
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`w-full rounded-lg bg-slate-950 border px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 transition-colors ${
-                  confirmPassword.length > 0 && confirmPassword !== password
-                    ? "border-red-500/60"
-                    : confirmPassword.length > 0 && confirmPassword === password
-                    ? "border-emerald-500/60"
-                    : "border-slate-800"
-                }`}
-                placeholder="Repita a senha"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/50"
+                placeholder="voce@email.com"
               />
-              {confirmPassword.length > 0 && confirmPassword !== password && (
-                <p className="mt-1 text-[10px] text-red-400">As senhas não coincidem</p>
+            </div>
+
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-300">
+                Senha
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  autoComplete={isRegister ? "new-password" : "current-password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 pr-10 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/50"
+                  placeholder={isRegister ? "Mínimo 8 caracteres" : "Sua senha"}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 text-xs px-1 py-0.5 transition-colors"
+                  tabIndex={-1}
+                >
+                  {showPassword ? "🙈" : "👁️"}
+                </button>
+              </div>
+
+              {/* Forgot Password (login only) */}
+              {!isRegister && (
+                <div className="mt-1 text-right">
+                  <Link href="/forgot-password" className="text-[11px] text-cyan-300 hover:text-cyan-200 font-medium">
+                    {t("auth.forgotPassword")}
+                  </Link>
+                </div>
+              )}
+
+              {/* Password Strength (register only) */}
+              {isRegister && password.length > 0 && (
+                <div className="mt-2 space-y-2">
+                  {/* Strength bar */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 flex gap-1">
+                      {[1, 2, 3, 4].map((i) => (
+                        <div
+                          key={i}
+                          className="flex-1 h-1.5 rounded-full transition-colors duration-300"
+                          style={{
+                            backgroundColor:
+                              i <= strength.level ? strength.color : "rgba(51,65,85,0.4)",
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span
+                      className="text-[10px] font-semibold whitespace-nowrap"
+                      style={{ color: strength.color }}
+                    >
+                      {strength.label}
+                    </span>
+                  </div>
+
+                  {/* Requirements checklist */}
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1">
+                    {strength.checks.map((check) => (
+                      <span
+                        key={check.label}
+                        className={`text-[10px] flex items-center gap-1 ${
+                          check.passed ? "text-emerald-400" : "text-slate-500"
+                        }`}
+                      >
+                        <span className="text-[8px]">{check.passed ? "✓" : "○"}</span>
+                        {check.label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
-          )}
 
-          {/* Terms Acceptance (register only) */}
-          {isRegister && (
-            <label className="flex items-start gap-2.5 cursor-pointer select-none mt-1">
-              <input
-                type="checkbox"
-                checked={acceptedTerms}
-                onChange={(e) => setAcceptedTerms(e.target.checked)}
-                className="mt-0.5 h-4 w-4 rounded border-slate-700 bg-slate-950 text-cyan-400 focus:ring-cyan-400/50 accent-cyan-400 shrink-0"
-              />
-              <span className="text-[11px] text-slate-400 leading-relaxed">
-                Tenho 13 anos (ou idade mínima aplicável) ou mais e aceito os{" "}
-                <Link href="/termos" className="text-cyan-300 hover:text-cyan-200 underline underline-offset-2">
-                  Termos e Condições
-                </Link>{" "}
-                e a{" "}
-                <Link href="/privacidade" className="text-cyan-300 hover:text-cyan-200 underline underline-offset-2">
-                  Política de Privacidade
-                </Link>
-                .
-              </span>
-            </label>
-          )}
+            {/* Confirm Password (register only) */}
+            {isRegister && (
+              <div>
+                <label className="mb-1 block text-xs font-medium text-slate-300">
+                  Confirmar senha
+                </label>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  required
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`w-full rounded-lg bg-slate-950 border px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 transition-colors ${
+                    confirmPassword.length > 0 && confirmPassword !== password
+                      ? "border-red-500/60"
+                      : confirmPassword.length > 0 && confirmPassword === password
+                      ? "border-emerald-500/60"
+                      : "border-slate-800"
+                  }`}
+                  placeholder="Repita a senha"
+                />
+                {confirmPassword.length > 0 && confirmPassword !== password && (
+                  <p className="mt-1 text-[10px] text-red-400">As senhas não coincidem</p>
+                )}
+              </div>
+            )}
 
-          {/* Error */}
-          {error && (
-            <p className="rounded-lg border border-red-900/60 bg-red-950/30 px-3 py-2 text-xs text-red-300">
-              {error}
-            </p>
-          )}
+            {/* Terms Acceptance (register only) */}
+            {isRegister && (
+              <label className="flex items-start gap-2.5 cursor-pointer select-none mt-1">
+                <input
+                  type="checkbox"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="mt-0.5 h-4 w-4 rounded border-slate-700 bg-slate-950 text-cyan-400 focus:ring-cyan-400/50 accent-cyan-400 shrink-0"
+                />
+                <span className="text-[11px] text-slate-400 leading-relaxed">
+                  Tenho 13 anos (ou idade mínima aplicável) ou mais e aceito os{" "}
+                  <Link href="/termos" className="text-cyan-300 hover:text-cyan-200 underline underline-offset-2">
+                    Termos e Condições
+                  </Link>{" "}
+                  e a{" "}
+                  <Link href="/privacidade" className="text-cyan-300 hover:text-cyan-200 underline underline-offset-2">
+                    Política de Privacidade
+                  </Link>
+                  .
+                </span>
+              </label>
+            )}
 
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={loading || (isRegister && !acceptedTerms)}
-            className="w-full mt-1 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.5)] transition-all active:scale-[0.98]"
-          >
-            {loading
-              ? "Processando..."
-              : isRegister
-              ? "Criar conta e entrar"
-              : "Entrar na conta"}
-          </button>
-        </form>
+            {/* Error */}
+            {error && (
+              <p className="rounded-lg border border-red-900/60 bg-red-950/30 px-3 py-2 text-xs text-red-300">
+                {error}
+              </p>
+            )}
 
-        {/* ── Footer ── */}
-        <p className="mt-4 text-center text-[10px] text-slate-500">
-          {isRegister
-            ? "Já tem conta? "
-            : "Não tem conta? "}
-          <button
-            type="button"
-            onClick={() => updateMode(isRegister ? "login" : "register")}
-            className="text-cyan-300 hover:text-cyan-200 font-medium"
-          >
-            {isRegister ? "Faça login" : "Crie agora"}
-          </button>
-        </p>
+            {/* Submit Button */}
+            <button
+              type="submit"
+              disabled={loading || (isRegister && !acceptedTerms)}
+              className="w-full mt-1 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.5)] transition-all active:scale-[0.98]"
+            >
+              {loading
+                ? "Processando..."
+                : isRegister
+                ? "Criar conta e entrar"
+                : "Entrar na conta"}
+            </button>
+          </form>
+
+          {/* ── Footer ── */}
+          <p className="mt-4 text-center text-[10px] text-slate-500">
+            {isRegister
+              ? "Já tem conta? "
+              : "Não tem conta? "}
+            <button
+              type="button"
+              onClick={() => updateMode(isRegister ? "login" : "register")}
+              className="text-cyan-300 hover:text-cyan-200 font-medium"
+            >
+              {isRegister ? "Faça login" : "Crie agora"}
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );
-}

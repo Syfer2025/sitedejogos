@@ -521,7 +521,7 @@ export function HomeThemeCatalog({
                 key={index}
                 className="overflow-hidden rounded-xl border border-slate-800/60 bg-slate-900/50 animate-pulse"
               >
-                <div className="aspect-[16/10] bg-slate-800/60" />
+                <div className="aspect-video bg-slate-800/60" />
                 <div className="space-y-2 p-3">
                   <div className="h-3 rounded bg-slate-800/70" />
                   <div className="h-3 w-2/3 rounded bg-slate-800/50" />

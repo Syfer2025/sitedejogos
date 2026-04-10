@@ -124,7 +124,7 @@ export default async function RootLayout({
           />
         ) : null}
       </head>
-      <body className="min-h-screen text-slate-100 flex flex-col" data-default-locale={initialLocale}>
+      <body className="h-screen overflow-hidden text-slate-100 flex flex-col" data-default-locale={initialLocale}>
         <LocaleProvider initialLocale={initialLocale}>
           <AdBlockProvider isPremium={premium}>
             <PageAnalyticsTracker />
@@ -191,9 +191,8 @@ export default async function RootLayout({
               </nav>
             </header>
 
-            <main className="flex-1 pb-14 sm:pb-0">{children}</main>
+            <main className="flex-1 pb-14 sm:pb-0 overflow-hidden">{children}</main>
             
-            <Footer />
             <MobileBottomNav />
           </AdBlockProvider>
         </LocaleProvider>

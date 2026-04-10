@@ -169,7 +169,7 @@ export function HomeGameFilters({
               key={i}
               className="rounded-lg border border-slate-800/60 bg-slate-900/50 animate-pulse"
             >
-              <div className="aspect-[16/10] bg-slate-800/50" />
+              <div className="aspect-video bg-slate-800/50" />
               <div className="p-2.5 space-y-2">
                 <div className="h-3 w-3/4 bg-slate-800/50 rounded" />
                 <div className="h-2 w-1/2 bg-slate-800/50 rounded" />
@@ -189,7 +189,7 @@ export function HomeGameFilters({
               href={`/games/${game.slug}`}
               className="group block overflow-hidden rounded-lg border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:bg-slate-800/60 hover:shadow-[0_0_24px_rgba(34,211,238,0.1)] hover:-translate-y-0.5 animate-fade-in-up"
             >
-              <div className="game-card-play relative aspect-[16/10] overflow-hidden bg-slate-950">
+              <div className="game-card-play relative aspect-video overflow-hidden bg-slate-950">
                 <Image
                   src={game.thumbnail}
                   alt={game.title}

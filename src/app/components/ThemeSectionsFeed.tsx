@@ -220,7 +220,7 @@ export function ThemeSectionsFeed({
                       key={index}
                       className="overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/60 animate-pulse"
                     >
-                      <div className="aspect-[16/10] bg-slate-800/70" />
+                      <div className="aspect-video bg-slate-800/70" />
                       <div className="space-y-2 p-3">
                         <div className="h-3 rounded bg-slate-800/70" />
                         <div className="h-3 w-2/3 rounded bg-slate-800/50" />

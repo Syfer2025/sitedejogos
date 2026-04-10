@@ -37,6 +37,7 @@ import { AchievementCollection } from "../components/HomeAchievementsRail";
 import { ProfileSidebarNav, type ProfileTabKey } from "../components/ProfileSidebarNav";
 import { ActivityFeed } from "../components/ActivityFeed";
 import { TotpSetupFlow } from "../components/TotpSetupFlow";
+import { Footer } from "../components/Footer";
 
 type FavoriteEntry = Awaited<ReturnType<typeof listFavoriteGames>>[number];
 type HistoryEntry = Awaited<ReturnType<typeof listRecentlyPlayed>>[number];
@@ -183,199 +184,202 @@ export default async function AccountPage() {
   }
 
   return (
-    <div className="relative min-h-screen">
-      <BackgroundDecorations />
-      
-      <div className="relative mx-auto max-w-7xl px-4 py-8 lg:px-8">
-        {/* Header */}
-        <header className="relative mb-8 overflow-hidden rounded-3xl border border-slate-700/60 bg-[#080c18] shadow-2xl">
-          <div className="h-48 md:h-64 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#050816] via-[#0e1530] to-indigo-950" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(99,102,241,0.35),transparent_65%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_50%,rgba(56,189,248,0.15),transparent_60%)]" />
-            {/* Fade-out mask for the banner */}
-            <div className="absolute inset-0 bg-gradient-to-t from-[#080c18] via-transparent to-transparent" />
-          </div>
-          
-          <div className="px-6 pb-8 md:px-10">
-            <div className="relative -mt-20 flex flex-col items-center gap-6 md:-mt-24 md:flex-row md:items-end">
-              <div
-                   className="h-40 w-40 flex items-center justify-center rounded-full border-4 border-[#080c18] bg-gradient-to-br from-cyan-400 to-purple-600 shadow-2xl text-4xl font-black text-white shrink-0 ring-2 ring-indigo-500/50"
-                   style={profile.avatarUrl ? { backgroundImage: `url("${profile.avatarUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
-                {!profile.avatarUrl && playerInitials}
-              </div>
-              
-              <div className="flex-1 text-center md:text-left">
-                <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
-                  <h1 className="text-3xl font-black text-white md:text-4xl tracking-tight">{profile.displayName}</h1>
+    <div className="h-full overflow-y-auto scrollbar-thin">
+      <div className="relative min-h-screen">
+        <BackgroundDecorations />
+        
+        <div className="relative mx-auto max-w-7xl px-4 py-8 lg:px-8 animate-fade-in">
+          {/* Header */}
+          <header className="relative mb-8 overflow-hidden rounded-3xl border border-slate-700/60 bg-[#080c18] shadow-2xl">
+            <div className="h-48 md:h-64 relative overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-tr from-[#050816] via-[#0e1530] to-indigo-950" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(99,102,241,0.35),transparent_65%)]" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_50%,rgba(56,189,248,0.15),transparent_60%)]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080c18] via-transparent to-transparent" />
+            </div>
+            
+            <div className="px-6 pb-8 md:px-10">
+              <div className="relative -mt-20 flex flex-col items-center gap-6 md:-mt-24 md:flex-row md:items-end">
+                <div
+                     className="h-40 w-40 flex items-center justify-center rounded-full border-4 border-[#080c18] bg-gradient-to-br from-cyan-400 to-purple-600 shadow-2xl text-4xl font-black text-white shrink-0 ring-2 ring-indigo-500/50"
+                     style={profile.avatarUrl ? { backgroundImage: `url("${profile.avatarUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
+                  {!profile.avatarUrl && playerInitials}
                 </div>
-                <p className="mt-2 text-sm font-medium text-slate-400">
-                  {profile.email} • {tr(dict, "player.memberSince", { date: memberSince })}
-                </p>
-              </div>
+                
+                <div className="flex-1 text-center md:text-left">
+                  <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
+                    <h1 className="text-3xl font-black text-white md:text-4xl tracking-tight">{profile.displayName}</h1>
+                  </div>
+                  <p className="mt-2 text-sm font-medium text-slate-400">
+                    {profile.email} • {tr(dict, "player.memberSince", { date: memberSince })}
+                  </p>
+                </div>
 
-              <form action={logout} className="shrink-0 mb-2">
-                 <button
-                   type="submit"
-                   className="rounded-xl border border-slate-700 bg-slate-900 px-6 py-2.5 text-xs font-bold text-slate-200 transition-all hover:border-red-500 hover:bg-red-500/10 hover:text-red-300"
-                 >
-                   {tr(dict, "common.logout")}
-                 </button>
+                <form action={logout} className="shrink-0 mb-2">
+                   <button
+                     type="submit"
+                     className="rounded-xl border border-slate-700 bg-slate-900 px-6 py-2.5 text-xs font-bold text-slate-200 transition-all hover:border-red-500 hover:bg-red-500/10 hover:text-red-300"
+                   >
+                     {tr(dict, "common.logout")}
+                   </button>
+                </form>
+              </div>
+            </div>
+          </header>
+
+          {/* Email Verification Banner */}
+          {!session.user.emailVerified && (
+            <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-6 py-4 animate-fade-in">
+              <div className="flex items-center gap-3">
+                <span className="text-xl">✉️</span>
+                <div>
+                  <p className="text-sm font-semibold text-amber-200">Verifique seu email</p>
+                  <p className="text-xs text-amber-300/70">Confirme seu endereço de email para ativar todas as funcionalidades.</p>
+                </div>
+              </div>
+              <form action="/api/auth/user/resend-verification" method="POST">
+                <button
+                  type="submit"
+                  className="shrink-0 rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-2 text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-400/20"
+                >
+                  Reenviar email
+                </button>
               </form>
             </div>
-          </div>
-        </header>
+          )}
 
-        {/* Email Verification Banner */}
-        {!session.user.emailVerified && (
-          <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-6 py-4 animate-fade-in">
-            <div className="flex items-center gap-3">
-              <span className="text-xl">✉️</span>
-              <div>
-                <p className="text-sm font-semibold text-amber-200">Verifique seu email</p>
-                <p className="text-xs text-amber-300/70">Confirme seu endereço de email para ativar todas as funcionalidades.</p>
-              </div>
-            </div>
-            <form action="/api/auth/user/resend-verification" method="POST">
-              <button
-                type="submit"
-                className="shrink-0 rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-2 text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-400/20"
-              >
-                Reenviar email
-              </button>
-            </form>
-          </div>
-        )}
+          {/* Stats */}
+          <section className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            <StatCard label={tr(dict, "player.level")} value={gamification?.level ?? 1} icon="⚡" gradient="from-amber-400 to-orange-500" />
+            <StatCard label={tr(dict, "player.xp")} value={gamification?.xp.toLocaleString(locale) ?? "0"} icon="✨" gradient="from-cyan-400 to-blue-500" />
+            <StatCard label={tr(dict, "player.streak")} value={`${gamification?.currentStreak ?? 0}d`} icon="🔥" gradient="from-orange-400 to-red-500" />
+            <StatCard label={tr(dict, "player.favorites")} value={favorites.length} icon="❤️" gradient="from-pink-400 to-fuchsia-500" />
+            <StatCard label={tr(dict, "player.played")} value={history.length} icon="🎮" gradient="from-emerald-400 to-teal-500" />
+          </section>
 
-        {/* Stats */}
-        <section className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 animate-fade-in-up">
-          <StatCard label={tr(dict, "player.level")} value={gamification?.level ?? 1} icon="⚡" gradient="from-amber-400 to-orange-500" />
-          <StatCard label={tr(dict, "player.xp")} value={gamification?.xp.toLocaleString(locale) ?? "0"} icon="✨" gradient="from-cyan-400 to-blue-500" />
-          <StatCard label={tr(dict, "player.streak")} value={`${gamification?.currentStreak ?? 0}d`} icon="🔥" gradient="from-orange-400 to-red-500" />
-          <StatCard label={tr(dict, "player.favorites")} value={favorites.length} icon="❤️" gradient="from-pink-400 to-fuchsia-500" />
-          <StatCard label={tr(dict, "player.played")} value={history.length} icon="🎮" gradient="from-emerald-400 to-teal-500" />
-        </section>
-
-        {/* Layout Grid */}
-        <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
-          <ProfileSidebarNav 
-            notificationCount={gamification?.unreadNotifications ?? 0}
-            childrenMap={{
-              feed: (
-                <ActivityFeed history={history} locale={locale} />
-              ),
-              wallet: (
-                <TabSectionShell icon="🪙" title={tr(dict, "player.wallet")} subtitle={tr(dict, "player.walletSubtitle")}>
-                  <CoinsPanel />
-                </TabSectionShell>
-              ),
-              social: (
-                <TabSectionShell icon="👥" title={tr(dict, "player.social")} subtitle={tr(dict, "player.socialSubtitle")}>
-                  <FriendsPanel />
-                </TabSectionShell>
-              ),
-              mission: (
-                <TabSectionShell icon="🎯" title={tr(dict, "player.journey")} subtitle={tr(dict, "player.journeySubtitle")}>
-                  <div className="space-y-8">
-                    <div className="rounded-2xl bg-slate-800 border border-slate-700/60 p-6 shadow-inner">
-                      <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-xl font-black text-white">{dailyMissionCard?.title}</h3>
-                        <span className="rounded-lg bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-400 border border-emerald-500/20">+{gamification?.dailyMission?.rewardXp} XP</span>
-                      </div>
-                      <div className="h-3 rounded-full bg-slate-950 overflow-hidden border border-slate-700 mb-6">
-                        <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700 animate-progress-glow rounded-full" style={{ width: `${currentMissionProgressPercent}%` }} />
-                      </div>
-                      <Link href={dailyMissionCard?.href ?? "#"} className="inline-block rounded-xl bg-emerald-600 px-8 py-3 text-sm font-black text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] uppercase">{tr(dict, "player.startMission")}</Link>
-                    </div>
-
-                    {achievementItems.length > 0 && (
-                      <div>
-                        <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
-                           <span className="text-xl">🏆</span> {tr(dict, "player.yourAchievements")}
-                        </h3>
-                        <AchievementCollection 
-                          items={achievementItems} 
-                          locale={locale} 
-                          lockedLabel={tr(dict, "player.locked")} 
-                          unlockedLabel={tr(dict, "player.unlocked")} 
-                          layout="grid" 
-                        />
-                      </div>
-                    )}
-                  </div>
-                </TabSectionShell>
-              ),
-              library: (
-                <TabSectionShell icon="📚" title={tr(dict, "player.library")} subtitle={tr(dict, "player.librarySubtitle")}>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {favorites.map(f => (
-                      <Link key={f.id} href={`/games/${f.game.slug}`} className="group relative aspect-video overflow-hidden rounded-2xl border border-white/5 bg-slate-900 transition-all hover:border-white/20">
-                        <Image src={f.game.thumbnail} alt={f.game.title} fill unoptimized className="object-cover transition-transform group-hover:scale-110" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent p-4 flex items-end">
-                          <span className="text-xs font-black text-white">{f.game.title}</span>
+          {/* Layout Grid */}
+          <div className="animate-fade-in">
+            <ProfileSidebarNav 
+              notificationCount={gamification?.unreadNotifications ?? 0}
+              childrenMap={{
+                feed: (
+                  <ActivityFeed history={history} locale={locale} />
+                ),
+                wallet: (
+                  <TabSectionShell icon="🪙" title={tr(dict, "player.wallet")} subtitle={tr(dict, "player.walletSubtitle")}>
+                    <CoinsPanel />
+                  </TabSectionShell>
+                ),
+                social: (
+                  <TabSectionShell icon="👥" title={tr(dict, "player.social")} subtitle={tr(dict, "player.socialSubtitle")}>
+                    <FriendsPanel />
+                  </TabSectionShell>
+                ),
+                mission: (
+                  <TabSectionShell icon="🎯" title={tr(dict, "player.journey")} subtitle={tr(dict, "player.journeySubtitle")}>
+                    <div className="space-y-8">
+                      <div className="rounded-2xl bg-slate-800 border border-slate-700/60 p-6 shadow-inner">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-xl font-black text-white">{dailyMissionCard?.title}</h3>
+                          <span className="rounded-lg bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-400 border border-emerald-500/20">+{gamification?.dailyMission?.rewardXp} XP</span>
                         </div>
-                      </Link>
-                    ))}
-                  </div>
-                </TabSectionShell>
-              ),
-              profile: (
-                <TabSectionShell icon="✏️" title={tr(dict, "player.editProfile")} subtitle={tr(dict, "player.editProfileSubtitle")}>
-                  <AccountProfileForm
-                    initialProfile={{
-                      displayName: profile.displayName,
-                      email: profile.email,
-                      avatarUrl: profile.avatarUrl,
-                      coverUrl: profile.coverUrl,
-                      bio: profile.bio,
-                      preferredCategories: profile.preferredCategories,
-                      unlockedAvatars: profile.unlockedAvatars,
-                      unlockedCovers: profile.unlockedCovers,
-                      coins: profile.coins,
-                    }}
-                    categories={categories}
-                  />
-                </TabSectionShell>
-              ),
-              notifications: (
-                <TabSectionShell icon="🔔" title={tr(dict, "player.notifications")} subtitle={tr(dict, "player.notificationsSubtitle")}>
-                  <div className="space-y-4">
-                    {gamification?.notifications.map(n => (
-                      <div key={n.id} className="p-4 rounded-2xl bg-slate-800 border border-slate-700/60 hover:bg-slate-700/50 transition-all hover:border-slate-600 group cursor-default">
-                        <p className="font-bold text-white group-hover:text-cyan-300 transition-colors">{n.title}</p>
-                        <p className="text-xs text-slate-400 mt-1 leading-relaxed">{n.message}</p>
+                        <div className="h-3 rounded-full bg-slate-950 overflow-hidden border border-slate-700 mb-6">
+                          <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700 animate-progress-glow rounded-full" style={{ width: `${currentMissionProgressPercent}%` }} />
+                        </div>
+                        <Link href={dailyMissionCard?.href ?? "#"} className="inline-block rounded-xl bg-emerald-600 px-8 py-3 text-sm font-black text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] uppercase">{tr(dict, "player.startMission")}</Link>
                       </div>
-                    ))}
-                  </div>
-                </TabSectionShell>
-              ),
-              security: (
-                <TabSectionShell icon="🔒" title="Segurança" subtitle="Gerencie a segurança da sua conta">
-                  <div className="space-y-6">
-                    {/* Email Verification Status */}
-                    <div className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-900/50 p-4">
-                      <div>
-                        <h3 className="text-sm font-semibold text-slate-200">Verificação de email</h3>
-                        <p className="text-xs text-slate-400 mt-0.5">{profile.email}</p>
-                      </div>
-                      <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
-                        session.user.emailVerified
-                          ? "bg-emerald-500/20 text-emerald-300"
-                          : "bg-amber-500/20 text-amber-300"
-                      }`}>
-                        {session.user.emailVerified ? "Verificado" : "Não verificado"}
-                      </span>
-                    </div>
 
-                    {/* 2FA Setup */}
-                    <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-4">
-                      <TotpSetupFlow enabled={totpDevice?.isEnabled ?? false} />
+                      {achievementItems.length > 0 && (
+                        <div>
+                          <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
+                             <span className="text-xl">🏆</span> {tr(dict, "player.yourAchievements")}
+                          </h3>
+                          <AchievementCollection 
+                            items={achievementItems} 
+                            locale={locale} 
+                            lockedLabel={tr(dict, "player.locked")} 
+                            unlockedLabel={tr(dict, "player.unlocked")} 
+                            layout="grid" 
+                          />
+                        </div>
+                      )}
                     </div>
-                  </div>
-                </TabSectionShell>
-              ),
-            }}
-          />
+                  </TabSectionShell>
+                ),
+                library: (
+                  <TabSectionShell icon="📚" title={tr(dict, "player.library")} subtitle={tr(dict, "player.librarySubtitle")}>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {favorites.map(f => (
+                        <Link key={f.id} href={`/games/${f.game.slug}`} className="group relative aspect-video overflow-hidden rounded-2xl border border-white/5 bg-slate-900 transition-all hover:border-white/20">
+                          <Image src={f.game.thumbnail} alt={f.game.title} fill unoptimized className="object-cover transition-transform group-hover:scale-110" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent p-4 flex items-end">
+                            <span className="text-xs font-black text-white">{f.game.title}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </TabSectionShell>
+                ),
+                profile: (
+                  <TabSectionShell icon="✏️" title={tr(dict, "player.editProfile")} subtitle={tr(dict, "player.editProfileSubtitle")}>
+                    <AccountProfileForm
+                      initialProfile={{
+                        displayName: profile.displayName,
+                        email: profile.email,
+                        avatarUrl: profile.avatarUrl,
+                        coverUrl: profile.coverUrl,
+                        bio: profile.bio,
+                        preferredCategories: profile.preferredCategories,
+                        unlockedAvatars: profile.unlockedAvatars,
+                        unlockedCovers: profile.unlockedCovers,
+                        coins: profile.coins,
+                      }}
+                      categories={categories}
+                    />
+                  </TabSectionShell>
+                ),
+                notifications: (
+                  <TabSectionShell icon="🔔" title={tr(dict, "player.notifications")} subtitle={tr(dict, "player.notificationsSubtitle")}>
+                    <div className="space-y-4">
+                      {gamification?.notifications.map(n => (
+                        <div key={n.id} className="p-4 rounded-2xl bg-slate-800 border border-slate-700/60 hover:bg-slate-700/50 transition-all hover:border-slate-600 group cursor-default">
+                          <p className="font-bold text-white group-hover:text-cyan-300 transition-colors">{n.title}</p>
+                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">{n.message}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </TabSectionShell>
+                ),
+                security: (
+                  <TabSectionShell icon="🔒" title="Segurança" subtitle="Gerencie a segurança da sua conta">
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-900/50 p-4">
+                        <div>
+                          <h3 className="text-sm font-semibold text-slate-200">Verificação de email</h3>
+                          <p className="text-xs text-slate-400 mt-0.5">{profile.email}</p>
+                        </div>
+                        <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                          session.user.emailVerified
+                            ? "bg-emerald-500/20 text-emerald-300"
+                            : "bg-amber-500/20 text-amber-300"
+                        }`}>
+                          {session.user.emailVerified ? "Verificado" : "Não verificado"}
+                        </span>
+                      </div>
+
+                      <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-4">
+                        <TotpSetupFlow enabled={totpDevice?.isEnabled ?? false} />
+                      </div>
+                    </div>
+                  </TabSectionShell>
+                ),
+              }}
+            />
+          </div>
+
+          <div className="mt-16 pt-8 border-t border-slate-800/40">
+            <Footer />
+          </div>
         </div>
       </div>
     </div>

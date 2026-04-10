@@ -22,7 +22,7 @@ export function CatalogGameCard({
       href={`/games/${game.slug}`}
       className="group overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/70 transition-all duration-300 hover:-translate-y-1 hover:border-slate-600 hover:bg-slate-950/95 shadow-none"
     >
-      <div className="relative aspect-[1.618] overflow-hidden bg-slate-950">
+      <div className="relative aspect-video overflow-hidden bg-slate-950">
         <Image
           src={game.thumbnail}
           alt={game.title}
