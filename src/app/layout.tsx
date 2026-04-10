@@ -86,7 +86,7 @@ export default async function RootLayout({
     getDictionary(initialLocale),
   ]);
   const premium = playerSession ? await isPlayerPremium(playerSession.user.id) : false;
-  const adsenseClientId = premium ? undefined : process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+  const adsenseClientId = premium ? undefined : (process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-5055044496746954");
   const t = { ...dict.common, ...dict.home };
 
   async function logoutPlayer() {
