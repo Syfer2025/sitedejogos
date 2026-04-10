@@ -21,7 +21,8 @@ type AdSlotProps = {
   isPremium?: boolean;
 };
 
-const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID;
+const ADSENSE_CLIENT_ID = process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-5055044496746954";
+const DEFAULT_SLOT_ID = "3126626506";
 const MIN_REFRESH_INTERVAL = 30_000; // AdSense policy: minimum 30s
 
 /* ── Native fallback promos shown when adblock is active ── */
@@ -102,7 +103,8 @@ export function AdSlot({
     return null;
   }
 
-  const canRenderAds = Boolean(ADSENSE_CLIENT_ID && slot);
+  const effectiveSlot = slot || DEFAULT_SLOT_ID;
+  const canRenderAds = Boolean(ADSENSE_CLIENT_ID && effectiveSlot);
   const adBlocked = useAdBlockDetected();
   const insRef = useRef<HTMLModElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -205,7 +207,7 @@ export function AdSlot({
               className="adsbygoogle block w-full overflow-hidden"
               style={adFormat === "sticky" ? { minHeight: Math.max(minHeight, 600) } : { minHeight }}
               data-ad-client={ADSENSE_CLIENT_ID}
-              data-ad-slot={slot}
+              data-ad-slot={effectiveSlot}
               data-ad-format={adFormat === "sticky" ? "vertical" : adFormat}
               data-full-width-responsive="true"
             />
