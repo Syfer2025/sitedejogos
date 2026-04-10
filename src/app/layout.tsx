@@ -14,6 +14,7 @@ import { LOCALE_COOKIE_NAME, resolveLocale, SUPPORTED_LOCALES } from "@/lib/loca
 import { getDictionary } from "@/lib/i18n";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 import { isPlayerPremium } from "@/data/monetizationStore";
+import Script from "next/script";
 import { SITE_CONFIG } from "@/lib/config";
 
 const geistSans = Geist({
@@ -115,15 +116,15 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        {adsenseClientId ? (
-          <script
-            async
-            crossOrigin="anonymous"
-            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
-          />
-        ) : null}
-      </head>
+      <head />
+      {adsenseClientId ? (
+        <Script
+          async
+          crossOrigin="anonymous"
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
+          strategy="afterInteractive"
+        />
+      ) : null}
       <body className="h-screen overflow-hidden text-slate-100 flex flex-col" data-default-locale={initialLocale}>
         <LocaleProvider initialLocale={initialLocale}>
           <AdBlockProvider isPremium={premium}>

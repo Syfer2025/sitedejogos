@@ -149,6 +149,56 @@ function fisherYatesShuffle<T>(array: T[]): T[] {
 
 import { unstable_cache } from "next/cache";
 
+// ── Ratings aggregation helper ────────────────────────────────────────────────
+// Replaces include:{ratings} + JS reduce — fetches ONE aggregated row per game
+// instead of ALL rating rows, dramatically reducing Supabase egress.
+async function fetchRatingsAgg(gameIds: string[]): Promise<Map<string, { avg: number; count: number }>> {
+  if (!gameIds.length) return new Map();
+
+  const agg = await (prisma as any).gameRating.groupBy({
+    by: ["gameId"],
+    where: { gameId: { in: gameIds } },
+    _avg: { value: true },
+    _count: { value: true },
+  });
+
+  return new Map<string, { avg: number; count: number }>(
+    agg.map((r: any) => [
+      r.gameId as string,
+      { avg: Number((r._avg.value ?? 0).toFixed(1)), count: r._count.value as number },
+    ]),
+  );
+}
+
+function withRatings(
+  game: Game,
+  ratingsMap: Map<string, { avg: number; count: number }>,
+): GameRecord {
+  const record = mapGame(game);
+  const stats = ratingsMap.get(game.id);
+  return {
+    ...record,
+    avgRating: stats?.avg ?? 0,
+    ratingCount: stats?.count ?? 0,
+    isFavorited: false,
+    userRating: undefined,
+  };
+}
+
+// ── Search where clause ───────────────────────────────────────────────────────
+function buildSearchWhere(query: string): Prisma.GameWhereInput {
+  // mode:'insensitive' maps to ILIKE in Postgres (case-insensitive).
+  // Double-cast needed: local Prisma client is generated for SQLite (no mode
+  // support in types), but production always runs on PostgreSQL via Supabase.
+  return {
+    OR: [
+      { title: { contains: query, mode: "insensitive" } },
+      { category: { contains: query, mode: "insensitive" } },
+      { tags: { contains: query, mode: "insensitive" } },
+    ],
+  } as unknown as Prisma.GameWhereInput;
+}
+
 async function _listGames(options: ListGamesOptions = {}) {
   const where: Prisma.GameWhereInput = {
     ...(typeof options.published === "boolean"
@@ -160,37 +210,8 @@ async function _listGames(options: ListGamesOptions = {}) {
     ...(options.category && options.category !== "all"
       ? { category: options.category }
       : {}),
-    ...(options.query
-      ? {
-          OR: [
-            { title: { contains: options.query } },
-            { category: { contains: options.query } },
-            { tags: { contains: options.query } },
-          ],
-        }
-      : {}),
+    ...(options.query ? buildSearchWhere(options.query) : {}),
   };
-
-  // Always cache-able, never include individual favorites in the huge query
-  const include: any = {
-    ratings: {
-      select: { value: true }
-    },
-  };
-
-  function mapFull(game: any) {
-    const record = mapGame(game);
-    const ratings: any[] = game.ratings || [];
-    const count = ratings.length;
-    const avg = count > 0 ? ratings.reduce((sum: number, r: any) => sum + r.value, 0) / count : 0;
-    return {
-      ...record,
-      avgRating: Number(avg.toFixed(1)),
-      ratingCount: count,
-      isFavorited: false, // Injected later
-      userRating: undefined, // Injected later
-    };
-  }
 
   // Random mode: fetch a larger pool, shuffle in-memory, return `limit` items
   if (options.sortBy === "random") {
@@ -202,35 +223,31 @@ async function _listGames(options: ListGamesOptions = {}) {
     const maxSkip = Math.max(total - poolSize, 0);
     const skip = maxSkip > 0 ? Math.floor(Math.random() * maxSkip) : 0;
 
-    // Use popularity as base order so we don't pull unknown games from the very bottom
     const games = await prisma.game.findMany({
       where,
       orderBy: [{ popularityScore: "desc" }, { views: "desc" }],
-      include,
       take: poolSize,
       skip,
     });
 
-    return fisherYatesShuffle(games.map(mapFull)).slice(0, limit);
+    const ratingsMap = await fetchRatingsAgg(games.map((g) => g.id));
+    return fisherYatesShuffle(games.map((g) => withRatings(g, ratingsMap))).slice(0, limit);
   }
 
   const orderBy: Prisma.GameOrderByWithRelationInput[] =
     options.sortBy === "popular"
-      ? [
-          { views: "desc" },
-          { popularityScore: "desc" },
-          { createdAt: "desc" },
-        ]
+      ? [{ views: "desc" }, { popularityScore: "desc" }, { createdAt: "desc" }]
       : [{ featured: "desc" }, { createdAt: "desc" }];
 
   const games = await prisma.game.findMany({
     where,
     orderBy,
-    include,
     ...(options.limit ? { take: options.limit } : {}),
     ...(options.offset ? { skip: options.offset } : {}),
   });
-  return games.map(mapFull);
+
+  const ratingsMap = await fetchRatingsAgg(games.map((g) => g.id));
+  return games.map((g) => withRatings(g, ratingsMap));
 }
 
 async function injectUserData(games: GameRecord[], userId?: string): Promise<GameRecord[]> {
@@ -386,18 +403,15 @@ async function _listCategoryShowcasesPage(
       ? [{ createdAt: "desc" }]
       : [{ views: "desc" }, { popularityScore: "desc" }, { createdAt: "desc" }];
 
-  const include: any = {
-    ratings: { select: { value: true } },
-  };
-
   const allGames = await prisma.game.findMany({
     where: {
       isPublished: true,
       category: { in: selectedCategories },
     },
     orderBy,
-    include,
   });
+
+  const ratingsMap = await fetchRatingsAgg(allGames.map((g) => g.id));
 
   // Partition by category in JS
   const gamesByCategory = new Map<string, typeof allGames>();
@@ -410,19 +424,6 @@ async function _listCategoryShowcasesPage(
     list.push(game);
   }
 
-  function mapBatchedGame(game: any): GameRecord {
-    const record = mapGame(game);
-    const ratings: any[] = game.ratings || [];
-    const count = ratings.length;
-    const avg = count > 0 ? ratings.reduce((sum: number, r: any) => sum + r.value, 0) / count : 0;
-    return {
-      ...record,
-      avgRating: Number(avg.toFixed(1)),
-      ratingCount: count,
-      isFavorited: false, // Injected later
-    };
-  }
-
   const items = selectedCategories.map((category) => {
     let categoryGames = gamesByCategory.get(category) ?? [];
     if (sortBy === "random") {
@@ -431,7 +432,7 @@ async function _listCategoryShowcasesPage(
     return {
       category,
       totalGames: countMap.get(category) ?? 0,
-      games: categoryGames.slice(0, gamesPerCategory).map(mapBatchedGame),
+      games: categoryGames.slice(0, gamesPerCategory).map((g) => withRatings(g, ratingsMap)),
     };
   });
 
@@ -557,19 +558,10 @@ export async function listRelatedGames(game: Pick<GameRecord, "category" | "slug
       slug: { not: game.slug },
       OR: [{ category: game.category }, ...tagFilters],
     },
-    include: {
-      ratings: { select: { value: true } },
-    } as any,
     take: 32, // Large pool to rank and pick from
   });
 
-  const mapWithRatings = (g: any): GameRecord => {
-    const record = mapGame(g);
-    const ratings = g.ratings || [];
-    const count = ratings.length;
-    const avg = count > 0 ? ratings.reduce((sum: number, r: any) => sum + r.value, 0) / count : 0;
-    return { ...record, avgRating: Number(avg.toFixed(1)), ratingCount: count };
-  };
+  const ratingsMap = await fetchRatingsAgg(candidates.map((c) => c.id));
 
   // Rank by similarity and popularity in JS
   const ranked = candidates.map((c) => {
@@ -577,12 +569,10 @@ export async function listRelatedGames(game: Pick<GameRecord, "category" | "slug
     const commonTags = (game.tags || []).filter((t) => cTags.includes(t)).length;
     const sameCategory = c.category === game.category ? 1 : 0;
 
-    // SCORING: Tags weight 2x, Category weight 1x
-    // We add a tiny random factor (0 to 0.5) to keep the list fresh
     const similarityScore = commonTags * 2 + sameCategory + Math.random() * 0.5;
 
     return {
-      game: mapWithRatings(c),
+      game: withRatings(c, ratingsMap),
       similarityScore,
       popularity: c.popularityScore + c.views / 200,
     };
@@ -603,18 +593,14 @@ export async function listRelatedGames(game: Pick<GameRecord, "category" | "slug
     const fallback = await prisma.game.findMany({
       where: {
         isPublished: true,
-        slug: {
-          notIn: [game.slug, ...finalGames.map((entry) => entry.slug)],
-        },
+        slug: { notIn: [game.slug, ...finalGames.map((entry) => entry.slug)] },
       },
       orderBy: [{ featured: "desc" }, { popularityScore: "desc" }, { views: "desc" }],
-      include: {
-        ratings: { select: { value: true } },
-      } as any,
       take: limit - finalGames.length,
     });
 
-    finalGames = [...finalGames, ...fallback.map(mapWithRatings)];
+    const fallbackRatingsMap = await fetchRatingsAgg(fallback.map((f) => f.id));
+    finalGames = [...finalGames, ...fallback.map((f) => withRatings(f, fallbackRatingsMap))];
   }
 
   return finalGames;
@@ -707,15 +693,7 @@ export async function countGames(
     ...(options.category && options.category !== "all"
       ? { category: options.category }
       : {}),
-    ...(options.query
-      ? {
-          OR: [
-            { title: { contains: options.query } },
-            { category: { contains: options.query } },
-            { tags: { contains: options.query } },
-          ],
-        }
-      : {}),
+    ...(options.query ? buildSearchWhere(options.query) : {}),
   };
 
   const cacheKey = JSON.stringify(where);
