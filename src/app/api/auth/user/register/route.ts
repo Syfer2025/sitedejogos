@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import { recordAnalyticsEvent } from "@/data/analyticsStore";
 import { applyGamificationEvent } from "@/data/gamificationStore";
 import { getClientIp } from "@/lib/admin-auth";
-import { consumeRateLimit } from "@/lib/rate-limit";
+import { consumeRateLimitAsync } from "@/lib/rate-limit";
 import {
   createPlayerSession,
   registerPlayer,
@@ -18,7 +18,7 @@ const REGISTER_ATTEMPT_LIMIT = 5;
 
 export async function POST(req: NextRequest) {
   const ipAddress = getClientIp(req);
-  const limit = consumeRateLimit(`player-register:${ipAddress}`, {
+  const limit = await consumeRateLimitAsync(`player-register:${ipAddress}`, {
     limit: REGISTER_ATTEMPT_LIMIT,
     windowMs: REGISTER_WINDOW_MS,
   });

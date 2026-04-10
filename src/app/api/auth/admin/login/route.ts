@@ -8,7 +8,7 @@ import {
   setAdminSessionCookie,
   verifyAdminCredentials,
 } from "@/lib/admin-auth";
-import { consumeRateLimit } from "@/lib/rate-limit";
+import { consumeRateLimitAsync } from "@/lib/rate-limit";
 
 const LOGIN_WINDOW_MS = 10 * 60 * 1000;
 const LOGIN_ATTEMPT_LIMIT = 5;
@@ -20,7 +20,7 @@ const adminLoginSchema = z.object({
 
 export async function POST(req: NextRequest) {
   const ipAddress = getClientIp(req);
-  const limit = consumeRateLimit(`admin-login:${ipAddress}`, {
+  const limit = await consumeRateLimitAsync(`admin-login:${ipAddress}`, {
     limit: LOGIN_ATTEMPT_LIMIT,
     windowMs: LOGIN_WINDOW_MS,
   });

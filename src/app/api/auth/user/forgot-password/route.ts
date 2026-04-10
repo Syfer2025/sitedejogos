@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getClientIp } from "@/lib/admin-auth";
-import { consumeRateLimit } from "@/lib/rate-limit";
+import { consumeRateLimitAsync } from "@/lib/rate-limit";
 import { sendPasswordResetEmail } from "@/lib/password-reset";
 
 const schema = z.object({
@@ -12,7 +12,7 @@ const schema = z.object({
 
 export async function POST(req: NextRequest) {
   const ip = getClientIp(req);
-  const limit = consumeRateLimit(`forgot-pwd:${ip}`, {
+  const limit = await consumeRateLimitAsync(`forgot-pwd:${ip}`, {
     limit: 3,
     windowMs: 30 * 60 * 1000,
   });

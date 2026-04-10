@@ -6,7 +6,7 @@ import { recordAnalyticsEvent } from "@/data/analyticsStore";
 import { applyGamificationEvent } from "@/data/gamificationStore";
 import { getClientIp } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import { consumeRateLimit } from "@/lib/rate-limit";
+import { consumeRateLimitAsync } from "@/lib/rate-limit";
 import {
   createPlayerSession,
   verifyPlayerCredentials,
@@ -24,7 +24,7 @@ function hashToken(token: string) {
 
 export async function POST(req: NextRequest) {
   const ipAddress = getClientIp(req);
-  const limit = consumeRateLimit(`player-login:${ipAddress}`, {
+  const limit = await consumeRateLimitAsync(`player-login:${ipAddress}`, {
     limit: LOGIN_ATTEMPT_LIMIT,
     windowMs: LOGIN_WINDOW_MS,
   });

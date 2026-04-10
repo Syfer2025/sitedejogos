@@ -9,7 +9,16 @@ const globalForPrisma = globalThis as typeof globalThis & {
 // Supabase Connection String (from .env)
 const connectionString = process.env.DATABASE_URL;
 
-const pool = new Pool({ connectionString });
+// Limit pool size to avoid exhausting Supabase connection quota.
+// Vercel serverless spins multiple instances simultaneously; each instance
+// gets its own pool, so keep max low (3-5 per instance is enough).
+const pool = new Pool({
+  connectionString,
+  max: 5,
+  min: 0,              // release idle connections — critical for serverless
+  idleTimeoutMillis: 30_000,
+  connectionTimeoutMillis: 5_000,
+});
 const adapter = new PrismaPg(pool);
 
 export const prisma = globalForPrisma.prisma || new PrismaClient({ adapter });
