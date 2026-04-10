@@ -12,8 +12,9 @@ const nextConfig: NextConfig = {
         hostname: "img.gamemonetize.com",
       },
     ],
-    minimumCacheTTL: 2592000, // 30 days — IGDB/GameMonetize URLs are immutable
+    minimumCacheTTL: 2592000, // 30 days
     formats: ["image/webp"],
+    unoptimized: true,
   },
   serverExternalPackages: ["better-sqlite3"],
 };

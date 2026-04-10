@@ -147,7 +147,9 @@ function fisherYatesShuffle<T>(array: T[]): T[] {
   return out;
 }
 
-export async function listGames(options: ListGamesOptions = {}) {
+import { unstable_cache } from "next/cache";
+
+async function _listGames(options: ListGamesOptions = {}) {
   const where: Prisma.GameWhereInput = {
     ...(typeof options.published === "boolean"
       ? { isPublished: options.published }
@@ -240,6 +242,22 @@ export async function listGames(options: ListGamesOptions = {}) {
   return games.map(mapFull);
 }
 
+export async function listGames(options: ListGamesOptions = {}) {
+  // Se tiver identificador de usuário ou sort randômico, quebra o cache estático
+  if (options.currentUserId || options.sortBy === "random") {
+    return _listGames(options);
+  }
+
+  const cacheKey = JSON.stringify(options);
+  const cachedFn = unstable_cache(
+    () => _listGames(options),
+    ["games", "listGames", cacheKey],
+    { revalidate: 3600 }
+  );
+
+  return cachedFn();
+}
+
 export async function listGamesPage(
   options: ListGamesOptions & {
     page?: number;
@@ -265,7 +283,7 @@ export async function listGamesPage(
   };
 }
 
-export async function listCategories(options: { order?: CatalogCategoryOrderMode } = {}) {
+async function _listCategories(options: { order?: CatalogCategoryOrderMode } = {}) {
   const categories = await prisma.game.findMany({
     where: { isPublished: true, category: { not: "" } },
     select: { category: true },
@@ -279,6 +297,16 @@ export async function listCategories(options: { order?: CatalogCategoryOrderMode
       mode: options.order ?? "alphabetical",
     },
   );
+}
+
+export async function listCategories(options: { order?: CatalogCategoryOrderMode } = {}) {
+  const cacheKey = JSON.stringify(options);
+  const cachedFn = unstable_cache(
+    () => _listCategories(options),
+    ["games", "listCategories", cacheKey],
+    { revalidate: 3600 }
+  );
+  return cachedFn();
 }
 
 async function listPublishedCategoryCounts() {
@@ -303,7 +331,7 @@ async function listPublishedCategoryCounts() {
     }));
 }
 
-export async function listCategoryShowcasesPage(
+async function _listCategoryShowcasesPage(
   options: {
     offset?: number;
     limit?: number;
@@ -404,6 +432,31 @@ export async function listCategoryShowcasesPage(
   };
 }
 
+export async function listCategoryShowcasesPage(
+  options: {
+    offset?: number;
+    limit?: number;
+    gamesPerCategory?: number;
+    sortBy?: "newest" | "popular" | "random";
+    categoryOrder?: CatalogCategoryOrderMode;
+    currentUserId?: string;
+  } = {},
+): Promise<PaginatedCategoryShowcasesResult> {
+  // Ignora cache para random (descoberta individual) ou logado
+  if (options.currentUserId || options.sortBy === "random") {
+    return _listCategoryShowcasesPage(options);
+  }
+
+  const cacheKey = JSON.stringify(options);
+  const cachedFn = unstable_cache(
+    () => _listCategoryShowcasesPage(options),
+    ["games", "listCategoryShowcasesPage", cacheKey],
+    { revalidate: 3600 }
+  );
+
+  return cachedFn();
+}
+
 export async function listCategoryShowcases(
   options: {
     limit?: number;
@@ -421,7 +474,7 @@ export async function getGameById(id: string) {
   return game ? mapGame(game) : null;
 }
 
-export async function getGameBySlug(slug: string, publishedOnly = false) {
+async function _getGameBySlug(slug: string, publishedOnly = false) {
   const game = await prisma.game.findUnique({ where: { slug } });
 
   if (!game) {
@@ -433,6 +486,15 @@ export async function getGameBySlug(slug: string, publishedOnly = false) {
   }
 
   return mapGame(game);
+}
+
+export async function getGameBySlug(slug: string, publishedOnly = false) {
+  const cachedFn = unstable_cache(
+    () => _getGameBySlug(slug, publishedOnly),
+    ["games", "getGameBySlug", slug, publishedOnly ? "pub" : "all"],
+    { revalidate: 3600 }
+  );
+  return cachedFn();
 }
 
 export async function listRelatedGames(game: Pick<GameRecord, "category" | "slug" | "tags">, limit = 4) {
