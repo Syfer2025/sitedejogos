@@ -26,16 +26,25 @@ export function serializePreferredCategories(
 
 export const playerLoginSchema = z.object({
   email: z.string().trim().email("Informe um email válido."),
-  password: z.string().min(6, "A senha deve ter pelo menos 6 caracteres."),
+  password: z.string().min(8, "A senha deve ter pelo menos 8 caracteres."),
 });
 
-export const playerRegisterSchema = playerLoginSchema.extend({
-  displayName: z
-    .string()
-    .trim()
-    .min(2, "O nome deve ter pelo menos 2 caracteres.")
-    .max(40, "O nome deve ter no máximo 40 caracteres."),
-});
+export const playerRegisterPasswordSchema = z
+  .string()
+  .min(8, "A senha deve ter pelo menos 8 caracteres.")
+  .regex(/[A-Z]/, "A senha deve conter pelo menos uma letra maiúscula.")
+  .regex(/[a-z]/, "A senha deve conter pelo menos uma letra minúscula.")
+  .regex(/\d/, "A senha deve conter pelo menos um número.");
+
+export const playerRegisterSchema = playerLoginSchema
+  .extend({
+    password: playerRegisterPasswordSchema,
+    displayName: z
+      .string()
+      .trim()
+      .min(2, "O nome deve ter pelo menos 2 caracteres.")
+      .max(40, "O nome deve ter no máximo 40 caracteres."),
+  });
 
 export const playerProfileUpdateSchema = z.object({
   displayName: z

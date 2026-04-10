@@ -73,7 +73,7 @@ describe("player auth routes", () => {
     const response = await loginPost(
       createJsonRequest("http://localhost/api/auth/user/login", {
         email: "player@example.com",
-        password: "123456",
+        password: "Test1234",
         sessionId: "session-login-1",
         referrer: "http://localhost:3000/",
       }) as never,
@@ -97,9 +97,7 @@ describe("player auth routes", () => {
     expect(authMocks.recordAnalyticsEvent).toHaveBeenCalledWith({
       type: "player_login",
       path: "/login",
-      sessionId: "session-login-1",
       userId: "user-1",
-      referrer: "http://localhost:3000/",
     });
     expect(authMocks.applyGamificationEvent).toHaveBeenCalledWith(
       "user-1",
@@ -116,7 +114,7 @@ describe("player auth routes", () => {
     const response = await loginPost(
       createJsonRequest("http://localhost/api/auth/user/login", {
         email: "player@example.com",
-        password: "123456",
+        password: "Test1234",
       }) as never,
     );
 
@@ -142,7 +140,7 @@ describe("player auth routes", () => {
       createJsonRequest("http://localhost/api/auth/user/register", {
         displayName: "Nova Pessoa",
         email: "new@example.com",
-        password: "123456",
+        password: "Test1234",
         sessionId: "session-register-1",
         referrer: "http://localhost:3000/",
       }) as never,
@@ -185,7 +183,7 @@ describe("player auth routes", () => {
       createJsonRequest("http://localhost/api/auth/user/register", {
         displayName: "Nova Pessoa",
         email: "new@example.com",
-        password: "123456",
+        password: "Test1234",
       }) as never,
     );
 

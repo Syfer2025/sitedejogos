@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { type DefaultSession } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
 import Facebook from "next-auth/providers/facebook";
@@ -9,23 +9,42 @@ import { prisma } from "@/lib/prisma";
 import { compare } from "bcryptjs";
 import { normalizePlayerEmail } from "@/lib/user-auth";
 
+declare module "next-auth" {
+  interface User {
+    isPremium?: boolean;
+  }
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      isPremium?: boolean;
+    };
+  }
+}
+
+declare module "@auth/core/jwt" {
+  interface JWT {
+    id?: string;
+    isPremium?: boolean;
+  }
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
     }),
     Facebook({
       clientId: process.env.AUTH_FACEBOOK_ID,
       clientSecret: process.env.AUTH_FACEBOOK_SECRET,
-      allowDangerousEmailAccountLinking: true,
     }),
     Apple({
       clientId: process.env.AUTH_APPLE_ID,
       clientSecret: process.env.AUTH_APPLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
     }),
     Resend({
       from: "auth@gastygames.com", // Should be a verified domain in Resend
@@ -64,7 +83,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        // @ts-ignore
         token.isPremium = user.isPremium;
       }
       return token;
@@ -72,8 +90,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
-        // @ts-ignore
-        session.user.isPremium = token.isPremium as boolean;
+        session.user.isPremium = (token.isPremium as boolean) ?? false;
       }
       return session;
     },

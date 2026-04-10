@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 
-export type ProfileTabKey = "feed" | "wallet" | "social" | "mission" | "library" | "profile" | "notifications";
+export type ProfileTabKey = "feed" | "wallet" | "social" | "mission" | "library" | "profile" | "notifications" | "security";
 
 interface TabDef {
   key: ProfileTabKey;
@@ -21,6 +21,7 @@ const TABS: TabDef[] = [
   { key: "library", label: "Biblioteca", icon: "📚", colorClass: "text-pink-400" },
   { key: "profile", label: "Perfil", icon: "✏️", colorClass: "text-violet-400" },
   { key: "notifications", label: "Avisos", icon: "🔔", count: 21, colorClass: "text-yellow-400" },
+  { key: "security", label: "Segurança", icon: "🔒", colorClass: "text-red-400" },
 ];
 
 interface ProfileSidebarNavProps {

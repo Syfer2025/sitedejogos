@@ -24,9 +24,8 @@ export function getClientIp(request: NextRequest) {
 export async function verifyAdminCredentials(email: string, password: string) {
   const adminEmail = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH?.trim();
-  const adminPassword = process.env.ADMIN_PASSWORD;
 
-  if (!adminEmail || (!adminPasswordHash && !adminPassword)) {
+  if (!adminEmail || !adminPasswordHash) {
     return { ok: false as const, reason: "missing_config" as const };
   }
 
@@ -34,9 +33,7 @@ export async function verifyAdminCredentials(email: string, password: string) {
     return { ok: false as const, reason: "invalid" as const };
   }
 
-  const isPasswordValid = adminPasswordHash
-    ? await compare(password, adminPasswordHash)
-    : password === adminPassword;
+  const isPasswordValid = await compare(password, adminPasswordHash);
 
   return {
     ok: isPasswordValid,

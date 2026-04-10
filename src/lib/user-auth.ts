@@ -128,6 +128,7 @@ export async function getPlayerSession(token: string) {
           displayName: true,
           createdAt: true,
           isPremium: true,
+          emailVerified: true,
         },
       },
     },
@@ -168,6 +169,13 @@ export async function deletePlayerSession(token: string) {
     where: {
       tokenHash,
     },
+  });
+}
+
+export async function invalidateAllPlayerSessions(userId: string) {
+  sessionCache.clear();
+  await prisma.playerSession.deleteMany({
+    where: { userId },
   });
 }
 

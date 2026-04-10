@@ -12,11 +12,6 @@ import { getAnalyticsSessionId } from "@/lib/analytics";
 
 type Mode = "login" | "register";
 
-const DEMO_LOGIN = {
-  email: "demo@gaming-portal.local",
-  password: "Demo123456!",
-};
-
 /* ── Password Strength ── */
 type StrengthLevel = 0 | 1 | 2 | 3 | 4;
 
@@ -90,6 +85,12 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // 2FA state
+  const [pending2fa, setPending2fa] = useState(false);
+  const [pendingToken, setPendingToken] = useState("");
+  const [totpCode, setTotpCode] = useState("");
+  const [verifying2fa, setVerifying2fa] = useState(false);
+
   const redirectTo = searchParams.get("from") || "/account";
 
   const strength = useMemo(() => calcPasswordStrength(password), [password]);
@@ -110,12 +111,30 @@ export default function LoginPage() {
     router.replace(`/login?${params.toString()}`, { scroll: false });
   }
 
-  function fillDemoCredentials() {
-    updateMode("login");
-    setEmail(DEMO_LOGIN.email);
-    setPassword(DEMO_LOGIN.password);
-    setDisplayName("Jogador Demo");
+  async function handleVerify2fa() {
     setError(null);
+    setVerifying2fa(true);
+
+    try {
+      const res = await fetch("/api/auth/user/totp/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pendingToken, code: totpCode }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data.message || "Código inválido.");
+        setVerifying2fa(false);
+        return;
+      }
+
+      window.location.href = redirectTo;
+    } catch {
+      setError("Erro inesperado. Tente novamente.");
+      setVerifying2fa(false);
+    }
   }
 
   async function handleSocialLogin(provider: string) {
@@ -171,6 +190,14 @@ export default function LoginPage() {
           return;
         }
 
+        // Check if 2FA is required
+        if (data.requires2fa) {
+          setPending2fa(true);
+          setPendingToken(data.pendingToken);
+          setLoading(false);
+          return;
+        }
+
         window.location.href = redirectTo;
         return;
       }
@@ -206,6 +233,71 @@ export default function LoginPage() {
 
   const t = useTranslate();
   const isRegister = mode === "register";
+
+  // ── 2FA Verification Screen ──
+  if (pending2fa) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-black flex items-center justify-center px-4 py-10">
+        <div className="w-full max-w-[420px] rounded-2xl border border-slate-800 bg-slate-950/80 p-6 shadow-[0_0_50px_rgba(15,23,42,0.9)]">
+          <div className="mb-5 text-center">
+            <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-400 via-purple-500 to-fuchsia-500 shadow-[0_0_25px_rgba(34,211,238,0.6)]">
+              <span className="text-lg font-bold text-white">N</span>
+            </div>
+            <h1 className="mt-3 text-lg font-semibold tracking-tight text-slate-50">
+              Verificação em duas etapas
+            </h1>
+            <p className="mt-1 text-xs text-slate-400">
+              Insira o código do seu app autenticador ou um código de backup.
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <label className="mb-1 block text-xs font-medium text-slate-300">
+                Código de verificação
+              </label>
+              <input
+                type="text"
+                value={totpCode}
+                onChange={(e) => setTotpCode(e.target.value)}
+                placeholder="000000 ou XXXX-XXXX"
+                autoFocus
+                className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 text-center text-lg tracking-[0.2em] text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60"
+              />
+            </div>
+
+            {error && (
+              <p className="rounded-lg border border-red-900/60 bg-red-950/30 px-3 py-2 text-xs text-red-300">
+                {error}
+              </p>
+            )}
+
+            <button
+              type="button"
+              onClick={handleVerify2fa}
+              disabled={verifying2fa || !totpCode}
+              className="w-full inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.5)] transition-all"
+            >
+              {verifying2fa ? "Verificando..." : "Verificar"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setPending2fa(false);
+                setPendingToken("");
+                setTotpCode("");
+                setError(null);
+              }}
+              className="w-full text-center text-xs text-slate-400 hover:text-slate-300"
+            >
+              Voltar ao login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-black flex items-center justify-center px-4 py-10">
@@ -289,27 +381,6 @@ export default function LoginPage() {
           <div className="flex-1 h-px bg-slate-800" />
         </div>
 
-        {/* ── Demo Credentials ── */}
-        <div className="mb-4 rounded-xl border border-emerald-500/20 bg-emerald-500/8 p-3">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.15em] text-emerald-300/80 font-medium">
-                Conta demo
-              </p>
-              <p className="mt-0.5 text-[11px] text-slate-400">
-                {DEMO_LOGIN.email}
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={fillDemoCredentials}
-              className="shrink-0 rounded-full border border-emerald-300/30 bg-slate-950/50 px-3 py-1.5 text-[10px] font-medium text-emerald-200 transition-colors hover:border-emerald-200/50 hover:text-white"
-            >
-              Preencher
-            </button>
-          </div>
-        </div>
-
         {/* ── Email Form ── */}
         <form onSubmit={handleSubmit} className="space-y-3">
           {isRegister && (
@@ -366,6 +437,15 @@ export default function LoginPage() {
                 {showPassword ? "🙈" : "👁️"}
               </button>
             </div>
+
+            {/* Forgot Password (login only) */}
+            {!isRegister && (
+              <div className="mt-1 text-right">
+                <Link href="/forgot-password" className="text-[11px] text-cyan-300 hover:text-cyan-200 font-medium">
+                  {t("auth.forgotPassword")}
+                </Link>
+              </div>
+            )}
 
             {/* Password Strength (register only) */}
             {isRegister && password.length > 0 && (

@@ -11,6 +11,7 @@ import {
   setPlayerSessionCookie,
 } from "@/lib/user-auth";
 import { playerRegisterSchema } from "@/lib/user-schema";
+import { sendVerificationEmail } from "@/lib/verification";
 
 const REGISTER_WINDOW_MS = 10 * 60 * 1000;
 const REGISTER_ATTEMPT_LIMIT = 5;
@@ -93,6 +94,15 @@ export async function POST(req: NextRequest) {
   });
 
   await applyGamificationEvent(result.user.id, "register");
+
+  // Send verification email (fire-and-forget — don't block registration)
+  sendVerificationEmail({
+    userId: result.user.id,
+    email: result.user.email,
+    displayName: result.user.displayName,
+  }).catch((err) => {
+    console.error("[register] Failed to send verification email:", err);
+  });
 
   return response;
 }

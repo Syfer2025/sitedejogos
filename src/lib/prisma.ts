@@ -53,6 +53,7 @@ const REQUIRED_PRISMA_DELEGATES = [
   "playerDailyMission",
   "account",
   "verificationToken",
+  "totpDevice",
 ] as const;
 
 function createPrismaClient() {

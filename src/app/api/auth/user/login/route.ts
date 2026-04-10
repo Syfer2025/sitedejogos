@@ -1,9 +1,11 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
+import { createHash, randomBytes } from "node:crypto";
 
 import { recordAnalyticsEvent } from "@/data/analyticsStore";
 import { applyGamificationEvent } from "@/data/gamificationStore";
 import { getClientIp } from "@/lib/admin-auth";
+import { prisma } from "@/lib/prisma";
 import { consumeRateLimit } from "@/lib/rate-limit";
 import {
   createPlayerSession,
@@ -14,6 +16,11 @@ import { playerLoginSchema } from "@/lib/user-schema";
 
 const LOGIN_WINDOW_MS = 10 * 60 * 1000;
 const LOGIN_ATTEMPT_LIMIT = 5;
+const PENDING_2FA_TTL_MS = 5 * 60 * 1000; // 5 minutes
+
+function hashToken(token: string) {
+  return createHash("sha256").update(token).digest("hex");
+}
 
 export async function POST(req: NextRequest) {
   const ipAddress = getClientIp(req);
@@ -52,6 +59,37 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Check if user has 2FA enabled
+  const totpDevice = await prisma.totpDevice.findUnique({
+    where: { userId: result.user.id },
+    select: { isEnabled: true },
+  });
+
+  if (totpDevice?.isEnabled) {
+    // Create a pending 2FA token instead of a real session
+    const pendingToken = randomBytes(32).toString("hex");
+    const identifier = `2fa-pending:${result.user.id}`;
+
+    // Clean up old pending tokens
+    await prisma.verificationToken.deleteMany({ where: { identifier } });
+
+    await prisma.verificationToken.create({
+      data: {
+        identifier,
+        token: hashToken(pendingToken),
+        expires: new Date(Date.now() + PENDING_2FA_TTL_MS),
+      },
+    });
+
+    return NextResponse.json({
+      ok: true,
+      requires2fa: true,
+      pendingToken,
+      emailVerified: !!result.user.emailVerified,
+    });
+  }
+
+  // No 2FA — create session normally
   const token = await createPlayerSession({
     userId: result.user.id,
     ipAddress,
@@ -60,6 +98,7 @@ export async function POST(req: NextRequest) {
 
   const response = NextResponse.json({
     ok: true,
+    emailVerified: !!result.user.emailVerified,
     user: {
       id: result.user.id,
       email: result.user.email,

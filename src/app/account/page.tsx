@@ -27,6 +27,7 @@ import {
   listFavoriteGames,
   listRecentlyPlayed,
 } from "@/data/playerStore";
+import { prisma } from "@/lib/prisma";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 
 import { AccountProfileForm } from "../components/AccountProfileForm";
@@ -35,6 +36,7 @@ import { CoinsPanel } from "../components/CoinsPanel";
 import { AchievementCollection } from "../components/HomeAchievementsRail";
 import { ProfileSidebarNav, type ProfileTabKey } from "../components/ProfileSidebarNav";
 import { ActivityFeed } from "../components/ActivityFeed";
+import { TotpSetupFlow } from "../components/TotpSetupFlow";
 
 type FavoriteEntry = Awaited<ReturnType<typeof listFavoriteGames>>[number];
 type HistoryEntry = Awaited<ReturnType<typeof listRecentlyPlayed>>[number];
@@ -117,7 +119,7 @@ export default async function AccountPage() {
     redirect("/login?from=/account");
   }
 
-  const [favorites, history, profile, categories, gamification, tasteProfile, achievementDefinitions] = await Promise.all([
+  const [favorites, history, profile, categories, gamification, tasteProfile, achievementDefinitions, totpDevice] = await Promise.all([
     listFavoriteGames(session.user.id, 12),
     listRecentlyPlayed(session.user.id, 12),
     getPlayerProfile(session.user.id),
@@ -125,6 +127,10 @@ export default async function AccountPage() {
     getPlayerGamificationOverview(session.user.id),
     getPlayerTasteProfile(session.user.id),
     listAchievementDefinitions(),
+    prisma.totpDevice.findUnique({
+      where: { userId: session.user.id },
+      select: { isEnabled: true },
+    }),
   ]);
 
   if (!profile) {
@@ -219,6 +225,27 @@ export default async function AccountPage() {
             </div>
           </div>
         </header>
+
+        {/* Email Verification Banner */}
+        {!session.user.emailVerified && (
+          <div className="mb-6 flex items-center justify-between gap-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-6 py-4 animate-fade-in">
+            <div className="flex items-center gap-3">
+              <span className="text-xl">✉️</span>
+              <div>
+                <p className="text-sm font-semibold text-amber-200">Verifique seu email</p>
+                <p className="text-xs text-amber-300/70">Confirme seu endereço de email para ativar todas as funcionalidades.</p>
+              </div>
+            </div>
+            <form action="/api/auth/user/resend-verification" method="POST">
+              <button
+                type="submit"
+                className="shrink-0 rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-2 text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-400/20"
+              >
+                Reenviar email
+              </button>
+            </form>
+          </div>
+        )}
 
         {/* Stats */}
         <section className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5 animate-fade-in-up">
@@ -319,6 +346,31 @@ export default async function AccountPage() {
                         <p className="text-xs text-slate-400 mt-1 leading-relaxed">{n.message}</p>
                       </div>
                     ))}
+                  </div>
+                </TabSectionShell>
+              ),
+              security: (
+                <TabSectionShell icon="🔒" title="Segurança" subtitle="Gerencie a segurança da sua conta">
+                  <div className="space-y-6">
+                    {/* Email Verification Status */}
+                    <div className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-900/50 p-4">
+                      <div>
+                        <h3 className="text-sm font-semibold text-slate-200">Verificação de email</h3>
+                        <p className="text-xs text-slate-400 mt-0.5">{profile.email}</p>
+                      </div>
+                      <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                        session.user.emailVerified
+                          ? "bg-emerald-500/20 text-emerald-300"
+                          : "bg-amber-500/20 text-amber-300"
+                      }`}>
+                        {session.user.emailVerified ? "Verificado" : "Não verificado"}
+                      </span>
+                    </div>
+
+                    {/* 2FA Setup */}
+                    <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-4">
+                      <TotpSetupFlow enabled={totpDevice?.isEnabled ?? false} />
+                    </div>
                   </div>
                 </TabSectionShell>
               ),
