@@ -217,9 +217,9 @@ export async function syncGameMonetizeFeedPages(
   let skipped = 0;
 
   for (let pageOffset = 0; pageOffset < pageCount; pageOffset += 1) {
-    // Pequena pausa para evitar 429 (Too Many Requests)
+    // Pausa entre páginas para evitar 429 (Too Many Requests)
     if (pageOffset > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }
 
     const result = await syncGameMonetizeFeedPage({

@@ -201,30 +201,69 @@ export function mapGameMonetizeFeedItem(item: GameMonetizeFeedItem): CreateGameI
   };
 }
 
+const MAX_RETRIES = 4;
+const BASE_BACKOFF_MS = 2000;
+
+function getRetryAfterMs(response: Response): number {
+  const retryAfter = response.headers.get("Retry-After");
+
+  if (retryAfter) {
+    const seconds = Number(retryAfter);
+    if (!isNaN(seconds) && seconds > 0) {
+      return seconds * 1000;
+    }
+  }
+
+  return 0;
+}
+
 export async function fetchGameMonetizeFeedPage(page = 1): Promise<GameMonetizeFeedItem[]> {
   const searchParams = new URLSearchParams({
     format: "0",
     page: String(Math.max(page, 1)),
   });
 
-  const response = await fetch(`${FEED_ENDPOINT}?${searchParams.toString()}`, {
-    headers: {
-      Accept: "application/json",
-    },
-    cache: "no-store",
-  });
+  const url = `${FEED_ENDPOINT}?${searchParams.toString()}`;
+  let lastError: Error | null = null;
 
-  if (!response.ok) {
-    throw new Error(`Falha ao buscar feed da GameMonetize: ${response.status}`);
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    const response = await fetch(url, {
+      headers: {
+        Accept: "application/json",
+      },
+      cache: "no-store",
+    });
+
+    if (response.status === 429) {
+      const retryAfterMs = getRetryAfterMs(response);
+      const backoffMs = retryAfterMs > 0
+        ? retryAfterMs
+        : BASE_BACKOFF_MS * Math.pow(2, attempt);
+
+      lastError = new Error(`Falha ao buscar feed da GameMonetize: ${response.status}`);
+
+      if (attempt < MAX_RETRIES) {
+        await new Promise((resolve) => setTimeout(resolve, backoffMs));
+        continue;
+      }
+
+      break;
+    }
+
+    if (!response.ok) {
+      throw new Error(`Falha ao buscar feed da GameMonetize: ${response.status}`);
+    }
+
+    const payload = (await response.json()) as unknown;
+
+    if (!Array.isArray(payload)) {
+      throw new Error("O feed da GameMonetize não retornou uma lista de jogos.");
+    }
+
+    return payload.filter((entry): entry is GameMonetizeFeedItem => {
+      return Boolean(entry && typeof entry === "object");
+    });
   }
 
-  const payload = (await response.json()) as unknown;
-
-  if (!Array.isArray(payload)) {
-    throw new Error("O feed da GameMonetize não retornou uma lista de jogos.");
-  }
-
-  return payload.filter((entry): entry is GameMonetizeFeedItem => {
-    return Boolean(entry && typeof entry === "object");
-  });
+  throw lastError ?? new Error("Falha ao buscar feed da GameMonetize.");
 }
