@@ -57,7 +57,6 @@ export function AntiAdBlockWall({
 
           <div className="aab-wall-options">
             <div className="aab-wall-option">
-              <p className="aab-wall-option-title">Opção 1 — Grátis</p>
               <p className="aab-wall-option-desc">
                 Desative seu bloqueador de anúncios e recarregue a página para
                 jogar sem limites.
@@ -70,9 +69,6 @@ export function AntiAdBlockWall({
                 🔄 Já desativei, recarregar
               </button>
             </div>
-
-            <div className="aab-wall-option-divider">ou</div>
-
           </div>
         </div>
       </div>

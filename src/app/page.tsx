@@ -456,6 +456,9 @@ export default async function Home({
             isAuthenticated={Boolean(playerSession)}
           />
 
+          {/* Mid-catalog ad — after theme sections, before featured */}
+          <AdSlot label={t.bannerMiddle} slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_MIDDLE} />
+
           {/* Featured */}
           {featuredGames.length > 0 ? (
             <section>
@@ -468,6 +471,9 @@ export default async function Home({
             </section>
           ) : null}
 
+          {/* In-feed ad — between featured and popular */}
+          <AdSlot label="Feed" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_FEED} minHeight={100} />
+
           {/* Popular */}
           <section>
             <SectionTitle title={t.popularLabel} actionHref="/#catalogo" actionLabel={t.readAll} trackingPath="/home/section-header/popular" count={popularGames.length} />
@@ -478,12 +484,7 @@ export default async function Home({
             </div>
           </section>
 
-          <AdSlot label={t.bannerMiddle} slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_MIDDLE} />
-
-          {/* In-feed ad */}
-          <AdSlot label="Feed" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_FEED} minHeight={100} />
-
-          {/* Pre-blog ad */}
+          {/* Pre-blog ad — after popular, before blog */}
           <AdSlot label="Conteúdo" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_CONTENT} minHeight={100} />
 
           {/* Blog */}

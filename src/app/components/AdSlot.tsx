@@ -36,14 +36,6 @@ const NATIVE_PROMOS = [
     border: "border-purple-500/30",
   },
   {
-    title: "⭐ Torne-se Premium!",
-    text: "Experiência sem anúncios, temas exclusivos e recompensas em dobro. Conheça o plano Premium.",
-    cta: "Ver plano Premium",
-    href: "/account",
-    gradient: "from-amber-500/20 to-orange-500/20",
-    border: "border-amber-500/30",
-  },
-  {
     title: "🏆 Desafio diário disponível!",
     text: "Complete a missão de hoje e ganhe moedas, XP e suba no ranking entre seus amigos.",
     cta: "Ver missão",
