@@ -37,7 +37,7 @@ export function ActivityFeed({ history, locale }: ActivityFeedProps) {
               <div key={entry.id} className="group relative overflow-hidden rounded-2xl border border-slate-700/60 bg-slate-800/40 p-4 transition-all duration-300 hover:border-slate-600 hover:bg-slate-800/70 hover:shadow-lg hover:shadow-black/30">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   {/* Game Thumbnail */}
-                  <div className="relative aspect-video h-20 shrink-0 overflow-hidden rounded-xl border border-slate-800 sm:h-16 md:h-20">
+                  <div className="relative aspect-[2/1] h-16 shrink-0 overflow-hidden rounded-xl border border-slate-800 sm:h-12 md:h-16">
                     <Image
                       src={entry.game.thumbnail}
                       alt={entry.game.title}

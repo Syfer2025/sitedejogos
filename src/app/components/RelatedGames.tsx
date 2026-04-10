@@ -48,9 +48,9 @@ export function RelatedGamesSection({ games, dict }: { games: RelatedGame[], dic
           )}
           <Link
             href={`/games/${game.slug}`}
-            className="group relative rounded-xl overflow-hidden bg-slate-950/70 border border-slate-800/80 hover:border-purple-500/70 hover:bg-slate-950/90 transition-colors shadow-none"
+            className="group flex flex-col aspect-[2/1] relative rounded-xl overflow-hidden bg-slate-950/70 border border-slate-800/80 hover:border-purple-500/70 hover:bg-slate-950/90 transition-colors shadow-none"
           >
-            <div className="relative aspect-video overflow-hidden">
+            <div className="relative flex-1 overflow-hidden">
               <Image
                 src={game.thumbnail}
                 alt={game.title}
@@ -65,11 +65,11 @@ export function RelatedGamesSection({ games, dict }: { games: RelatedGame[], dic
                 </span>
               )}
             </div>
-            <div className="p-3">
-              <h3 className="text-[11px] font-medium text-slate-100 line-clamp-2 mb-0.5">
+            <div className="p-2 flex-none bg-slate-900/40">
+              <h3 className="text-[10px] font-medium text-slate-100 line-clamp-1 mb-0.5">
                 {game.title}
               </h3>
-              <p className="text-[10px] text-slate-500 group-hover:text-slate-300 transition-colors">
+              <p className="text-[9px] text-slate-500 group-hover:text-slate-300 transition-colors">
                 {t(dict, "game.playInOneClick")}
               </p>
             </div>
