@@ -40,7 +40,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     metadataBase: new URL(siteUrl),
     title: {
-      default: "Gasty Games",
+      default: "Gasty Games - Milhares de Jogos Grátis Online",
       template: "%s | Gasty Games",
     },
     description: dict.home.heroSubtitle,

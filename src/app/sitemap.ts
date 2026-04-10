@@ -17,7 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     listCategories({ order: "editorial" }),
   ]);
 
-  const staticRoutes = ["", "/blog"];
+  const staticRoutes = ["", "/blog", "/privacy", "/terms", "/contact"];
 
   // Base routes (canonical)
   const canonicalRoutes: MetadataRoute.Sitemap = [
