@@ -19,7 +19,7 @@ export default async function GameLayout({
   const premium = playerSession ? await isPlayerPremium(playerSession.user.id) : false;
 
   return (
-    <div className="flex h-[calc(100vh-57px)]">
+    <div className="flex h-full">
       <main className="relative z-[1] flex-1 min-w-0 overflow-y-auto scrollbar-thin">
         <AntiAdBlockGuard />
         <InterstitialProvider isPremium={premium}>

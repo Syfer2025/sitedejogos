@@ -192,7 +192,7 @@ export default async function RootLayout({
               </nav>
             </header>
 
-            <main className="flex-1 pb-14 sm:pb-0 overflow-hidden">{children}</main>
+            <main className="flex-1 min-h-0 pb-14 sm:pb-0 overflow-hidden">{children}</main>
             
             <MobileBottomNav />
           </AdBlockProvider>

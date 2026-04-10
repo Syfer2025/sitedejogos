@@ -381,7 +381,7 @@ export default async function Home({
   }
 
   return (
-    <div className="flex h-[calc(100vh-57px)]">
+    <div className="flex h-full">
 
       {/* ████ LEFT SIDEBAR — Categorias ████ */}
       <aside className="hidden lg:flex w-[160px] flex-none flex-col border-r border-slate-800/60 bg-slate-950/60 overflow-y-auto scrollbar-thin animate-slide-in-left">
