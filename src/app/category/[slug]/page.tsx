@@ -149,7 +149,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               <Link
                 key={game.id}
                 href={`/games/${game.slug}`}
-                className="group flex flex-col aspect-[1.618] overflow-hidden rounded-xl border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:-translate-y-0.5 animate-fade-in-up"
+                className="group flex flex-col aspect-[2/1] overflow-hidden rounded-xl border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:-translate-y-0.5 animate-fade-in-up"
               >
                 <div className="relative flex-1 overflow-hidden bg-slate-950">
                   <Image

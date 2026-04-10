@@ -313,7 +313,7 @@ export default async function AccountPage() {
                         <Link
                           key={f.id}
                           href={`/games/${f.game.slug}`}
-                          className="group flex flex-col aspect-[1.618] overflow-hidden rounded-2xl border border-white/5 bg-slate-900 transition-all hover:border-white/20"
+                          className="group flex flex-col aspect-[2/1] overflow-hidden rounded-2xl border border-white/5 bg-slate-900 transition-all hover:border-white/20"
                         >
                           <div className="relative flex-1 overflow-hidden">
                             <Image
