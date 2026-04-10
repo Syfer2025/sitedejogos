@@ -149,9 +149,9 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
               <Link
                 key={game.id}
                 href={`/games/${game.slug}`}
-                className="group block overflow-hidden rounded-xl border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:-translate-y-0.5 animate-fade-in-up"
+                className="group flex flex-col aspect-[1.618] overflow-hidden rounded-xl border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:-translate-y-0.5 animate-fade-in-up"
               >
-                <div className="relative aspect-video overflow-hidden bg-slate-950">
+                <div className="relative flex-1 overflow-hidden bg-slate-950">
                   <Image
                     src={game.thumbnail}
                     alt={game.title}
@@ -161,12 +161,12 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                   />
                   {game.featured ? (
                     <span className="absolute left-2 top-2 rounded bg-amber-400/90 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-950 shadow-lg">
-                      destaque
+                      ★
                     </span>
                   ) : null}
                 </div>
-                <div className="px-2.5 py-2">
-                  <h3 className="truncate text-xs font-semibold text-slate-100 group-hover:text-cyan-200 transition-colors">
+                <div className="px-2.5 py-1.5 flex-none bg-slate-900/40">
+                  <h3 className="truncate text-[11px] font-semibold text-slate-100 group-hover:text-cyan-200 transition-colors leading-tight">
                     {game.title}
                   </h3>
                 </div>

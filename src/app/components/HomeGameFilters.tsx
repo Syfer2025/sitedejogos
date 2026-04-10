@@ -167,11 +167,11 @@ export function HomeGameFilters({
           {Array.from({ length: 12 }).map((_, i) => (
             <div
               key={i}
-              className="rounded-lg border border-slate-800/60 bg-slate-900/50 animate-pulse"
+              className="flex flex-col aspect-[1.618] rounded-lg border border-slate-800/60 bg-slate-900/50 animate-pulse"
             >
-              <div className="aspect-video bg-slate-800/50" />
-              <div className="p-2.5 space-y-2">
-                <div className="h-3 w-3/4 bg-slate-800/50 rounded" />
+              <div className="flex-1 bg-slate-800/50" />
+              <div className="p-2 flex-none space-y-1.5">
+                <div className="h-2 w-3/4 bg-slate-800/50 rounded" />
                 <div className="h-2 w-1/2 bg-slate-800/50 rounded" />
               </div>
             </div>
@@ -187,9 +187,9 @@ export function HomeGameFilters({
             <Link
               key={game.id}
               href={`/games/${game.slug}`}
-              className="group block overflow-hidden rounded-lg border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:bg-slate-800/60 hover:shadow-[0_0_24px_rgba(34,211,238,0.1)] hover:-translate-y-0.5 animate-fade-in-up"
+              className="group flex flex-col aspect-[1.618] overflow-hidden rounded-lg border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:bg-slate-800/60 hover:shadow-[0_0_24px_rgba(34,211,238,0.1)] hover:-translate-y-0.5 animate-fade-in-up"
             >
-              <div className="game-card-play relative aspect-video overflow-hidden bg-slate-950">
+              <div className="game-card-play relative flex-1 overflow-hidden bg-slate-950">
                 <Image
                   src={game.thumbnail}
                   alt={game.title}
@@ -204,11 +204,11 @@ export function HomeGameFilters({
                   </span>
                 )}
               </div>
-              <div className="p-2.5">
-                <h3 className="truncate text-[13px] font-semibold text-slate-100 transition-colors group-hover:text-cyan-200">
+              <div className="px-2.5 py-1.5 flex-none bg-slate-900/20">
+                <h3 className="truncate text-[11px] font-semibold text-slate-100 transition-colors group-hover:text-cyan-200 leading-tight">
                   {game.title}
                 </h3>
-                <div className="mt-1 flex items-center gap-2 text-[10px] text-slate-500">
+                <div className="mt-0.5 flex items-center gap-1.5 text-[9px] text-slate-500">
                   {game.category && (
                     <span className="transition-colors group-hover:text-slate-400">
                       {game.category}
