@@ -34,7 +34,15 @@
     "hoursAgo": "{value}h ago",
     "daysAgo": "{value}d ago",
     "backToHome": "Back to portal",
-    "readAll": "See all"
+    "readAll": "See all",
+    "footer": {
+      "desc": "Your premium HTML5 gaming portal. Play instantly, no downloads.",
+      "legal": "Legal",
+      "privacy": "Privacy",
+      "terms": "Terms",
+      "contact": "Contact",
+      "rights": "All rights reserved."
+    }
   },
   "home": {
     "heroKicker": "Curated HTML5 Selection",
@@ -111,7 +119,10 @@
     "registerAndLogin": "Create account and login",
     "loginButton": "Login to account",
     "loginLink": "Login",
-    "registerLink": "Create now"
+    "registerLink": "Create now",
+    "privacyTitle": "Privacy Policy",
+    "termsTitle": "Terms and Conditions",
+    "contactTitle": "Contact Us"
   },
   "player": {
     "level": "Level",

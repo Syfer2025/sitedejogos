@@ -34,7 +34,15 @@
     "hoursAgo": "{value}h atrás",
     "daysAgo": "{value}d atrás",
     "backToHome": "Voltar ao portal",
-    "readAll": "Ver todos"
+    "readAll": "Ver todos",
+    "footer": {
+      "desc": "Seu portal de jogos HTML5 premium. Jogue instantaneamente, sem downloads.",
+      "legal": "Legal",
+      "privacy": "Privacidade",
+      "terms": "Termos",
+      "contact": "Contato",
+      "rights": "Todos os direitos reservados."
+    }
   },
   "home": {
     "heroKicker": "Seleção HTML5 Curada",
@@ -111,7 +119,10 @@
     "registerAndLogin": "Criar conta e entrar",
     "loginButton": "Entrar na conta",
     "loginLink": "Faça login",
-    "registerLink": "Crie agora"
+    "registerLink": "Crie agora",
+    "privacyTitle": "Política de Privacidade",
+    "termsTitle": "Termos e Condições de Uso",
+    "contactTitle": "Fale Conosco"
   },
   "player": {
     "level": "Nível",
