@@ -218,7 +218,7 @@ export function ThemeSectionsFeed({
                   {Array.from({ length: 5 }).map((_, index) => (
                     <div
                       key={index}
-                      className="flex flex-col aspect-[2/1] overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/60 animate-pulse"
+                      className="flex flex-col aspect-[1.618] overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-900/60 animate-pulse"
                     >
                       <div className="flex-1 bg-slate-800/70" />
                       <div className="p-2 flex-none space-y-1.5">

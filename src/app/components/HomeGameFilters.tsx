@@ -167,7 +167,7 @@ export function HomeGameFilters({
           {Array.from({ length: 12 }).map((_, i) => (
             <div
               key={i}
-              className="flex flex-col aspect-[2/1] rounded-lg border border-slate-800/60 bg-slate-900/50 animate-pulse"
+              className="flex flex-col aspect-[1.618] rounded-lg border border-slate-800/60 bg-slate-900/50 animate-pulse"
             >
               <div className="flex-1 bg-slate-800/50" />
               <div className="p-2 flex-none space-y-1.5">
@@ -187,7 +187,7 @@ export function HomeGameFilters({
             <Link
               key={game.id}
               href={`/games/${game.slug}`}
-              className="group flex flex-col aspect-[2/1] overflow-hidden rounded-lg border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:bg-slate-800/60 hover:shadow-[0_0_24px_rgba(34,211,238,0.1)] hover:-translate-y-0.5 animate-fade-in-up"
+              className="group flex flex-col aspect-[1.618] overflow-hidden rounded-lg border border-slate-800/60 bg-slate-900/50 transition-all duration-200 hover:border-cyan-400/40 hover:bg-slate-800/60 hover:shadow-[0_0_24px_rgba(34,211,238,0.1)] hover:-translate-y-0.5 animate-fade-in-up"
             >
               <div className="game-card-play relative flex-1 overflow-hidden bg-slate-950">
                 <Image

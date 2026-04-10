@@ -20,7 +20,7 @@ export function CatalogGameCard({
   return (
     <Link
       href={`/games/${game.slug}`}
-      className="group flex flex-col aspect-[2/1] overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/70 transition-all duration-300 hover:-translate-y-1 hover:border-slate-600 hover:bg-slate-950/95 shadow-none"
+      className="group flex flex-col aspect-[1.618] overflow-hidden rounded-2xl border border-slate-800/80 bg-slate-950/70 transition-all duration-300 hover:-translate-y-1 hover:border-slate-600 hover:bg-slate-950/95 shadow-none"
     >
       <div className="relative flex-1 overflow-hidden bg-slate-950">
         <Image

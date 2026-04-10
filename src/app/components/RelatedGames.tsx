@@ -48,7 +48,7 @@ export function RelatedGamesSection({ games, dict }: { games: RelatedGame[], dic
           )}
           <Link
             href={`/games/${game.slug}`}
-            className="group flex flex-col aspect-[2/1] relative rounded-xl overflow-hidden bg-slate-950/70 border border-slate-800/80 hover:border-purple-500/70 hover:bg-slate-950/90 transition-colors shadow-none"
+            className="group flex flex-col aspect-[1.618] relative rounded-xl overflow-hidden bg-slate-950/70 border border-slate-800/80 hover:border-purple-500/70 hover:bg-slate-950/90 transition-colors shadow-none"
           >
             <div className="relative flex-1 overflow-hidden">
               <Image
