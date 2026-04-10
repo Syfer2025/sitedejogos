@@ -157,7 +157,7 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
                     alt={game.title}
                     fill
                     unoptimized
-                    className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                    className="object-fill transition-transform duration-500 ease-out group-hover:scale-110"
                   />
                   {game.featured ? (
                     <span className="absolute left-2 top-2 rounded bg-amber-400/90 px-1.5 py-0.5 text-[9px] font-bold uppercase text-slate-950 shadow-lg">

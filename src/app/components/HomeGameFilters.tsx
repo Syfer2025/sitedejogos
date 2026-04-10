@@ -195,7 +195,7 @@ export function HomeGameFilters({
                   alt={game.title}
                   fill
                   unoptimized
-                  className="object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                  className="object-fill transition-transform duration-500 ease-out group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent transition-opacity duration-200 group-hover:from-black/60" />
                 {game.featured && (

@@ -43,7 +43,7 @@ export function ActivityFeed({ history, locale }: ActivityFeedProps) {
                       alt={entry.game.title}
                       fill
                       unoptimized
-                      className="object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="object-fill transition-transform duration-500 group-hover:scale-110"
                     />
                   </div>
 

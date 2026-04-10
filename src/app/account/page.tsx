@@ -321,7 +321,7 @@ export default async function AccountPage() {
                               alt={f.game.title}
                               fill
                               unoptimized
-                              className="object-cover transition-transform group-hover:scale-110"
+                              className="object-fill transition-transform duration-500 group-hover:scale-110"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                           </div>

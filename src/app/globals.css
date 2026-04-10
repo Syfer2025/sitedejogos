@@ -20,11 +20,7 @@
 }
 
 body {
-  background:
-    radial-gradient(circle at 50% 30%, rgba(100, 120, 255, 0.12), transparent 60%),
-    radial-gradient(circle at 20% 80%, rgba(88, 28, 135, 0.25), transparent 65%),
-    radial-gradient(circle at 80% 85%, rgba(8, 47, 73, 0.3), transparent 60%),
-    linear-gradient(180deg, #05070a, #0a0c12, #020408);
+  background: #0b0d13 !important;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;

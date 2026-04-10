@@ -56,7 +56,7 @@ export function RelatedGamesSection({ games, dict }: { games: RelatedGame[], dic
                 alt={game.title}
                 fill
                 unoptimized
-                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                className="object-fill transition-transform duration-500 ease-out group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity" />
               {game.category && (
