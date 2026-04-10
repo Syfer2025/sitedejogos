@@ -46,9 +46,13 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(result);
-  } catch {
+  } catch (error: any) {
+    console.error("[Sync Error]:", error);
     return NextResponse.json(
-      { error: "Erro ao sincronizar feed da GameMonetize." },
+      { 
+        error: "Erro ao sincronizar feed da GameMonetize.",
+        details: error instanceof Error ? error.message : String(error)
+      },
       { status: 500 },
     );
   }
