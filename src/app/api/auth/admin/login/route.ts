@@ -48,21 +48,33 @@ export async function POST(req: NextRequest) {
   }
 
   const { email, password } = parsed.data;
+  console.log(`[AdminLogin] Attempt for email: ${email} from IP: ${ipAddress}`);
+
   const credentials = await verifyAdminCredentials(email, password);
 
   if (!credentials.ok) {
+    console.error(`[AdminLogin] Verification failed. Reason: ${credentials.reason}`);
     return NextResponse.json({ message: "Invalid credentials" }, { status: 401 });
   }
 
-  const token = await createAdminSession({
-    email,
-    ipAddress,
-    userAgent: req.headers.get("user-agent") ?? undefined,
-  });
+  console.log(`[AdminLogin] Credentials OK. Creating session...`);
 
-  const res = NextResponse.json({ ok: true });
+  try {
+    const token = await createAdminSession({
+      email,
+      ipAddress,
+      userAgent: req.headers.get("user-agent") ?? undefined,
+    });
 
-  setAdminSessionCookie(res, token);
-
-  return res;
+    console.log(`[AdminLogin] Session created successfully.`);
+    const res = NextResponse.json({ ok: true });
+    setAdminSessionCookie(res, token);
+    return res;
+  } catch (error) {
+    console.error(`[AdminLogin] Database error creating session:`, error);
+    return NextResponse.json(
+      { message: "Server error creating session" },
+      { status: 500 },
+    );
+  }
 }
