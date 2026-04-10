@@ -117,15 +117,16 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-screen text-slate-100 flex flex-col" data-default-locale={initialLocale}>
+      <head>
         {adsenseClientId ? (
-          <Script
+          <script
             async
             crossOrigin="anonymous"
             src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClientId}`}
-            strategy="afterInteractive"
           />
         ) : null}
+      </head>
+      <body className="min-h-screen text-slate-100 flex flex-col" data-default-locale={initialLocale}>
         <LocaleProvider initialLocale={initialLocale}>
           <AdBlockProvider isPremium={premium}>
           <PageAnalyticsTracker />
