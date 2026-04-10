@@ -6,7 +6,7 @@ import {
   fetchGameMonetizeFeedPage,
   mapGameMonetizeFeedItem,
 } from "../lib/gamemonetize-feed";
-import { generateGameSEOContent } from "../lib/content-generation";
+import { buildGameContent } from "../lib/content-templates";
 import { prisma } from "../lib/prisma";
 
 type ExistingGame = Pick<
@@ -168,29 +168,23 @@ async function createImportedGame(payload: CreateGameInput, sourceId: string) {
     },
   });
 
-  // Generate SEO content in background — don't block import if it fails
-  if (process.env.ANTHROPIC_API_KEY) {
-    generateGameSEOContent({
-      title: payload.title,
-      description: payload.description,
-      category: payload.category,
-      tags: payload.tags,
-    })
-      .then((content) =>
-        prisma.game.update({
-          where: { id: game.id },
-          data: {
-            longDescription: content.longDescription,
-            tips: content.tips,
-            controls: content.controls,
-            faqJson: content.faqJson,
-          },
-        }),
-      )
-      .catch((err) => console.error(`[import] SEO content generation failed for "${payload.title}":`, err));
-  }
+  // Generate SEO content immediately using local templates (zero cost, instant)
+  const content = buildGameContent({
+    title: payload.title,
+    description: payload.description,
+    category: payload.category,
+    tags: serializeTags(payload.tags),
+  });
 
-  return game;
+  return prisma.game.update({
+    where: { id: game.id },
+    data: {
+      longDescription: content.longDescription,
+      tips: content.tips,
+      controls: content.controls,
+      faqJson: content.faqJson,
+    },
+  });
 }
 
 async function updateImportedGame(existing: ExistingGame, payload: CreateGameInput, sourceId: string) {

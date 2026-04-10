@@ -174,6 +174,32 @@ export default function AdminGamesPage() {
     }
   }
 
+  const [fillingContent, setFillingContent] = useState(false);
+  const [fillContentResult, setFillContentResult] = useState<{ filled: number; message: string } | null>(null);
+  const [fillContentError, setFillContentError] = useState<string | null>(null);
+
+  async function handleFillContent() {
+    try {
+      setFillingContent(true);
+      setFillContentError(null);
+      setFillContentResult(null);
+
+      const res = await fetch("/api/admin/games/fill-content", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Erro ao preencher conteúdo.");
+      setFillContentResult(data);
+    } catch (err) {
+      setFillContentError(err instanceof Error ? err.message : "Erro desconhecido.");
+    } finally {
+      setFillingContent(false);
+    }
+  }
+
   const categories = useMemo(() => {
     const unique = new Set(games.map((game) => game.category).filter(Boolean));
     return ["all", ...Array.from(unique).sort((left, right) => left.localeCompare(right))];
@@ -356,6 +382,33 @@ export default function AdminGamesPage() {
             </div>
           </div>
         ) : null}
+      </section>
+
+      {/* ── Fill Game Content ── */}
+      <section className="rounded-2xl border border-slate-700 bg-slate-950/80 p-4">
+        <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-slate-300">
+          Preencher Conteúdo SEO
+        </h2>
+        <p className="mb-3 text-xs text-slate-400">
+          Preenche automaticamente <code className="text-cyan-300">longDescription</code>, <code className="text-cyan-300">controls</code>, <code className="text-cyan-300">tips</code> e <code className="text-cyan-300">faqJson</code> para todos os jogos que estão vazios. Usa templates por categoria — zero custo, instantâneo.
+        </p>
+        <button
+          type="button"
+          onClick={handleFillContent}
+          disabled={fillingContent}
+          className="rounded-xl bg-emerald-500/20 px-4 py-2 text-sm font-semibold text-emerald-200 hover:bg-emerald-500/30 disabled:opacity-50 transition-colors"
+        >
+          {fillingContent ? "Preenchendo..." : "Preencher Todos os Jogos"}
+        </button>
+
+        {fillContentError && (
+          <p className="mt-2 text-xs text-red-400">{fillContentError}</p>
+        )}
+        {fillContentResult && (
+          <p className="mt-2 text-xs text-emerald-400">
+            {fillContentResult.message}
+          </p>
+        )}
       </section>
 
       <section className="grid gap-3 rounded-2xl border border-slate-800 bg-slate-950/80 p-4 md:grid-cols-[2fr,1fr,1fr,1fr,auto]">

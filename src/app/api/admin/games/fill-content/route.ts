@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSessionFromRequest } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import { generateGameSEOContent } from "@/lib/content-generation";
+import { buildGameContent } from "@/lib/content-templates";
 
 // GET — returns how many games still need content
 export async function GET(req: NextRequest) {
@@ -16,61 +16,57 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ total, pending, filled: total - pending });
 }
 
-// POST — generates content for the next `batchSize` games (default 5)
+// POST — fills content for games with empty longDescription.
+// body: { all: true } fills every game at once (no batch limit).
+// body: { batchSize: N } fills next N games (default 50, max 500).
 export async function POST(req: NextRequest) {
   const session = await getAdminSessionFromRequest(req);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const body = await req.json().catch(() => ({}));
-  const batchSize = Math.min(Math.max(Number(body.batchSize) || 5, 1), 20);
+  const fillAll = body.all === true;
+  const batchSize = fillAll ? 10_000 : Math.min(Math.max(Number(body.batchSize) || 50, 1), 500);
 
   const games = await prisma.game.findMany({
     where: { isPublished: true, longDescription: "" },
     select: { id: true, title: true, description: true, category: true, tags: true },
     take: batchSize,
-    orderBy: { views: "desc" }, // prioritize most-viewed games first
+    orderBy: { views: "desc" },
   });
 
   if (games.length === 0) {
     return NextResponse.json({ message: "All games already have content.", filled: 0 });
   }
 
-  const results: { id: string; title: string; status: "ok" | "error"; error?: string }[] = [];
+  // Build all content objects in memory (pure JS, instant)
+  const updates = games.map((game) => ({
+    id: game.id,
+    content: buildGameContent({
+      title: game.title,
+      description: game.description,
+      category: game.category,
+      tags: game.tags,
+    }),
+  }));
 
-  for (const game of games) {
-    try {
-      const content = await generateGameSEOContent({
-        title: game.title,
-        description: game.description,
-        category: game.category,
-        tags: game.tags.split(",").map((t) => t.trim()).filter(Boolean),
-      });
-
-      await prisma.game.update({
-        where: { id: game.id },
+  // Batch-write to DB using updateMany per category for efficiency,
+  // or individual updates for per-game content (longDescription varies).
+  await Promise.all(
+    updates.map(({ id, content }) =>
+      prisma.game.update({
+        where: { id },
         data: {
           longDescription: content.longDescription,
           tips: content.tips,
           controls: content.controls,
           faqJson: content.faqJson,
         },
-      });
+      }),
+    ),
+  );
 
-      results.push({ id: game.id, title: game.title, status: "ok" });
-    } catch (err) {
-      console.error(`[fill-content] Failed for game ${game.id}:`, err);
-      results.push({
-        id: game.id,
-        title: game.title,
-        status: "error",
-        error: err instanceof Error ? err.message : "Unknown error",
-      });
-    }
-
-    // Small delay to avoid hitting rate limits
-    await new Promise((r) => setTimeout(r, 300));
-  }
-
-  const filled = results.filter((r) => r.status === "ok").length;
-  return NextResponse.json({ filled, results });
+  return NextResponse.json({
+    filled: updates.length,
+    message: `Filled ${updates.length} games.`,
+  });
 }
