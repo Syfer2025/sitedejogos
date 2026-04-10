@@ -39,7 +39,7 @@
   "home": {
     "heroKicker": "Lựa chọn HTML5 chất lượng",
     "heroTitle": "Chơi các trò chơi cao cấp trực tiếp trên trình duyệt.",
-    "heroSubtitle": "Một cổng trò chơi HTML5 tải nhanh, nội dung chuẩn SEO và không gian quảng cáo tối ưu cho người dùng.",
+    "heroSubtitle": "Chơi hàng nghìn trò chơi miễn phí trực tuyến ngay lập tức — không cần tải về! Hành động, đua xe, giải đố, phiêu lưu và nhiều hơn nữa, miễn phí trên trình duyệt.",
     "featuredLabel": "Trò chơi nổi bật",
     "newLabel": "Phát hành mới",
     "popularLabel": "Chơi nhiều nhất",
@@ -262,7 +262,7 @@
   "blog": {
     "kicker": "Blog Gasty Games",
     "title": "Conteúdo para crescer seu portal HTML5.",
-    "subtitle": "Artigos focados em SEO, monetização e performance para escalar tráfego orgânico e receita.",
+    "subtitle": "Tips, guides and top lists about the best free browser games. Discover hidden gems and improve your gameplay.",
     "readArticle": "Ler artigo completo",
     "publishedAt": "Publicado em",
     "readingTime": "Leitura"

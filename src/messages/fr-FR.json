@@ -39,7 +39,7 @@
   "home": {
     "heroKicker": "Sélection HTML5 Curatée",
     "heroTitle": "Jouez à des jeux premium directement dans votre navigateur.",
-    "heroSubtitle": "Un portail de jeux HTML5 rapides, avec contenu SEO et espaces publicitaires conçus pour la rétention.",
+    "heroSubtitle": "Jouez à des milliers de jeux gratuits en ligne instantanément, sans téléchargement. Action, course, puzzle, aventure et plus encore, directement dans votre navigateur !",
     "featuredLabel": "Jeux à la une",
     "newLabel": "Nouveautés",
     "popularLabel": "Les plus joués",
@@ -262,7 +262,7 @@
   "blog": {
     "kicker": "Blog Gasty Games",
     "title": "Conteúdo para crescer seu portal HTML5.",
-    "subtitle": "Artigos focados em SEO, monetização e performance para escalar tráfego orgânico e receita.",
+    "subtitle": "Conseils, guides et tops des meilleurs jeux gratuits dans le navigateur.",
     "readArticle": "Ler artigo completo",
     "publishedAt": "Publicado em",
     "readingTime": "Leitura"

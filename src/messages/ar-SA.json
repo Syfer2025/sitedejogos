@@ -39,7 +39,7 @@
   "home": {
     "heroKicker": "مجموعة مختارة من ألعاب HTML5",
     "heroTitle": "العب ألعاباً مميزة مباشرة في متصفحك.",
-    "heroSubtitle": "بوابة منسقة لألعاب HTML5 سريعة التحميل، ومحتوى متوافق مع محركات البحث، ومساحات إعلانية مصممة للاستبقاء.",
+    "heroSubtitle": "العب آلاف الألعاب المجانية على الإنترنت فوراً — بدون تحميل أو تثبيت! أكشن، سباقات، ألغاز، مغامرات والمزيد، مجاناً في متصفحك.",
     "featuredLabel": "ألعاب مختارة",
     "newLabel": "إصدارات جديدة",
     "popularLabel": "الأكثر لعباً",
@@ -262,7 +262,7 @@
   "blog": {
     "kicker": "Blog Gasty Games",
     "title": "Conteúdo para crescer seu portal HTML5.",
-    "subtitle": "Artigos focados em SEO, monetização e performance para escalar tráfego orgânico e receita.",
+    "subtitle": "Tips, guides and top lists about the best free browser games. Discover hidden gems and improve your gameplay.",
     "readArticle": "Ler artigo completo",
     "publishedAt": "Publicado em",
     "readingTime": "Leitura"

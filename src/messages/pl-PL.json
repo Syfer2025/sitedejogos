@@ -39,7 +39,7 @@
   "home": {
     "heroKicker": "Wyselekcjonowane gry HTML5",
     "heroTitle": "Graj w gry premium bezpośrednio w przeglądarce.",
-    "heroSubtitle": "Portal z szybko ładującymi się grami HTML5, treściami SEO i przestrzenią reklamową zaprojektowaną dla retencji.",
+    "heroSubtitle": "Graj w tysiące darmowych gier online natychmiast — bez pobierania! Akcja, wyścigi, puzzle, przygody i wiele więcej, wszystko za darmo w przeglądarce.",
     "featuredLabel": "Polecane gry",
     "newLabel": "Nowości",
     "popularLabel": "Najczęściej grane",
@@ -262,7 +262,7 @@
   "blog": {
     "kicker": "Blog Gasty Games",
     "title": "Conteúdo para crescer seu portal HTML5.",
-    "subtitle": "Artigos focados em SEO, monetização e performance para escalar tráfego orgânico e receita.",
+    "subtitle": "Tips, guides and top lists about the best free browser games. Discover hidden gems and improve your gameplay.",
     "readArticle": "Ler artigo completo",
     "publishedAt": "Publicado em",
     "readingTime": "Leitura"

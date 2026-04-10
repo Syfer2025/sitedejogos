@@ -39,7 +39,7 @@
   "home": {
     "heroKicker": "คัดสรรเกม HTML5 คุณภาพ",
     "heroTitle": "เล่นเกมพรีเมียมได้โดยตรงบนเบราว์เซอร์ของคุณ",
-    "heroSubtitle": "พอร์ทัลเกม HTML5 ที่โหลดเร็ว พร้อมเนื้อหา SEO และพื้นที่โฆษณาที่ออกแบบมาเพื่อรักษาผู้ใช้",
+    "heroSubtitle": "เล่นเกมออนไลน์ฟรีหลายพันเกมได้ทันที — ไม่ต้องดาวน์โหลด! แอคชั่น, ซิ่งรถ, ปริศนา, การผจญภัย และอื่น ๆ อีกมากมาย ฟรีในเบราว์เซอร์ของคุณ",
     "featuredLabel": "เกมแนะนำ",
     "newLabel": "เกมมาใหม่",
     "popularLabel": "เกมยอดนิยม",
@@ -262,7 +262,7 @@
   "blog": {
     "kicker": "Blog Gasty Games",
     "title": "Conteúdo para crescer seu portal HTML5.",
-    "subtitle": "Artigos focados em SEO, monetização e performance para escalar tráfego orgânico e receita.",
+    "subtitle": "Tips, guides and top lists about the best free browser games. Discover hidden gems and improve your gameplay.",
     "readArticle": "Ler artigo completo",
     "publishedAt": "Publicado em",
     "readingTime": "Leitura"

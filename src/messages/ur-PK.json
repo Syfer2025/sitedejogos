@@ -39,7 +39,7 @@
   "home": {
     "heroKicker": "منتخب HTML5 گلدستہ",
     "heroTitle": "براہ راست اپنے براؤزر میں پریمیم گیمز کھیلیں۔",
-    "heroSubtitle": "تیز HTML5 گیمز، SEO مواد اور صارفین کو جوڑے رکھنے کے لیے ڈیزائن کیے گئے اشتہاری مقامات کے لیے ایک منتخب پورٹل۔",
+    "heroSubtitle": "فوری طور پر ہزاروں مفت آن لائن گیمز کھیلیں — کوئی ڈاؤن لوڈ نہیں! ایکشن، ریسنگ، پہیلیاں، مہم جوئی اور بہت کچھ، اپنے براؤزر میں مفت۔",
     "featuredLabel": "منتخب گیمز",
     "newLabel": "نئی ریلیز",
     "popularLabel": "سب سے زیادہ کھیلی گئی",
@@ -262,7 +262,7 @@
   "blog": {
     "kicker": "Blog Gasty Games",
     "title": "Conteúdo para crescer seu portal HTML5.",
-    "subtitle": "Artigos focados em SEO, monetização e performance para escalar tráfego orgânico e receita.",
+    "subtitle": "Tips, guides and top lists about the best free browser games. Discover hidden gems and improve your gameplay.",
     "readArticle": "Ler artigo completo",
     "publishedAt": "Publicado em",
     "readingTime": "Leitura"
