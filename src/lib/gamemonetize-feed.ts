@@ -205,7 +205,6 @@ export async function fetchGameMonetizeFeedPage(page = 1): Promise<GameMonetizeF
   const searchParams = new URLSearchParams({
     format: "0",
     page: String(Math.max(page, 1)),
-    popular: "true",
   });
 
   const response = await fetch(`${FEED_ENDPOINT}?${searchParams.toString()}`, {
