@@ -332,6 +332,8 @@ export async function syncGameMonetizeFeedPage(options: SyncOptions = {}): Promi
       continue;
     }
 
+    const parsedPayload = createGameInputSchema.safeParse(mappedItem);
+
     if (!parsedPayload.success) {
       result.skipped += 1;
       result.items.push({
