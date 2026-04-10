@@ -8,6 +8,8 @@ import { SITE_CONFIG } from "@/lib/config";
 
 const SITE_URL = SITE_CONFIG.url;
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [games, blogPosts, categories] = await Promise.all([
     listGames({ publishedOnly: true }),
