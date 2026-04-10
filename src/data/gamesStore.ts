@@ -171,33 +171,24 @@ async function _listGames(options: ListGamesOptions = {}) {
       : {}),
   };
 
+  // Always cache-able, never include individual favorites in the huge query
   const include: any = {
     ratings: {
-      select: { value: true, userId: true }
+      select: { value: true }
     },
   };
-
-  if (options.currentUserId) {
-    include.favorites = {
-      where: { userId: options.currentUserId },
-      select: { id: true }
-    };
-  }
 
   function mapFull(game: any) {
     const record = mapGame(game);
     const ratings: any[] = game.ratings || [];
     const count = ratings.length;
     const avg = count > 0 ? ratings.reduce((sum: number, r: any) => sum + r.value, 0) / count : 0;
-    const userRating = options.currentUserId
-      ? ratings.find((r: any) => r.userId === options.currentUserId)?.value
-      : undefined;
     return {
       ...record,
       avgRating: Number(avg.toFixed(1)),
       ratingCount: count,
-      isFavorited: options.currentUserId ? game.favorites?.length > 0 : false,
-      userRating,
+      isFavorited: false, // Injected later
+      userRating: undefined, // Injected later
     };
   }
 
@@ -242,20 +233,51 @@ async function _listGames(options: ListGamesOptions = {}) {
   return games.map(mapFull);
 }
 
+async function injectUserData(games: GameRecord[], userId?: string): Promise<GameRecord[]> {
+  if (!userId || games.length === 0) return games;
+
+  const gameIds = games.map((g) => g.id);
+  const [userFavs, userRatings] = await Promise.all([
+    prisma.favoriteGame.findMany({
+      where: { userId, gameId: { in: gameIds } },
+      select: { gameId: true },
+    }),
+    (prisma as any).gameRating.findMany({
+      where: { userId, gameId: { in: gameIds } },
+      select: { gameId: true, value: true },
+    }),
+  ]);
+
+  const fSet = new Set(userFavs.map((f: any) => f.gameId));
+  const rMap = new Map(userRatings.map((r: any) => [r.gameId, r.value]));
+
+  return games.map((g) => ({
+    ...g,
+    isFavorited: fSet.has(g.id),
+    userRating: rMap.get(g.id),
+  }));
+}
+
 export async function listGames(options: ListGamesOptions = {}) {
-  // Se tiver identificador de usuário ou sort randômico, quebra o cache estático
-  if (options.currentUserId || options.sortBy === "random") {
-    return _listGames(options);
+  // Extract user-specific info for post-hydration
+  const currentUserId = options.currentUserId;
+  const cacheableOptions = { ...options, currentUserId: undefined };
+  let baseGames: GameRecord[];
+
+  // Random cannot be fully cached static, but we can do it faster without joining favorites
+  if (options.sortBy === "random") {
+    baseGames = await _listGames(cacheableOptions);
+  } else {
+    const cacheKey = JSON.stringify(cacheableOptions);
+    const cachedFn = unstable_cache(
+      () => _listGames(cacheableOptions),
+      ["games", "listGames", cacheKey],
+      { revalidate: 3600 }
+    );
+    baseGames = await cachedFn();
   }
 
-  const cacheKey = JSON.stringify(options);
-  const cachedFn = unstable_cache(
-    () => _listGames(options),
-    ["games", "listGames", cacheKey],
-    { revalidate: 3600 }
-  );
-
-  return cachedFn();
+  return injectUserData(baseGames, currentUserId);
 }
 
 export async function listGamesPage(
@@ -365,14 +387,8 @@ async function _listCategoryShowcasesPage(
       : [{ views: "desc" }, { popularityScore: "desc" }, { createdAt: "desc" }];
 
   const include: any = {
-    ratings: { select: { value: true, userId: true } },
+    ratings: { select: { value: true } },
   };
-  if (options.currentUserId) {
-    include.favorites = {
-      where: { userId: options.currentUserId },
-      select: { id: true },
-    };
-  }
 
   const allGames = await prisma.game.findMany({
     where: {
@@ -403,7 +419,7 @@ async function _listCategoryShowcasesPage(
       ...record,
       avgRating: Number(avg.toFixed(1)),
       ratingCount: count,
-      isFavorited: options.currentUserId ? (game.favorites?.length ?? 0) > 0 : false,
+      isFavorited: false, // Injected later
     };
   }
 
@@ -442,19 +458,50 @@ export async function listCategoryShowcasesPage(
     currentUserId?: string;
   } = {},
 ): Promise<PaginatedCategoryShowcasesResult> {
-  // Ignora cache para random (descoberta individual) ou logado
-  if (options.currentUserId || options.sortBy === "random") {
-    return _listCategoryShowcasesPage(options);
+  const currentUserId = options.currentUserId;
+  const cacheableOptions = { ...options, currentUserId: undefined };
+  let baseShowcases: PaginatedCategoryShowcasesResult;
+
+  if (options.sortBy === "random") {
+    baseShowcases = await _listCategoryShowcasesPage(cacheableOptions);
+  } else {
+    const cacheKey = JSON.stringify(cacheableOptions);
+    const cachedFn = unstable_cache(
+      () => _listCategoryShowcasesPage(cacheableOptions),
+      ["games", "listCategoryShowcasesPage", cacheKey],
+      { revalidate: 3600 }
+    );
+    baseShowcases = await cachedFn();
   }
 
-  const cacheKey = JSON.stringify(options);
-  const cachedFn = unstable_cache(
-    () => _listCategoryShowcasesPage(options),
-    ["games", "listCategoryShowcasesPage", cacheKey],
-    { revalidate: 3600 }
-  );
+  // Se precisar de user id, extraímos todas as IDs de jogos contidas e fazemos apenas 1 chamada no DB
+  if (currentUserId && baseShowcases.items.length > 0) {
+    const allGameIds = baseShowcases.items.flatMap(c => c.games.map(g => g.id));
+    const [userFavs, userRatings] = await Promise.all([
+      prisma.favoriteGame.findMany({
+        where: { userId: currentUserId, gameId: { in: allGameIds } },
+        select: { gameId: true },
+      }),
+      (prisma as any).gameRating.findMany({
+        where: { userId: currentUserId, gameId: { in: allGameIds } },
+        select: { gameId: true, value: true },
+      }),
+    ]);
 
-  return cachedFn();
+    const fSet = new Set(userFavs.map((f: any) => f.gameId));
+    const rMap = new Map(userRatings.map((r: any) => [r.gameId, r.value]));
+
+    baseShowcases.items = baseShowcases.items.map(category => ({
+      ...category,
+      games: category.games.map(g => ({
+        ...g,
+        isFavorited: fSet.has(g.id),
+        userRating: rMap.get(g.id),
+      }))
+    }));
+  }
+
+  return baseShowcases;
 }
 
 export async function listCategoryShowcases(
@@ -671,7 +718,14 @@ export async function countGames(
       : {}),
   };
 
-  return prisma.game.count({ where });
+  const cacheKey = JSON.stringify(where);
+  const cachedFn = unstable_cache(
+    () => prisma.game.count({ where }),
+    ["games", "countGames", cacheKey],
+    { revalidate: 3600 }
+  );
+
+  return cachedFn();
 }
 
 export async function rateGame(userId: string, gameId: string, value: number) {
