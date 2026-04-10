@@ -37,7 +37,8 @@ export async function POST(req: NextRequest) {
     await applyGamificationEvent(session.userId, "rating_add");
     
     return NextResponse.json(result, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    console.error("[ratings] rateGame error:", err);
+    return NextResponse.json({ error: "Erro ao registrar avaliação." }, { status: 500 });
   }
 }

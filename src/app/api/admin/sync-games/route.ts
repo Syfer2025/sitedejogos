@@ -105,8 +105,8 @@ export async function POST(req: NextRequest) {
         updated: updatedCount,
       }
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error("[Game Sync] Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: "Erro interno ao sincronizar jogos." }, { status: 500 });
   }
 }

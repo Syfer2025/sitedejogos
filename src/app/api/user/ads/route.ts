@@ -29,7 +29,8 @@ export async function POST(req: NextRequest) {
     await applyGamificationEvent(session.userId, "ad_reward_view");
     
     return NextResponse.json(result, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err) {
+    console.error("[ads] trackAdReward error:", err);
+    return NextResponse.json({ error: "Erro ao registrar recompensa." }, { status: 500 });
   }
 }
