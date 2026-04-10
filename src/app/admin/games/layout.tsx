@@ -45,7 +45,7 @@ export default async function AdminGamesLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex">
+    <div className="min-h-full bg-slate-950 text-slate-100 flex">
       <aside className="hidden md:flex w-60 flex-col border-r border-slate-800 bg-slate-950/90">
         <div className="px-4 py-4 border-b border-slate-800">
           <div className="text-xs font-semibold text-slate-400 uppercase tracking-[0.15em]">

@@ -185,7 +185,7 @@ export default async function AccountPage() {
 
   return (
     <div className="h-full overflow-y-auto scrollbar-thin">
-      <div className="relative min-h-screen">
+      <div className="relative min-h-full">
         <BackgroundDecorations />
         
         <div className="relative mx-auto max-w-7xl px-4 py-8 lg:px-8 animate-fade-in">

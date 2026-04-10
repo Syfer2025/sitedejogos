@@ -37,7 +37,7 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-black flex items-center justify-center px-4">
+    <div className="min-h-full bg-gradient-to-b from-slate-950 via-slate-900 to-black flex items-center justify-center px-4">
       <div className="w-full max-w-sm rounded-2xl border border-slate-800 bg-slate-950/80 p-6 shadow-[0_0_35px_rgba(15,23,42,0.9)]">
         <div className="mb-5 text-center">
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-tr from-purple-500 via-fuchsia-500 to-cyan-400 shadow-[0_0_25px_rgba(168,85,247,0.8)]" />
