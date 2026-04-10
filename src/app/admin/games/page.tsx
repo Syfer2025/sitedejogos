@@ -154,14 +154,11 @@ export default function AdminGamesPage() {
         }),
       });
 
-      const data = (await response.json()) as FeedSyncBatchResult | { error?: string };
-
+      const data = (await response.json()) as any;
       if (!response.ok) {
-        throw new Error(
-          typeof data === "object" && data && "error" in data && data.error
-            ? data.error
-            : "Falha ao sincronizar feed externo.",
-        );
+        const errorMessage = data?.error || "Falha ao sincronizar feed externo.";
+        const errorDetails = data?.details ? ` (${data.details})` : "";
+        throw new Error(`${errorMessage}${errorDetails}`);
       }
 
       setFeedSyncResult(data as FeedSyncBatchResult);
