@@ -248,13 +248,13 @@ async function injectUserData(games: GameRecord[], userId?: string): Promise<Gam
     }),
   ]);
 
-  const fSet = new Set(userFavs.map((f: any) => f.gameId));
-  const rMap = new Map(userRatings.map((r: any) => [r.gameId, r.value]));
+  const fSet = new Set(userFavs.map((f: any) => f.gameId as string));
+  const rMap = new Map<string, number>(userRatings.map((r: any) => [r.gameId, Number(r.value)]));
 
   return games.map((g) => ({
     ...g,
     isFavorited: fSet.has(g.id),
-    userRating: rMap.get(g.id),
+    userRating: rMap.get(g.id) as number | undefined,
   }));
 }
 
