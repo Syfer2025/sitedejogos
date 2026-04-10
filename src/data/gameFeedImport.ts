@@ -6,6 +6,7 @@ import {
   fetchGameMonetizeFeedPage,
   mapGameMonetizeFeedItem,
 } from "../lib/gamemonetize-feed";
+import { generateGameSEOContent } from "../lib/content-generation";
 import { prisma } from "../lib/prisma";
 
 type ExistingGame = Pick<
@@ -150,7 +151,7 @@ function needsUpdate(existing: ExistingGame, payload: CreateGameInput, sourceId:
 async function createImportedGame(payload: CreateGameInput, sourceId: string) {
   const slug = await makeUniqueSlug(payload.title);
 
-  return prisma.game.create({
+  const game = await prisma.game.create({
     data: {
       title: payload.title,
       slug,
@@ -166,6 +167,30 @@ async function createImportedGame(payload: CreateGameInput, sourceId: string) {
       popularityScore: payload.featured ? 10 : 0,
     },
   });
+
+  // Generate SEO content in background — don't block import if it fails
+  if (process.env.ANTHROPIC_API_KEY) {
+    generateGameSEOContent({
+      title: payload.title,
+      description: payload.description,
+      category: payload.category,
+      tags: payload.tags,
+    })
+      .then((content) =>
+        prisma.game.update({
+          where: { id: game.id },
+          data: {
+            longDescription: content.longDescription,
+            tips: content.tips,
+            controls: content.controls,
+            faqJson: content.faqJson,
+          },
+        }),
+      )
+      .catch((err) => console.error(`[import] SEO content generation failed for "${payload.title}":`, err));
+  }
+
+  return game;
 }
 
 async function updateImportedGame(existing: ExistingGame, payload: CreateGameInput, sourceId: string) {

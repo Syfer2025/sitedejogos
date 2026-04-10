@@ -369,3 +369,19 @@ model RewardedAdView {
 
   @@index([userId, createdAt])
 }
+
+// ──────────────────────────────────────────
+// Category SEO Content (AI-generated)
+// ──────────────────────────────────────────
+model CategoryContent {
+  category        String   @id
+  h1              String   @default("")
+  metaTitle       String   @default("")
+  metaDescription String   @default("")
+  intro           String   @default("")
+  body            String   @default("")
+  benefitsJson    String   @default("[]")
+  faqJson         String   @default("[]")
+  generatedAt     DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { listGames, listCategories } from "@/data/gamesStore";
+import { prisma } from "@/lib/prisma";
 
 export const revalidate = 600; // 10 min — category pages update slowly
 import { slugify } from "@/lib/game-schema";
@@ -63,8 +64,29 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
     notFound();
   }
 
-  const games = await listGames({ category, publishedOnly: true, limit: 100, sortBy: "popular" });
-  const seo = getCategorySeoContent(category);
+  const [games, aiContent] = await Promise.all([
+    listGames({ category, publishedOnly: true, limit: 100, sortBy: "popular" }),
+    prisma.categoryContent.findUnique({ where: { category } }).catch(() => null),
+  ]);
+
+  // Merge AI content (if available) with static fallback template
+  const fallback = getCategorySeoContent(category);
+  const aiFaq: { question: string; answer: string }[] = aiContent?.faqJson
+    ? JSON.parse(aiContent.faqJson)
+    : [];
+  const aiBenefits: string[] = aiContent?.benefitsJson
+    ? JSON.parse(aiContent.benefitsJson)
+    : [];
+
+  const seo = {
+    h1: aiContent?.h1 || fallback.h1,
+    title: aiContent?.metaTitle || fallback.title,
+    description: aiContent?.metaDescription || fallback.description,
+    intro: aiContent?.intro || fallback.intro,
+    body: aiContent?.body || "",
+    benefits: aiBenefits.length > 0 ? aiBenefits : fallback.benefits,
+    faq: aiFaq.length > 0 ? aiFaq : fallback.faq,
+  };
 
   const structuredData = [
     // CollectionPage + ItemList
@@ -182,9 +204,42 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
 
         <AdSlot label="Banner Meio Categoria" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_MIDDLE} />
 
+        {/* Editorial body — AI-generated, 1200+ words for SEO */}
+        {seo.body ? (
+          <section className="mt-10 max-w-3xl mx-auto prose prose-invert prose-sm prose-slate max-w-none">
+            {seo.body.split("\n").filter(Boolean).map((paragraph, i) => {
+              const isBold = paragraph.startsWith("**") && paragraph.includes("**");
+              if (isBold) {
+                return (
+                  <h2 key={i} className="text-base font-bold text-slate-200 mt-6 mb-2">
+                    {paragraph.replace(/\*\*/g, "")}
+                  </h2>
+                );
+              }
+              return (
+                <p key={i} className="text-sm text-slate-400 leading-relaxed mb-3">
+                  {paragraph}
+                </p>
+              );
+            })}
+          </section>
+        ) : (
+          <div className="mt-10 text-sm text-slate-400 max-w-3xl mx-auto border-t border-slate-800 pt-8">
+            <h2 className="text-base font-bold text-slate-200 mb-3">Why Play {category} Games on Gasty Games?</h2>
+            <p className="leading-relaxed">
+              Our {category} collection features the best HTML5 games available — no downloads, no installs,
+              just click and play instantly on any device. New games are added regularly.
+            </p>
+          </div>
+        )}
+
         {/* FAQ Section */}
         <section className="mt-10 max-w-3xl mx-auto">
-          <h2 className="text-lg font-bold text-slate-200 mb-4">Perguntas frequentes sobre jogos de {category}</h2>
+          <h2 className="text-lg font-bold text-slate-200 mb-4">
+            {seo.faq === fallback.faq
+              ? `Perguntas frequentes sobre jogos de ${category}`
+              : `${category} Games — Frequently Asked Questions`}
+          </h2>
           <div className="space-y-3">
             {seo.faq.map((item) => (
               <details
@@ -199,15 +254,6 @@ export default async function CategoryPage({ params }: CategoryPageProps) {
             ))}
           </div>
         </section>
-
-        {/* SEO text block */}
-        <div className="mt-10 text-center text-sm text-slate-400 max-w-3xl mx-auto border-t border-slate-800 pt-8 p-6">
-          <h2 className="text-lg font-bold text-slate-200 mb-3">Por que jogar {category} no Gasty Games?</h2>
-          <p className="leading-relaxed">
-            A secao de jogos de {category} foi criada baseada no que ha de mais moderno em renderizacao de navegador (HTML5/WebGL).
-            Sem a necessidade de realizar downloads pesados e instalar APPs arriscados, voce se diverte instantaneamente em qualquer dispositivo.
-          </p>
-        </div>
 
         <AdSlot label="Banner Inferior Categoria" slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_HOME_CONTENT} />
 
