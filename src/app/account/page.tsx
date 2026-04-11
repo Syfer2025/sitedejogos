@@ -121,18 +121,32 @@ export default async function AccountPage() {
     redirect("/login?from=/account");
   }
 
-  const [favorites, history, profile, categories, gamification, tasteProfile, achievementDefinitions, totpDevice] = await Promise.all([
-    listFavoriteGames(session.user.id, 12),
-    listRecentlyPlayed(session.user.id, 12),
-    getPlayerProfile(session.user.id),
-    listCategories(),
-    getPlayerGamificationOverview(session.user.id),
-    getPlayerTasteProfile(session.user.id),
-    listAchievementDefinitions(),
-    prisma.totpDevice.findUnique({
+  const favoritesPromise = listFavoriteGames(session.user.id, 12);
+  const historyPromise = listRecentlyPlayed(session.user.id, 12);
+  const profilePromise = getPlayerProfile(session.user.id);
+  const categoriesPromise = listCategories();
+  const gamificationPromise = getPlayerGamificationOverview(session.user.id);
+  const tasteProfilePromise = getPlayerTasteProfile(session.user.id);
+  const achievementsPromise = listAchievementDefinitions();
+  
+  let totpDevice = { isEnabled: false };
+  try {
+    totpDevice = await prisma.totpDevice.findUnique({
       where: { userId: session.user.id },
       select: { isEnabled: true },
-    }),
+    }) ?? { isEnabled: false };
+  } catch {
+    // TOTP table might not exist or other DB error
+  }
+
+  const [favorites, history, profile, categories, gamification, tasteProfile, achievementDefinitions] = await Promise.all([
+    favoritesPromise,
+    historyPromise,
+    profilePromise,
+    categoriesPromise,
+    gamificationPromise,
+    tasteProfilePromise,
+    achievementsPromise,
   ]);
 
   if (!profile) {
