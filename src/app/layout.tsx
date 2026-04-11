@@ -85,18 +85,26 @@ export default async function RootLayout({
     getDictionary(initialLocale),
   ]);
 
-  // Fetch Header data on server
-  const headerData = playerSession ? await Promise.all([
-    (await import("@/data/gamificationStore")).getPlayerGamificationOverview(playerSession.user.id).then(g => g?.notifications ?? []),
-    (await import("@/data/playerStore")).listFavoriteGames(playerSession.user.id, 10).then(f => f.map(entry => ({ game: entry.game }))),
-    (await import("@/data/playerStore")).listRecentlyPlayed(playerSession.user.id, 10).then(h => h.map(entry => ({ game: entry.game }))),
-    prisma.gameRating.findMany({ 
-      where: { userId: playerSession.user.id }, 
-      include: { game: true }, 
-      take: 10, 
-      orderBy: { updatedAt: 'desc' }
-    }).then(ratings => ratings.map(r => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString(), game: { ...r.game, createdAt: r.game.createdAt.toISOString(), updatedAt: r.game.updatedAt.toISOString() } })))
-  ]) : [[], [], [], []];
+  // Fetch Header data on server with error safety
+  let headerData: [any[], any[], any[], any[]] = [[], [], [], []];
+  
+  if (playerSession) {
+    try {
+      headerData = await Promise.all([
+        (await import("@/data/gamificationStore")).getPlayerGamificationOverview(playerSession.user.id).then(g => g?.notifications ?? []),
+        (await import("@/data/playerStore")).listFavoriteGames(playerSession.user.id, 10).then(f => f.map(entry => ({ game: entry.game }))),
+        (await import("@/data/playerStore")).listRecentlyPlayed(playerSession.user.id, 10).then(h => h.map(entry => ({ game: entry.game }))),
+        prisma.gameRating.findMany({ 
+          where: { userId: playerSession.user.id }, 
+          include: { game: true }, 
+          take: 10, 
+          orderBy: { updatedAt: 'desc' }
+        }).then(ratings => ratings.map(r => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString(), game: { ...r.game, createdAt: r.game.createdAt.toISOString(), updatedAt: r.game.updatedAt.toISOString() } })))
+      ]);
+    } catch (e) {
+      console.error("Layout data fetch failed:", e);
+    }
+  }
 
   const [notifications, favorites, recentGames, ratedGames] = headerData;
   
