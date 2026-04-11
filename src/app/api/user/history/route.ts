@@ -44,7 +44,12 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Jogo não encontrado." }, { status: 404 });
   }
 
-  await applyGamificationEvent(session.userId, "game_play");
-
-  return NextResponse.json({ ok: true });
+  const gamificationResult = await applyGamificationEvent(session.userId, "game_play");
+  
+  return NextResponse.json({ 
+    ok: true, 
+    newlyUnlocked: gamificationResult?.newlyUnlocked ?? [],
+    rankChanged: gamificationResult?.rankChanged ?? false,
+    newRank: gamificationResult?.newRank
+  });
 }

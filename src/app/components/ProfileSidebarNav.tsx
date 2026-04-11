@@ -3,29 +3,27 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 
-export type ProfileTabKey = "feed" | "wallet" | "themes" | "social" | "mission" | "library" | "security";
+export type ProfileTabKey = "feed" | "wallet" | "social" | "mission" | "library" | "security";
 
 interface TabDef {
   key: ProfileTabKey;
   label: string;
   icon: string;
-  colorClass: string;
   count?: number;
+  colorClass: string;
 }
 
 const TABS: TabDef[] = [
   { key: "feed", label: "Feed de Atividades", icon: "📰", colorClass: "text-blue-400" },
   { key: "wallet", label: "Carteira", icon: "🪙", colorClass: "text-amber-400" },
-  { key: "themes", label: "Temas", icon: "🎨", colorClass: "text-violet-400" },
   { key: "social", label: "Social", icon: "👥", colorClass: "text-cyan-400" },
-  { key: "mission", label: "Missão & Conquistas", icon: "🎯", colorClass: "text-emerald-400" },
+  { key: "mission", label: "Missão", icon: "🎯", colorClass: "text-emerald-400" },
   { key: "library", label: "Biblioteca", icon: "📚", colorClass: "text-pink-400" },
   { key: "security", label: "Segurança", icon: "🔒", colorClass: "text-red-400" },
 ];
 
 interface ProfileSidebarNavProps {
   childrenMap: Record<ProfileTabKey, ReactNode>;
-  notificationCount?: number;
 }
 
 export function ProfileSidebarNav({ childrenMap }: ProfileSidebarNavProps) {

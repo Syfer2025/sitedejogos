@@ -443,7 +443,7 @@ export function HomeThemeCatalog({
               style={{
                 gridTemplateRows: section.games.length > 5 ? 'repeat(2, 1fr)' : '1fr',
                 gridAutoFlow: 'column',
-                gridAutoColumns: 'clamp(160px, calc((100vw - 200px) / 5), 220px)',
+                gridAutoColumns: 'clamp(140px, calc((100vw - 520px) / 5), 220px)',
               }}
             >
               {section.games.map((game) => (

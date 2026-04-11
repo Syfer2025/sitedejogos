@@ -384,7 +384,7 @@ export default async function Home({
     <div className="flex h-full">
 
       {/* ████ LEFT SIDEBAR — Categorias ████ */}
-      <aside className="hidden lg:flex w-[160px] flex-none flex-col border-r border-slate-800/60 bg-slate-950/60 overflow-y-auto scrollbar-thin animate-slide-in-left">
+      <aside className="hidden lg:flex w-[160px] min-w-0 flex-none flex-col border-r border-slate-800/60 bg-slate-950/60 overflow-y-auto scrollbar-thin animate-slide-in-left">
         <CategorySidebarNav
           categories={categories}
         />
@@ -415,7 +415,7 @@ export default async function Home({
                   style={{
                     gridTemplateRows: "1fr",
                     gridAutoFlow: "column",
-                    gridAutoColumns: "clamp(140px, calc((100vw - 220px) / 5), 210px)",
+                    gridAutoColumns: "clamp(130px, calc((100vw - 520px) / 5), 210px)",
                   }}
                 >
                   {continuePlayingGames.map((game) => (
@@ -436,7 +436,7 @@ export default async function Home({
                   style={{
                     gridTemplateRows: "1fr",
                     gridAutoFlow: "column",
-                    gridAutoColumns: "clamp(140px, calc((100vw - 220px) / 5), 210px)",
+                    gridAutoColumns: "clamp(130px, calc((100vw - 520px) / 5), 210px)",
                   }}
                 >
                   {recommendedGames.map((game) => (

@@ -33,12 +33,12 @@ import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 import { AccountProfileForm } from "../components/AccountProfileForm";
 import { FriendsPanel } from "../components/FriendsPanel";
 import { CoinsPanel } from "../components/CoinsPanel";
-import { ThemesPanel } from "../components/ThemesPanel";
 import { AchievementCollection } from "../components/HomeAchievementsRail";
 import { ProfileSidebarNav, type ProfileTabKey } from "../components/ProfileSidebarNav";
 import { ActivityFeed } from "../components/ActivityFeed";
-import { TotpSetupFlow } from "../components/TotpSetupFlow";
+import { AccountHeader } from "../components/AccountHeader";
 import { Footer } from "../components/Footer";
+import { TotpSetupFlow } from "../components/TotpSetupFlow";
 
 type FavoriteEntry = Awaited<ReturnType<typeof listFavoriteGames>>[number];
 type HistoryEntry = Awaited<ReturnType<typeof listRecentlyPlayed>>[number];
@@ -121,22 +121,48 @@ export default async function AccountPage() {
     redirect("/login?from=/account");
   }
 
-  const [favorites, history, profile, categories, gamification, tasteProfile, achievementDefinitions, totpDevice] = await Promise.all([
-    listFavoriteGames(session.user.id, 12),
-    listRecentlyPlayed(session.user.id, 12),
-    getPlayerProfile(session.user.id),
-    listCategories(),
-    getPlayerGamificationOverview(session.user.id),
-    getPlayerTasteProfile(session.user.id),
-    listAchievementDefinitions(),
-    prisma.totpDevice.findUnique({
-      where: { userId: session.user.id },
-      select: { isEnabled: true },
-    }),
-  ]);
+  const profile = await getPlayerProfile(session.user.id);
 
   if (!profile) {
     redirect("/login?from=/account");
+  }
+
+  let favorites: any[] = [];
+  let history: any[] = [];
+  let categories: any[] = [];
+  let gamification: any = null;
+  let tasteProfile: any = null;
+  let achievementDefinitions: any[] = [];
+  let totpDevice = { isEnabled: false };
+
+  try {
+    const results = await Promise.allSettled([
+      listFavoriteGames(session.user.id, 12),
+      listRecentlyPlayed(session.user.id, 12),
+      listCategories(),
+      getPlayerGamificationOverview(session.user.id),
+      getPlayerTasteProfile(session.user.id),
+      listAchievementDefinitions(),
+    ]);
+
+    if (results[0].status === "fulfilled") favorites = results[0].value;
+    if (results[1].status === "fulfilled") history = results[1].value;
+    if (results[2].status === "fulfilled") categories = results[2].value;
+    if (results[3].status === "fulfilled") gamification = results[3].value;
+    if (results[4].status === "fulfilled") tasteProfile = results[4].value;
+    if (results[5].status === "fulfilled") achievementDefinitions = results[5].value;
+
+    try {
+      const totpResult = await prisma.totpDevice.findUnique({
+        where: { userId: session.user.id },
+        select: { isEnabled: true },
+      });
+      if (totpResult) totpDevice = totpResult;
+    } catch {
+      // TOTP table might not exist
+    }
+  } catch (e) {
+    console.error("AccountPage secondary data fetch error:", e);
   }
 
   const playerUserId = session.user.id;
@@ -190,69 +216,15 @@ export default async function AccountPage() {
         <BackgroundDecorations />
         
         <div className="relative mx-auto max-w-7xl px-4 py-8 lg:px-8 animate-fade-in">
-          {/* Header */}
-          <header className="relative mb-8 overflow-hidden rounded-3xl border border-slate-700/60 bg-[#080c18] shadow-2xl">
-            {/* Cover */}
-            <div className="h-48 md:h-64 relative overflow-hidden group">
-              {profile.coverUrl ? (
-                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url("${profile.coverUrl}")` }} />
-              ) : (
-                <>
-                  <div className="absolute inset-0 bg-gradient-to-tr from-[#050816] via-[#0e1530] to-indigo-950" />
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(99,102,241,0.35),transparent_65%)]" />
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_50%,rgba(56,189,248,0.15),transparent_60%)]" />
-                </>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#080c18] via-transparent to-transparent" />
-            </div>
-
-            <div className="px-6 pb-8 md:px-10">
-              <div className="relative -mt-20 flex flex-col items-center gap-6 md:-mt-24 md:flex-row md:items-end">
-                {/* Avatar with inline change button */}
-                <div className="relative shrink-0 group/avatar">
-                  <div
-                    className="h-40 w-40 flex items-center justify-center rounded-full border-4 border-[#080c18] bg-gradient-to-br from-cyan-400 to-purple-600 shadow-2xl text-4xl font-black text-white ring-2 ring-indigo-500/50 overflow-hidden"
-                    style={profile.avatarUrl ? { backgroundImage: `url("${profile.avatarUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
-                    {!profile.avatarUrl && playerInitials}
-                  </div>
-                  <AccountProfileForm
-                    initialProfile={{
-                      displayName: profile.displayName,
-                      email: profile.email,
-                      avatarUrl: profile.avatarUrl,
-                      coverUrl: profile.coverUrl,
-                      bio: profile.bio,
-                      preferredCategories: profile.preferredCategories,
-                      unlockedAvatars: profile.unlockedAvatars,
-                      unlockedCovers: profile.unlockedCovers,
-                      coins: profile.coins,
-                    }}
-                    categories={categories}
-                    inlineMode
-                  />
-                </div>
-
-                <div className="flex-1 text-center md:text-left">
-                  <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
-                    <h1 className="text-3xl font-black text-white md:text-4xl tracking-tight">{profile.displayName}</h1>
-                  </div>
-                  <p className="mt-2 text-sm font-medium text-slate-400">
-                    {profile.email} • {tr(dict, "player.memberSince", { date: memberSince })}
-                  </p>
-                  {profile.bio && <p className="mt-1 text-xs text-slate-500 max-w-md">{profile.bio}</p>}
-                </div>
-
-                <form action={logout} className="shrink-0 mb-2">
-                   <button
-                     type="submit"
-                     className="rounded-xl border border-slate-700 bg-slate-900 px-6 py-2.5 text-xs font-bold text-slate-200 transition-all hover:border-red-500 hover:bg-red-500/10 hover:text-red-300"
-                   >
-                     {tr(dict, "common.logout")}
-                   </button>
-                </form>
-              </div>
-            </div>
-          </header>
+          <AccountHeader 
+            profile={profile}
+            playerInitials={playerInitials}
+            memberSince={memberSince}
+            tr={tr}
+            dict={dict}
+            logoutAction={logout}
+            categories={categories}
+          />
 
           {/* Email Verification Banner */}
           {!session.user.emailVerified && (
@@ -296,60 +268,75 @@ export default async function AccountPage() {
                     <CoinsPanel />
                   </TabSectionShell>
                 ),
-                themes: (
-                  <TabSectionShell icon="🎨" title="Temas do Perfil" subtitle="Personalize o visual da sua conta">
-                    <ThemesPanel />
-                  </TabSectionShell>
-                ),
                 social: (
                   <TabSectionShell icon="👥" title={tr(dict, "player.social")} subtitle={tr(dict, "player.socialSubtitle")}>
                     <FriendsPanel />
                   </TabSectionShell>
                 ),
                 mission: (
-                  <TabSectionShell icon="🎯" title="Missão & Conquistas" subtitle="Missão diária e seu progresso de conquistas">
+                  <TabSectionShell icon="🎯" title={tr(dict, "player.journey")} subtitle={tr(dict, "player.journeySubtitle")}>
                     <div className="space-y-8">
-                      {/* Daily Mission */}
-                      <div className="rounded-2xl bg-slate-800 border border-slate-700/60 p-6 shadow-inner">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-xl font-black text-white">{dailyMissionCard?.title}</h3>
-                          <span className="rounded-lg bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-400 border border-emerald-500/20">+{gamification?.dailyMission?.rewardXp} XP</span>
+                      <div className={`relative rounded-2xl border p-6 shadow-inner transition-all duration-500 ${
+                        gamification?.dailyMission && !gamification.dailyMission.isCompleted && currentMissionProgressPercent > 0
+                          ? "bg-slate-800/80 border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.15)]"
+                          : "bg-slate-800 border border-slate-700/60"
+                      }`}>
+                        {/* Glow effect when in progress */}
+                        {gamification?.dailyMission && !gamification.dailyMission.isCompleted && currentMissionProgressPercent > 0 && (
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-500/5 via-teal-500/10 to-emerald-500/5 blur-xl pointer-events-none" />
+                        )}
+                        <div className="relative">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-black text-white">{dailyMissionCard?.title}</h3>
+                            <span className={`rounded-lg px-3 py-1 text-sm font-black border ${
+                              gamification?.dailyMission?.isCompleted
+                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/20"
+                                : currentMissionProgressPercent > 0
+                                ? "bg-amber-500/15 text-amber-400 border-amber-500/20 animate-pulse"
+                                : "bg-slate-500/15 text-slate-400 border-slate-500/20"
+                            }`}>
+                              {gamification?.dailyMission?.isCompleted
+                                ? "✅ Completa"
+                                : `${currentMissionProgressPercent}%`}
+                              {" "}· +{gamification?.dailyMission?.rewardXp} XP
+                            </span>
+                          </div>
+                          <div className="h-3 rounded-full bg-slate-950 overflow-hidden border border-slate-700 mb-6 relative">
+                            {/* Glow behind the bar when in progress */}
+                            {gamification?.dailyMission && !gamification.dailyMission.isCompleted && currentMissionProgressPercent > 0 && (
+                              <div className="absolute inset-0 rounded-full bg-emerald-400/20 blur-md" />
+                            )}
+                            <div className={`h-full transition-all duration-700 rounded-full relative ${
+                              gamification?.dailyMission?.isCompleted
+                                ? "bg-gradient-to-r from-emerald-400 to-green-300"
+                                : currentMissionProgressPercent > 0
+                                ? "bg-gradient-to-r from-emerald-500 to-teal-400 animate-progress-glow"
+                                : "bg-gradient-to-r from-slate-600 to-slate-500"
+                            }`} style={{ width: `${currentMissionProgressPercent}%` }} />
+                          </div>
+                          <Link href={dailyMissionCard?.href ?? "#"} className={`inline-block rounded-xl px-8 py-3 text-sm font-black text-white shadow-lg transition-all hover:scale-[1.02] uppercase ${
+                            gamification?.dailyMission?.isCompleted
+                              ? "bg-slate-600 cursor-default"
+                              : "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20"
+                          }`}>
+                            {gamification?.dailyMission?.isCompleted
+                              ? "✅ Missão concluída!"
+                              : tr(dict, "player.startMission")}
+                          </Link>
                         </div>
-                        <p className="text-xs text-slate-400 mb-4">{dailyMissionCard?.description}</p>
-                        <div className="h-3 rounded-full bg-slate-950 overflow-hidden border border-slate-700 mb-6">
-                          <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700 rounded-full" style={{ width: `${currentMissionProgressPercent}%` }} />
-                        </div>
-                        <Link href={dailyMissionCard?.href ?? "#"} className="inline-block rounded-xl bg-emerald-600 px-8 py-3 text-sm font-black text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] uppercase">{tr(dict, "player.startMission")}</Link>
                       </div>
 
-                      {/* Unlocked achievements */}
-                      {achievementItems.filter((a) => a.unlocked).length > 0 && (
+                      {achievementItems.length > 0 && (
                         <div>
-                          <h3 className="text-base font-black text-white mb-4 flex items-center gap-2">
-                            <span>🏆</span> Conquistas Desbloqueadas
+                          <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
+                             <span className="text-xl">🏆</span> {tr(dict, "player.yourAchievements")}
                           </h3>
-                          <AchievementCollection
-                            items={achievementItems.filter((a) => a.unlocked)}
-                            locale={locale}
-                            lockedLabel={tr(dict, "player.locked")}
-                            unlockedLabel={tr(dict, "player.unlocked")}
-                            layout="grid"
-                          />
-                        </div>
-                      )}
-
-                      {/* Locked achievements */}
-                      {achievementItems.filter((a) => !a.unlocked).length > 0 && (
-                        <div>
-                          <h3 className="text-base font-black text-white mb-4 flex items-center gap-2">
-                            <span>🔒</span> Para Desbloquear
-                          </h3>
-                          <AchievementCollection
-                            items={achievementItems.filter((a) => !a.unlocked)}
-                            locale={locale}
-                            lockedLabel={tr(dict, "player.locked")}
-                            unlockedLabel={tr(dict, "player.unlocked")}
-                            layout="grid"
+                          <AchievementCollection 
+                            items={achievementItems} 
+                            locale={locale} 
+                            lockedLabel={tr(dict, "player.locked")} 
+                            unlockedLabel={tr(dict, "player.unlocked")} 
+                            layout="grid" 
                           />
                         </div>
                       )}
@@ -399,6 +386,7 @@ export default async function AccountPage() {
                           {session.user.emailVerified ? "Verificado" : "Não verificado"}
                         </span>
                       </div>
+
                       <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-4">
                         <TotpSetupFlow enabled={totpDevice?.isEnabled ?? false} />
                       </div>

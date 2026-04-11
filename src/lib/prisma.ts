@@ -6,8 +6,8 @@ const globalForPrisma = globalThis as typeof globalThis & {
   prisma?: PrismaClient;
 };
 
-// Supabase Connection String (from .env)
-const connectionString = process.env.DATABASE_URL;
+// Supabase Connection String (from .env) - Cleaned of any accidental whitespace/newlines
+const connectionString = process.env.DATABASE_URL?.trim().replace(/\\n/g, "");
 
 // Limit pool size to avoid exhausting Supabase connection quota.
 // Vercel serverless spins multiple instances simultaneously; each instance
