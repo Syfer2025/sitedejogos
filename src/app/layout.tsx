@@ -1,13 +1,9 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Geist, Geist_Mono } from "next/font/google";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import "./globals.css";
-import { LanguageSwitcher } from "./components/LanguageSwitcher";
 import { LocaleProvider } from "./components/LocaleContext";
 import { AdBlockProvider } from "./components/AdBlockDetector";
-import { Footer } from "./components/Footer";
 import { MobileBottomNav } from "./components/MobileBottomNav";
 import { PageAnalyticsTracker } from "./components/PageAnalyticsTracker";
 import { Header } from "./components/Header";
@@ -94,7 +90,12 @@ export default async function RootLayout({
     (await import("@/data/gamificationStore")).getPlayerGamificationOverview(playerSession.user.id).then(g => g?.notifications ?? []),
     (await import("@/data/playerStore")).listFavoriteGames(playerSession.user.id, 10).then(f => f.map(entry => ({ game: entry.game }))),
     (await import("@/data/playerStore")).listRecentlyPlayed(playerSession.user.id, 10).then(h => h.map(entry => ({ game: entry.game }))),
-    prisma.gameRating.findMany({ where: { userId: playerSession.user.id }, include: { game: true }, take: 10, orderBy: { updatedAt: 'desc' }})
+    prisma.gameRating.findMany({ 
+      where: { userId: playerSession.user.id }, 
+      include: { game: true }, 
+      take: 10, 
+      orderBy: { updatedAt: 'desc' }
+    }).then(ratings => ratings.map(r => ({ ...r, createdAt: r.createdAt.toISOString(), updatedAt: r.updatedAt.toISOString(), game: { ...r.game, createdAt: r.game.createdAt.toISOString(), updatedAt: r.game.updatedAt.toISOString() } })))
   ]) : [[], [], [], []];
 
   const [notifications, favorites, recentGames, ratedGames] = headerData;
@@ -142,7 +143,6 @@ export default async function RootLayout({
                 })
               }}
             />
-            {/* Pass server data to Header (which is a client component) */}
             <Header 
               playerSession={playerSession}
               t={t}
@@ -154,7 +154,6 @@ export default async function RootLayout({
             />
             <GamificationNotifier />
             <main className="flex-1 pb-14 sm:pb-0 overflow-hidden min-h-0 min-w-0">{children}</main>
-            
             <MobileBottomNav />
           </AdBlockProvider>
         </LocaleProvider>
@@ -162,3 +161,4 @@ export default async function RootLayout({
     </html>
   );
 }
+
