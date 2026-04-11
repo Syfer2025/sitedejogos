@@ -7,6 +7,7 @@ export const DAILY_MISSION_KINDS = [
   "game_play",
   "rating_add",
   "ad_reward_view",
+  "comment_add",
 ] as const;
 export type DailyMissionKind = (typeof DAILY_MISSION_KINDS)[number];
 
@@ -38,6 +39,7 @@ const DAILY_MISSION_LINKS: Record<DailyMissionKind, string> = {
   game_play: "/#catalogo",
   rating_add: "/#catalogo",
   ad_reward_view: "/#catalogo",
+  comment_add: "/#catalogo",
 };
 
 export function getDailyMissionHref(kind: DailyMissionKind) {
@@ -74,6 +76,14 @@ export function selectDailyMissionTemplate(context: DailyMissionAssignmentContex
       kind: "ad_reward_view" as const,
       targetCount: 1,
       rewardXp: 35,
+    };
+  }
+
+  if (Math.random() > 0.7) {
+    return {
+      kind: "comment_add" as const,
+      targetCount: 1,
+      rewardXp: 30,
     };
   }
 
@@ -125,6 +135,14 @@ export function selectDailyMissionTemplateFromEvent(event: GamificationEventType
     };
   }
 
+  if (event === "comment_add") {
+    return {
+      kind: "comment_add" as const,
+      targetCount: 1,
+      rewardXp: 30,
+    };
+  }
+
   return null;
 }
 
@@ -154,6 +172,9 @@ export function buildDailyMission(input: DailyMissionPresentationInput) {
           adTitle: "Watch 1 rewarded ad today.",
           adDescription:
             "Support the portal and earn bonus XP by watching a short video highlight.",
+          commentTitle: "Comment on 1 game today.",
+          commentDescription:
+            "Share your opinion on any game and help other players discover hidden gems.",
           gamePlayTitle: (targetCount: number) => `Play ${targetCount} game(s) today.`,
           gamePlayDescription:
             "Keep your activity warm, stack XP and give the portal a stronger signal about what deserves priority in your feed.",
@@ -188,6 +209,9 @@ export function buildDailyMission(input: DailyMissionPresentationInput) {
           adTitle: "Mira 1 anuncio premiado hoy.",
           adDescription:
             "Apoya al portal y gana XP extra mirando un corto video destacado.",
+          commentTitle: "Comenta en 1 juego hoy.",
+          commentDescription:
+            "Comparte tu opinión en cualquier juego y ayuda a otros jugadores a descubrir joyas ocultas.",
           gamePlayTitle: (targetCount: number) => `Juega ${targetCount} partida(s) hoy.`,
           gamePlayDescription:
             "Mantén tu actividad encendida, suma XP y ayuda al portal a entender qué debe subir en tu feed.",
@@ -221,6 +245,9 @@ export function buildDailyMission(input: DailyMissionPresentationInput) {
           adTitle: "Veja 1 anúncio premiado hoje.",
           adDescription:
             "Apoie o portal e ganhe XP bônus assistindo a um rápido vídeo de destaque.",
+          commentTitle: "Comente em 1 jogo hoje.",
+          commentDescription:
+            "Compartilhe sua opinião em qualquer jogo e ajude outros jogadores a descobrir títulos escondidos.",
           gamePlayTitle: (targetCount: number) => `Jogue ${targetCount} partida(s) hoje.`,
           gamePlayDescription:
             "Mantenha a atividade aquecida, some XP e dê um sinal mais forte ao portal sobre o que merece subir no seu feed.",
@@ -321,6 +348,19 @@ export function buildDailyMission(input: DailyMissionPresentationInput) {
       variant: "ad_reward_view" as const,
       title: copy.adTitle,
       description: copy.adDescription,
+      progressLabel: copy.progressLabel,
+      progressValue: copy.progressValue(input.mission.progressCount, input.mission.targetCount),
+      href: getDailyMissionHref(input.mission.kind),
+      ctaLabel: copy.actionCta,
+      isCompleted: false,
+    };
+  }
+
+  if (input.mission.kind === "comment_add") {
+    return {
+      variant: "comment_add" as const,
+      title: copy.commentTitle,
+      description: copy.commentDescription,
       progressLabel: copy.progressLabel,
       progressValue: copy.progressValue(input.mission.progressCount, input.mission.targetCount),
       href: getDailyMissionHref(input.mission.kind),

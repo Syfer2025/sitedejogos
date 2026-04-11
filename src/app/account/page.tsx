@@ -33,6 +33,7 @@ import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 import { AccountProfileForm } from "../components/AccountProfileForm";
 import { FriendsPanel } from "../components/FriendsPanel";
 import { CoinsPanel } from "../components/CoinsPanel";
+import { ThemesPanel } from "../components/ThemesPanel";
 import { AchievementCollection } from "../components/HomeAchievementsRail";
 import { ProfileSidebarNav, type ProfileTabKey } from "../components/ProfileSidebarNav";
 import { ActivityFeed } from "../components/ActivityFeed";
@@ -191,21 +192,46 @@ export default async function AccountPage() {
         <div className="relative mx-auto max-w-7xl px-4 py-8 lg:px-8 animate-fade-in">
           {/* Header */}
           <header className="relative mb-8 overflow-hidden rounded-3xl border border-slate-700/60 bg-[#080c18] shadow-2xl">
-            <div className="h-48 md:h-64 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#050816] via-[#0e1530] to-indigo-950" />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(99,102,241,0.35),transparent_65%)]" />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_50%,rgba(56,189,248,0.15),transparent_60%)]" />
+            {/* Cover */}
+            <div className="h-48 md:h-64 relative overflow-hidden group">
+              {profile.coverUrl ? (
+                <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url("${profile.coverUrl}")` }} />
+              ) : (
+                <>
+                  <div className="absolute inset-0 bg-gradient-to-tr from-[#050816] via-[#0e1530] to-indigo-950" />
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(99,102,241,0.35),transparent_65%)]" />
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_50%,rgba(56,189,248,0.15),transparent_60%)]" />
+                </>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#080c18] via-transparent to-transparent" />
             </div>
-            
+
             <div className="px-6 pb-8 md:px-10">
               <div className="relative -mt-20 flex flex-col items-center gap-6 md:-mt-24 md:flex-row md:items-end">
-                <div
-                     className="h-40 w-40 flex items-center justify-center rounded-full border-4 border-[#080c18] bg-gradient-to-br from-cyan-400 to-purple-600 shadow-2xl text-4xl font-black text-white shrink-0 ring-2 ring-indigo-500/50"
-                     style={profile.avatarUrl ? { backgroundImage: `url("${profile.avatarUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
-                  {!profile.avatarUrl && playerInitials}
+                {/* Avatar with inline change button */}
+                <div className="relative shrink-0 group/avatar">
+                  <div
+                    className="h-40 w-40 flex items-center justify-center rounded-full border-4 border-[#080c18] bg-gradient-to-br from-cyan-400 to-purple-600 shadow-2xl text-4xl font-black text-white ring-2 ring-indigo-500/50 overflow-hidden"
+                    style={profile.avatarUrl ? { backgroundImage: `url("${profile.avatarUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
+                    {!profile.avatarUrl && playerInitials}
+                  </div>
+                  <AccountProfileForm
+                    initialProfile={{
+                      displayName: profile.displayName,
+                      email: profile.email,
+                      avatarUrl: profile.avatarUrl,
+                      coverUrl: profile.coverUrl,
+                      bio: profile.bio,
+                      preferredCategories: profile.preferredCategories,
+                      unlockedAvatars: profile.unlockedAvatars,
+                      unlockedCovers: profile.unlockedCovers,
+                      coins: profile.coins,
+                    }}
+                    categories={categories}
+                    inlineMode
+                  />
                 </div>
-                
+
                 <div className="flex-1 text-center md:text-left">
                   <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
                     <h1 className="text-3xl font-black text-white md:text-4xl tracking-tight">{profile.displayName}</h1>
@@ -213,6 +239,7 @@ export default async function AccountPage() {
                   <p className="mt-2 text-sm font-medium text-slate-400">
                     {profile.email} • {tr(dict, "player.memberSince", { date: memberSince })}
                   </p>
+                  {profile.bio && <p className="mt-1 text-xs text-slate-500 max-w-md">{profile.bio}</p>}
                 </div>
 
                 <form action={logout} className="shrink-0 mb-2">
@@ -259,8 +286,7 @@ export default async function AccountPage() {
 
           {/* Layout Grid */}
           <div className="animate-fade-in">
-            <ProfileSidebarNav 
-              notificationCount={gamification?.unreadNotifications ?? 0}
+            <ProfileSidebarNav
               childrenMap={{
                 feed: (
                   <ActivityFeed history={history} locale={locale} />
@@ -270,36 +296,60 @@ export default async function AccountPage() {
                     <CoinsPanel />
                   </TabSectionShell>
                 ),
+                themes: (
+                  <TabSectionShell icon="🎨" title="Temas do Perfil" subtitle="Personalize o visual da sua conta">
+                    <ThemesPanel />
+                  </TabSectionShell>
+                ),
                 social: (
                   <TabSectionShell icon="👥" title={tr(dict, "player.social")} subtitle={tr(dict, "player.socialSubtitle")}>
                     <FriendsPanel />
                   </TabSectionShell>
                 ),
                 mission: (
-                  <TabSectionShell icon="🎯" title={tr(dict, "player.journey")} subtitle={tr(dict, "player.journeySubtitle")}>
+                  <TabSectionShell icon="🎯" title="Missão & Conquistas" subtitle="Missão diária e seu progresso de conquistas">
                     <div className="space-y-8">
+                      {/* Daily Mission */}
                       <div className="rounded-2xl bg-slate-800 border border-slate-700/60 p-6 shadow-inner">
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="text-xl font-black text-white">{dailyMissionCard?.title}</h3>
                           <span className="rounded-lg bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-400 border border-emerald-500/20">+{gamification?.dailyMission?.rewardXp} XP</span>
                         </div>
+                        <p className="text-xs text-slate-400 mb-4">{dailyMissionCard?.description}</p>
                         <div className="h-3 rounded-full bg-slate-950 overflow-hidden border border-slate-700 mb-6">
-                          <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700 animate-progress-glow rounded-full" style={{ width: `${currentMissionProgressPercent}%` }} />
+                          <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700 rounded-full" style={{ width: `${currentMissionProgressPercent}%` }} />
                         </div>
                         <Link href={dailyMissionCard?.href ?? "#"} className="inline-block rounded-xl bg-emerald-600 px-8 py-3 text-sm font-black text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] uppercase">{tr(dict, "player.startMission")}</Link>
                       </div>
 
-                      {achievementItems.length > 0 && (
+                      {/* Unlocked achievements */}
+                      {achievementItems.filter((a) => a.unlocked).length > 0 && (
                         <div>
-                          <h3 className="text-lg font-black text-white mb-6 flex items-center gap-2">
-                             <span className="text-xl">🏆</span> {tr(dict, "player.yourAchievements")}
+                          <h3 className="text-base font-black text-white mb-4 flex items-center gap-2">
+                            <span>🏆</span> Conquistas Desbloqueadas
                           </h3>
-                          <AchievementCollection 
-                            items={achievementItems} 
-                            locale={locale} 
-                            lockedLabel={tr(dict, "player.locked")} 
-                            unlockedLabel={tr(dict, "player.unlocked")} 
-                            layout="grid" 
+                          <AchievementCollection
+                            items={achievementItems.filter((a) => a.unlocked)}
+                            locale={locale}
+                            lockedLabel={tr(dict, "player.locked")}
+                            unlockedLabel={tr(dict, "player.unlocked")}
+                            layout="grid"
+                          />
+                        </div>
+                      )}
+
+                      {/* Locked achievements */}
+                      {achievementItems.filter((a) => !a.unlocked).length > 0 && (
+                        <div>
+                          <h3 className="text-base font-black text-white mb-4 flex items-center gap-2">
+                            <span>🔒</span> Para Desbloquear
+                          </h3>
+                          <AchievementCollection
+                            items={achievementItems.filter((a) => !a.unlocked)}
+                            locale={locale}
+                            lockedLabel={tr(dict, "player.locked")}
+                            unlockedLabel={tr(dict, "player.unlocked")}
+                            layout="grid"
                           />
                         </div>
                       )}
@@ -333,36 +383,6 @@ export default async function AccountPage() {
                     </div>
                   </TabSectionShell>
                 ),
-                profile: (
-                  <TabSectionShell icon="✏️" title={tr(dict, "player.editProfile")} subtitle={tr(dict, "player.editProfileSubtitle")}>
-                    <AccountProfileForm
-                      initialProfile={{
-                        displayName: profile.displayName,
-                        email: profile.email,
-                        avatarUrl: profile.avatarUrl,
-                        coverUrl: profile.coverUrl,
-                        bio: profile.bio,
-                        preferredCategories: profile.preferredCategories,
-                        unlockedAvatars: profile.unlockedAvatars,
-                        unlockedCovers: profile.unlockedCovers,
-                        coins: profile.coins,
-                      }}
-                      categories={categories}
-                    />
-                  </TabSectionShell>
-                ),
-                notifications: (
-                  <TabSectionShell icon="🔔" title={tr(dict, "player.notifications")} subtitle={tr(dict, "player.notificationsSubtitle")}>
-                    <div className="space-y-4">
-                      {gamification?.notifications.map(n => (
-                        <div key={n.id} className="p-4 rounded-2xl bg-slate-800 border border-slate-700/60 hover:bg-slate-700/50 transition-all hover:border-slate-600 group cursor-default">
-                          <p className="font-bold text-white group-hover:text-cyan-300 transition-colors">{n.title}</p>
-                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">{n.message}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </TabSectionShell>
-                ),
                 security: (
                   <TabSectionShell icon="🔒" title="Segurança" subtitle="Gerencie a segurança da sua conta">
                     <div className="space-y-6">
@@ -379,7 +399,6 @@ export default async function AccountPage() {
                           {session.user.emailVerified ? "Verificado" : "Não verificado"}
                         </span>
                       </div>
-
                       <div className="rounded-xl border border-slate-700 bg-slate-900/50 p-4">
                         <TotpSetupFlow enabled={totpDevice?.isEnabled ?? false} />
                       </div>

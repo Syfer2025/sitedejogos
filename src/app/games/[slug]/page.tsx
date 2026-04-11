@@ -23,6 +23,8 @@ import { GameViewTracker } from "../../components/GameViewTracker";
 import { GameWalkthrough } from "../components/GameWalkthrough";
 import { SITE_CONFIG } from "@/lib/config";
 import { Footer } from "../../components/Footer";
+import { AchievementUnlockToast } from "../../components/AchievementUnlockToast";
+import { GameAchievementsSidebar } from "../../components/GameAchievementsSidebar";
 
 type GamePageProps = {
   params: Promise<{ slug: string }>;
@@ -107,11 +109,28 @@ export default async function GamePage({ params }: GamePageProps) {
     console.error("Failed to parse faqJson for game", game.slug);
   }
 
-  const [ratingStats, userRating, playerState, commentCount] = await Promise.all([
+  const [ratingStats, userRating, playerState, commentCount, gamificationForSidebar] = await Promise.all([
     getGameRatingStats(game.id),
     playerSession ? getUserGameRating(playerSession.user.id, game.id) : null,
     playerSession ? getPlayerGameState(playerSession.user.id, game.id) : null,
     prisma.gameComment.count({ where: { gameId: game.id, isHidden: false } }),
+    playerSession
+      ? (async () => {
+          const { getPlayerGamificationOverview } = await import("@/data/gamificationStore");
+          const { listAchievementDefinitions } = await import("@/data/achievementDefinitionsStore");
+          const { getAchievementProgress } = await import("@/lib/gamification");
+          const [overview, defs] = await Promise.all([
+            getPlayerGamificationOverview(playerSession.user.id),
+            listAchievementDefinitions(),
+          ]);
+          if (!overview) return null;
+          const unlockedKeys = new Set(overview.unlockedAchievementKeys ?? []);
+          return defs.map((d) => {
+            const p = getAchievementProgress(d, overview.achievementSnapshot);
+            return { id: d.id, key: d.key, title: d.title, description: d.description, icon: d.icon, imageUrl: d.imageUrl, xpReward: d.xpReward, criteriaType: d.criteriaType, threshold: d.threshold, unlocked: unlockedKeys.has(d.key), currentValue: p.currentValue, targetValue: p.targetValue, progressPercent: p.progressPercent };
+          });
+        })()
+      : Promise.resolve(null),
   ]);
 
   const jsonLd = [
@@ -327,14 +346,17 @@ export default async function GamePage({ params }: GamePageProps) {
                 </div>
               </div>
 
-              {/* Right Sidebar Ad */}
-              <aside className="hidden md:block w-[300px] shrink-0 self-start sticky top-32">
-                <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 mb-4">
+              {/* Right Sidebar */}
+              <aside className="hidden md:block w-[300px] shrink-0 self-start sticky top-32 space-y-4">
+                {gamificationForSidebar && (
+                  <GameAchievementsSidebar items={gamificationForSidebar} />
+                )}
+                <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4">
                   <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3 text-center">Espaço Patrocinado</p>
                   <AdSlot
                     label="Sidebar Skyscraper"
                     slot={process.env.NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR}
-                    minHeight={350}
+                    minHeight={200}
                     autoRefresh
                     refreshIntervalMs={60000}
                   />
@@ -357,6 +379,10 @@ export default async function GamePage({ params }: GamePageProps) {
           <Footer />
         </div>
       </div>
+
+      {playerSession && (
+        <AchievementUnlockToast userId={playerSession.user.id} />
+      )}
     </div>
   );
 }

@@ -10,6 +10,9 @@ import { AdBlockProvider } from "./components/AdBlockDetector";
 import { Footer } from "./components/Footer";
 import { MobileBottomNav } from "./components/MobileBottomNav";
 import { PageAnalyticsTracker } from "./components/PageAnalyticsTracker";
+import { NotificationBell } from "./components/NotificationBell";
+import { FavoritesHeart } from "./components/FavoritesHeart";
+import { PushNotificationManager } from "./components/PushNotificationManager";
 import { LOCALE_COOKIE_NAME, resolveLocale, SUPPORTED_LOCALES } from "@/lib/locale";
 import { getDictionary } from "@/lib/i18n";
 import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
@@ -136,6 +139,7 @@ export default async function RootLayout({
         <LocaleProvider initialLocale={initialLocale}>
           <AdBlockProvider isPremium={premium}>
             <PageAnalyticsTracker />
+            {playerSession && <PushNotificationManager userId={playerSession.user.id} />}
             <script
               type="application/ld+json"
               dangerouslySetInnerHTML={{
@@ -186,8 +190,20 @@ export default async function RootLayout({
                   <div className="shrink-0"><LanguageSwitcher /></div>
                   {playerSession ? (
                     <div className="hidden sm:flex items-center gap-2">
-                      <Link href="/account" className="inline-flex max-w-[140px] items-center gap-1 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-3 py-1 text-[11px] text-cyan-100 transition-colors hover:border-cyan-300/70 hover:bg-cyan-500/15">
-                        {premium && <span className="text-amber-400">★</span>}
+                      <FavoritesHeart />
+                      <NotificationBell />
+                      <Link href="/account" className="inline-flex max-w-[160px] items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-500/10 px-3 py-1 text-[11px] text-cyan-100 transition-colors hover:border-cyan-300/70 hover:bg-cyan-500/15">
+                        {playerSession.user.avatarUrl ? (
+                          <span
+                            className="h-5 w-5 shrink-0 rounded-full bg-cover bg-center border border-white/10"
+                            style={{ backgroundImage: `url("${playerSession.user.avatarUrl}")` }}
+                          />
+                        ) : (
+                          <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-cyan-400 text-[9px] font-black text-white">
+                            {playerSession.user.displayName.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                        {premium && <span className="text-amber-400 text-xs">★</span>}
                         <span className="truncate">{playerSession.user.displayName}</span>
                       </Link>
                       <form action={logoutPlayer}>

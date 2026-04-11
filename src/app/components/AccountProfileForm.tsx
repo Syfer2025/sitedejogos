@@ -18,6 +18,8 @@ type AccountProfileFormProps = {
     coins?: number;
   };
   categories: string[];
+  /** When true, only renders the floating avatar/cover quick-change buttons */
+  inlineMode?: boolean;
 };
 
 function getPlayerInitials(name: string) {
@@ -32,6 +34,7 @@ function getPlayerInitials(name: string) {
 export function AccountProfileForm({
   initialProfile,
   categories,
+  inlineMode = false,
 }: AccountProfileFormProps) {
   const router = useRouter();
   const [displayName, setDisplayName] = useState(initialProfile.displayName);
@@ -128,6 +131,52 @@ export function AccountProfileForm({
     } finally {
       setPending(false);
     }
+  }
+
+  // Inline mode: only the quick avatar/cover picker buttons overlaid on the profile header
+  if (inlineMode) {
+    return (
+      <>
+        {/* Quick-change avatar button */}
+        <button
+          type="button"
+          onClick={() => { setShowAvatarPicker((v) => !v); setShowCoverPicker(false); }}
+          className="absolute bottom-0 right-0 flex h-8 w-8 items-center justify-center rounded-full border-2 border-[#080c18] bg-slate-800 text-sm shadow hover:bg-slate-700 transition-colors"
+          title="Trocar avatar"
+        >
+          📷
+        </button>
+
+        {/* Avatar picker dropdown */}
+        {showAvatarPicker && (
+          <div className="absolute bottom-10 right-0 z-50 w-64 rounded-2xl border border-slate-700 bg-slate-950/98 p-3 shadow-2xl backdrop-blur-md">
+            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">Escolher avatar</p>
+            <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+              {AVATAR_PRESETS.map((preset) => {
+                const isUnlocked = !preset.price || (initialProfile.unlockedAvatars ?? []).includes(preset.id);
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => {
+                      if (!isUnlocked) { void handleBuyItem("avatar", preset); return; }
+                      setAvatarUrl(preset.url);
+                      setShowAvatarPicker(false);
+                      void fetch("/api/user/profile", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ avatarUrl: preset.url }) }).then(() => router.refresh());
+                    }}
+                    className={`relative overflow-hidden rounded-xl border transition-all ${avatarUrl === preset.url ? "border-cyan-400 ring-1 ring-cyan-400/50" : "border-slate-700 hover:border-slate-500"}`}
+                  >
+                    <div className="h-16 w-full bg-cover bg-center" style={{ backgroundImage: `url("${preset.url}")` }} />
+                    {!isUnlocked && <span className="absolute inset-0 flex items-center justify-center bg-black/60 text-xs">🔒</span>}
+                  </button>
+                );
+              })}
+            </div>
+            {feedback && <p className={`mt-2 text-[10px] ${feedback.type === "error" ? "text-red-400" : "text-emerald-400"}`}>{feedback.message}</p>}
+          </div>
+        )}
+      </>
+    );
   }
 
   return (

@@ -370,21 +370,21 @@ export type GamificationEventType =
   | "comment_add";
 
 export const EVENT_XP_REWARDS: Record<GamificationEventType, number> = {
-  register: 100,
-  login: 15,
-  favorite_add: 5,
-  game_play: 10,
-  profile_update: 25,
-  rating_add: 15,
-  ad_reward_view: 25,
-  comment_add: 20,
+  register: 40,
+  login: 5,
+  favorite_add: 2,
+  game_play: 3,
+  profile_update: 10,
+  rating_add: 5,
+  ad_reward_view: 12,
+  comment_add: 6,
 };
 
 export function getLevelFromXp(xp: number) {
-  if (xp < 1000) return Math.floor(xp / 100) + 1; // 1 to 10
-  if (xp < 3500) return Math.floor((xp - 1000) / 250) + 11; // 11 to 20
-  if (xp < 18500) return Math.floor((xp - 3500) / 500) + 21; // 21 to 50
-  return Math.floor((xp - 18500) / 1000) + 51; // 51+
+  if (xp < 2000) return Math.floor(xp / 200) + 1;   // 1-10: 200 XP each
+  if (xp < 8000) return Math.floor((xp - 2000) / 600) + 11;  // 11-20: 600 XP each
+  if (xp < 53000) return Math.floor((xp - 8000) / 1500) + 21; // 21-50: 1500 XP each
+  return Math.floor((xp - 53000) / 3000) + 51;       // 51+: 3000 XP each
 }
 
 export function getLevelRange(level: number) {
@@ -393,17 +393,17 @@ export function getLevelRange(level: number) {
   let nextLevelXp = 100;
 
   if (currentLevel <= 10) {
-    currentLevelXp = (currentLevel - 1) * 100;
-    nextLevelXp = currentLevel * 100;
+    currentLevelXp = (currentLevel - 1) * 200;
+    nextLevelXp = currentLevel * 200;
   } else if (currentLevel <= 20) {
-    currentLevelXp = 1000 + (currentLevel - 11) * 250;
-    nextLevelXp = currentLevelXp + 250;
+    currentLevelXp = 2000 + (currentLevel - 11) * 600;
+    nextLevelXp = currentLevelXp + 600;
   } else if (currentLevel <= 50) {
-    currentLevelXp = 3500 + (currentLevel - 21) * 500;
-    nextLevelXp = currentLevelXp + 500;
+    currentLevelXp = 8000 + (currentLevel - 21) * 1500;
+    nextLevelXp = currentLevelXp + 1500;
   } else {
-    currentLevelXp = 18500 + (currentLevel - 51) * 1000;
-    nextLevelXp = currentLevelXp + 1000;
+    currentLevelXp = 53000 + (currentLevel - 51) * 3000;
+    nextLevelXp = currentLevelXp + 3000;
   }
 
   return {

@@ -3,24 +3,23 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 
-export type ProfileTabKey = "feed" | "wallet" | "social" | "mission" | "library" | "profile" | "notifications" | "security";
+export type ProfileTabKey = "feed" | "wallet" | "themes" | "social" | "mission" | "library" | "security";
 
 interface TabDef {
   key: ProfileTabKey;
   label: string;
   icon: string;
-  count?: number;
   colorClass: string;
+  count?: number;
 }
 
 const TABS: TabDef[] = [
   { key: "feed", label: "Feed de Atividades", icon: "📰", colorClass: "text-blue-400" },
   { key: "wallet", label: "Carteira", icon: "🪙", colorClass: "text-amber-400" },
+  { key: "themes", label: "Temas", icon: "🎨", colorClass: "text-violet-400" },
   { key: "social", label: "Social", icon: "👥", colorClass: "text-cyan-400" },
-  { key: "mission", label: "Missão", icon: "🎯", colorClass: "text-emerald-400" },
+  { key: "mission", label: "Missão & Conquistas", icon: "🎯", colorClass: "text-emerald-400" },
   { key: "library", label: "Biblioteca", icon: "📚", colorClass: "text-pink-400" },
-  { key: "profile", label: "Perfil", icon: "✏️", colorClass: "text-violet-400" },
-  { key: "notifications", label: "Avisos", icon: "🔔", count: 21, colorClass: "text-yellow-400" },
   { key: "security", label: "Segurança", icon: "🔒", colorClass: "text-red-400" },
 ];
 
@@ -29,16 +28,9 @@ interface ProfileSidebarNavProps {
   notificationCount?: number;
 }
 
-export function ProfileSidebarNav({ childrenMap, notificationCount = 0 }: ProfileSidebarNavProps) {
+export function ProfileSidebarNav({ childrenMap }: ProfileSidebarNavProps) {
   const [activeTab, setActiveTab] = useState<ProfileTabKey>("feed");
-
-  // Sync real count if provided
-  const displayTabs = TABS.map(tab => {
-    if (tab.key === "notifications") {
-      return { ...tab, count: notificationCount > 0 ? notificationCount : undefined };
-    }
-    return tab;
-  });
+  const displayTabs = TABS;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">
