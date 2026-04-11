@@ -67,7 +67,7 @@ export function Header({
         </div>
 
         {/* Search - Hidden on mobile, centered on desktop */}
-        <div className="pointer-events-none absolute left-1/2 top-1/2 hidden w-full max-w-[360px] -translate-x-1/2 -translate-y-1/2 xl:block">
+        <div className="pointer-events-none absolute left-1/2 top-1/2 hidden w-auto max-w-[360px] -translate-x-1/2 -translate-y-1/2 xl:block">
           <form action="/#catalogo" className="pointer-events-auto relative w-full">
             <input
               name="q"

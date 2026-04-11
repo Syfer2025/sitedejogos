@@ -19,6 +19,7 @@ import { isPlayerPremium } from "@/data/monetizationStore";
 import Script from "next/script";
 import { SITE_CONFIG } from "@/lib/config";
 import { prisma } from "@/lib/prisma";
+import { logoutPlayer } from "./actions/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -101,27 +102,6 @@ export default async function RootLayout({
   const premium = playerSession ? await isPlayerPremium(playerSession.user.id) : false;
   const adsenseClientId = premium ? undefined : (process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-5055044496746954");
   const t = { ...dict.common, ...dict.home };
-
-  async function logoutPlayer() {
-    "use server";
-    const cookieStore = await cookies();
-    const playerToken = cookieStore.get(PLAYER_SESSION_COOKIE)?.value;
-
-    if (playerToken) {
-      const { deletePlayerSession } = await import("@/lib/user-auth");
-      await deletePlayerSession(playerToken);
-    }
-
-    cookieStore.set(PLAYER_SESSION_COOKIE, "", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      path: "/",
-      maxAge: 0,
-    });
-
-    redirect("/");
-  }
 
   return (
     <html
