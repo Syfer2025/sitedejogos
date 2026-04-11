@@ -364,6 +364,21 @@ model CategoryContent {
   updatedAt       DateTime @updatedAt
 }
 
+// ──────────────────────────────────────────
+// Web Push Subscriptions
+// ──────────────────────────────────────────
+model PushSubscription {
+  id        String   @id @default(cuid())
+  userId    String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
 model NewsletterSubscriber {
   id           String   @id @default(cuid())
   email        String   @unique
