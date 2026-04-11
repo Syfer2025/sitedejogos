@@ -121,33 +121,39 @@ export default async function AccountPage() {
     redirect("/login?from=/account");
   }
 
-  const favoritesPromise = listFavoriteGames(session.user.id, 12);
-  const historyPromise = listRecentlyPlayed(session.user.id, 12);
-  const profilePromise = getPlayerProfile(session.user.id);
-  const categoriesPromise = listCategories();
-  const gamificationPromise = getPlayerGamificationOverview(session.user.id);
-  const tasteProfilePromise = getPlayerTasteProfile(session.user.id);
-  const achievementsPromise = listAchievementDefinitions();
-  
+  let favorites: any[] = [];
+  let history: any[] = [];
+  let profile: any = null;
+  let categories: any[] = [];
+  let gamification: any = null;
+  let tasteProfile: any = null;
+  let achievementDefinitions: any[] = [];
   let totpDevice = { isEnabled: false };
-  try {
-    totpDevice = await prisma.totpDevice.findUnique({
-      where: { userId: session.user.id },
-      select: { isEnabled: true },
-    }) ?? { isEnabled: false };
-  } catch {
-    // TOTP table might not exist or other DB error
-  }
+  let hasError = false;
 
-  const [favorites, history, profile, categories, gamification, tasteProfile, achievementDefinitions] = await Promise.all([
-    favoritesPromise,
-    historyPromise,
-    profilePromise,
-    categoriesPromise,
-    gamificationPromise,
-    tasteProfilePromise,
-    achievementsPromise,
-  ]);
+  try {
+    [favorites, history, profile, categories, gamification, tasteProfile, achievementDefinitions] = await Promise.all([
+      listFavoriteGames(session.user.id, 12),
+      listRecentlyPlayed(session.user.id, 12),
+      getPlayerProfile(session.user.id),
+      listCategories(),
+      getPlayerGamificationOverview(session.user.id),
+      getPlayerTasteProfile(session.user.id),
+      listAchievementDefinitions(),
+    ]);
+
+    try {
+      totpDevice = await prisma.totpDevice.findUnique({
+        where: { userId: session.user.id },
+        select: { isEnabled: true },
+      }) ?? { isEnabled: false };
+    } catch {
+      // TOTP table might not exist
+    }
+  } catch (e) {
+    console.error("AccountPage data fetch error:", e);
+    hasError = true;
+  }
 
   if (!profile) {
     redirect("/login?from=/account");
