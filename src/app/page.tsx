@@ -415,7 +415,7 @@ export default async function Home({
                   style={{
                     gridTemplateRows: "1fr",
                     gridAutoFlow: "column",
-                    gridAutoColumns: "clamp(140px, calc((100vw - 220px) / 5), 210px)",
+                    gridAutoColumns: "clamp(130px, calc((100vw - 520px) / 5), 210px)",
                   }}
                 >
                   {continuePlayingGames.map((game) => (
@@ -436,7 +436,7 @@ export default async function Home({
                   style={{
                     gridTemplateRows: "1fr",
                     gridAutoFlow: "column",
-                    gridAutoColumns: "clamp(140px, calc((100vw - 220px) / 5), 210px)",
+                    gridAutoColumns: "clamp(130px, calc((100vw - 520px) / 5), 210px)",
                   }}
                 >
                   {recommendedGames.map((game) => (

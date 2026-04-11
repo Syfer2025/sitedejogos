@@ -207,7 +207,7 @@ export async function HomeRightSidebar() {
 
   return (
     <RightSidebarShell>
-    <aside className="flex flex-col flex-1 min-h-0 border-l border-slate-800/60 bg-slate-950/60 overflow-y-auto scrollbar-thin">
+    <aside className="flex flex-col flex-1 min-h-0 min-w-0 border-l border-slate-800/60 bg-slate-950/60 overflow-y-auto scrollbar-thin">
       <div className="p-4 space-y-4">
 
         {/* Player card */}
