@@ -721,7 +721,7 @@ export async function applyGamificationEvent(
         userId: displacedUser.id,
         kind: "ranking_down",
         title: "Você foi ultrapassado!",
-        message: `${xpResult?.displayName || "Alguém"} acabou de te passar no ranking global. Volte a jogar para retomar sua posição!`,
+        message: `Alguém acabou de te passar no ranking global. Volte a jogar para retomar sua posição!`,
         link: "/account"
       });
     }

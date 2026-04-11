@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useState } from "react";
 
-export type ProfileTabKey = "feed" | "wallet" | "social" | "mission" | "library" | "profile" | "notifications" | "security";
+export type ProfileTabKey = "feed" | "wallet" | "social" | "mission" | "library" | "security";
 
 interface TabDef {
   key: ProfileTabKey;
@@ -24,19 +24,11 @@ const TABS: TabDef[] = [
 
 interface ProfileSidebarNavProps {
   childrenMap: Record<ProfileTabKey, ReactNode>;
-  notificationCount?: number;
 }
 
-export function ProfileSidebarNav({ childrenMap, notificationCount = 0 }: ProfileSidebarNavProps) {
+export function ProfileSidebarNav({ childrenMap }: ProfileSidebarNavProps) {
   const [activeTab, setActiveTab] = useState<ProfileTabKey>("feed");
-
-  // Sync real count if provided
-  const displayTabs = TABS.map(tab => {
-    if (tab.key === "notifications") {
-      return { ...tab, count: notificationCount > 0 ? notificationCount : undefined };
-    }
-    return tab;
-  });
+  const displayTabs = TABS;
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-6">

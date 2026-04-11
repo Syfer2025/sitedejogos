@@ -38,6 +38,7 @@ import { ProfileSidebarNav, type ProfileTabKey } from "../components/ProfileSide
 import { ActivityFeed } from "../components/ActivityFeed";
 import { AccountHeader } from "../components/AccountHeader";
 import { Footer } from "../components/Footer";
+import { TotpSetupFlow } from "../components/TotpSetupFlow";
 
 type FavoriteEntry = Awaited<ReturnType<typeof listFavoriteGames>>[number];
 type HistoryEntry = Awaited<ReturnType<typeof listRecentlyPlayed>>[number];
@@ -231,8 +232,7 @@ export default async function AccountPage() {
 
           {/* Layout Grid */}
           <div className="animate-fade-in">
-            <ProfileSidebarNav 
-              notificationCount={gamification?.unreadNotifications ?? 0}
+            <ProfileSidebarNav
               childrenMap={{
                 feed: (
                   <ActivityFeed history={history} locale={locale} />
