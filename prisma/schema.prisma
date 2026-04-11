@@ -7,38 +7,37 @@ datasource db {
 }
 
 model Game {
-  id              String          @id @default(cuid())
-  title       String
-  slug        String   @unique
-  iframeUrl   String
-  thumbnail   String
-  description String   @default("")
-  category    String   @default("")
-  tags        String   @default("") // comma-separated for simplicidade inicial
-  externalSource String?
-  externalId     String?
-  featured    Boolean  @default(false)
-  views       Int      @default(0)
-  popularityScore Int  @default(0)
-  isPublished Boolean  @default(true)
-  // SEO fields
-  longDescription String @default("")
-  tips            String @default("")
-  controls        String @default("")
-  faqJson         String @default("")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  favorites   FavoriteGame[]
-  history     RecentlyPlayed[]
+  id              String           @id @default(cuid())
+  title           String
+  slug            String           @unique
+  iframeUrl       String
+  thumbnail       String
+  description     String           @default("")
+  category        String           @default("")
+  tags            String           @default("")
+  externalSource  String?
+  externalId      String?
+  featured        Boolean          @default(false)
+  views           Int              @default(0)
+  popularityScore Int              @default(0)
+  isPublished     Boolean          @default(true)
+  longDescription String           @default("")
+  tips            String           @default("")
+  controls        String           @default("")
+  faqJson         String           @default("")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
   analyticsEvents AnalyticsEvent[]
-  comments    GameComment[]
-  ratings     GameRating[]
+  favorites       FavoriteGame[]
+  comments        GameComment[]
+  ratings         GameRating[]
+  history         RecentlyPlayed[]
 
+  @@unique([externalSource, externalId])
   @@index([isPublished, featured])
   @@index([category])
   @@index([views, popularityScore])
   @@index([externalSource])
-  @@unique([externalSource, externalId])
 }
 
 model AdminSession {
@@ -55,48 +54,46 @@ model AdminSession {
 }
 
 model User {
-  id           String           @id @default(cuid())
-  email        String           @unique
-  emailVerified DateTime?
-  displayName  String
-  image        String           @default("")
-  passwordHash String?
-  avatarUrl    String           @default("")
-  coverUrl     String           @default("")
-  bio          String           @default("")
-  preferredCategories String    @default("")
-  xp           Int              @default(0)
-  level        Int              @default(1)
-  currentStreak Int             @default(0)
-  longestStreak Int             @default(0)
-  lastEngagedAt DateTime?
-  // Premium & monetization
-  isPremium     Boolean         @default(false)
-  premiumUntil  DateTime?
-  coins         Int             @default(0)
-  profileTheme  String          @default("default")
-  unlockedAvatars String        @default("")
-  unlockedCovers  String        @default("")
-  // Social
-  isPublicProfile Boolean       @default(true)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
-  sessions     PlayerSession[]
-  favorites    FavoriteGame[]
-  history      RecentlyPlayed[]
-  analyticsEvents AnalyticsEvent[]
-  achievements PlayerAchievement[]
-  notifications PlayerNotification[]
-  dailyMissions PlayerDailyMission[]
-  comments      GameComment[]
-  ratings       GameRating[]
-  sentFriendRequests     Friendship[] @relation("FriendshipSender")
-  receivedFriendRequests Friendship[] @relation("FriendshipReceiver")
-  coinTransactions CoinTransaction[]
-  rewardedAdViews  RewardedAdView[]
-  hadFreeTrial     Boolean          @default(false)
-  accounts         Account[]
-  totpDevice       TotpDevice?
+  id                     String               @id @default(cuid())
+  email                  String               @unique
+  emailVerified          DateTime?
+  displayName            String
+  image                  String               @default("")
+  passwordHash           String?
+  avatarUrl              String               @default("")
+  coverUrl               String               @default("")
+  bio                    String               @default("")
+  preferredCategories    String               @default("")
+  xp                     Int                  @default(0)
+  level                  Int                  @default(1)
+  currentStreak          Int                  @default(0)
+  longestStreak          Int                  @default(0)
+  lastEngagedAt          DateTime?
+  isPremium              Boolean              @default(false)
+  premiumUntil           DateTime?
+  coins                  Int                  @default(0)
+  profileTheme           String               @default("default")
+  unlockedAvatars        String               @default("")
+  unlockedCovers         String               @default("")
+  isPublicProfile        Boolean              @default(true)
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  hadFreeTrial           Boolean              @default(false)
+  accounts               Account[]
+  analyticsEvents        AnalyticsEvent[]
+  coinTransactions       CoinTransaction[]
+  favorites              FavoriteGame[]
+  receivedFriendRequests Friendship[]         @relation("FriendshipReceiver")
+  sentFriendRequests     Friendship[]         @relation("FriendshipSender")
+  comments               GameComment[]
+  ratings                GameRating[]
+  achievements           PlayerAchievement[]
+  dailyMissions          PlayerDailyMission[]
+  notifications          PlayerNotification[]
+  sessions               PlayerSession[]
+  history                RecentlyPlayed[]
+  rewardedAdViews        RewardedAdView[]
+  totpDevice             TotpDevice?
 
   @@map("PlayerUser")
 }
@@ -107,15 +104,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? 
-  access_token      String? 
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? 
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -141,57 +137,57 @@ model VerificationToken {
 }
 
 model PlayerSession {
-  id        String     @id @default(cuid())
+  id        String   @id @default(cuid())
   userId    String
-  tokenHash String     @unique
+  tokenHash String   @unique
   ipAddress String?
   userAgent String?
   expiresAt DateTime
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, expiresAt])
 }
 
 model FavoriteGame {
-  id        String     @id @default(cuid())
+  id        String   @id @default(cuid())
   userId    String
   gameId    String
-  createdAt DateTime   @default(now())
-  game      Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, gameId])
   @@index([userId, createdAt])
 }
 
 model RecentlyPlayed {
-  id           String     @id @default(cuid())
+  id           String   @id @default(cuid())
   userId       String
   gameId       String
-  playCount    Int        @default(1)
-  lastPlayedAt DateTime   @default(now())
-  createdAt    DateTime   @default(now())
-  game         Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  playCount    Int      @default(1)
+  lastPlayedAt DateTime @default(now())
+  createdAt    DateTime @default(now())
+  game         Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, gameId])
   @@index([userId, lastPlayedAt])
 }
 
 model AnalyticsEvent {
-  id        String      @id @default(cuid())
-  type      String
-  path      String
+  id              String   @id @default(cuid())
+  type            String
+  path            String
   destinationPath String?
-  sessionId String?
-  userId    String?
-  gameId    String?
-  referrer  String?
-  createdAt DateTime    @default(now())
-  user      User? @relation(fields: [userId], references: [id], onDelete: SetNull)
-  game      Game?       @relation(fields: [gameId], references: [id], onDelete: SetNull)
+  sessionId       String?
+  userId          String?
+  gameId          String?
+  referrer        String?
+  createdAt       DateTime @default(now())
+  game            Game?    @relation(fields: [gameId], references: [id])
+  user            User?    @relation(fields: [userId], references: [id])
 
   @@index([type, createdAt])
   @@index([path, createdAt])
@@ -202,17 +198,17 @@ model AnalyticsEvent {
 }
 
 model PlayerAchievement {
-  id          String     @id @default(cuid())
+  id          String   @id @default(cuid())
   userId      String
   key         String
   title       String
   description String
   icon        String
-  imageUrl    String     @default("")
-  xpReward    Int        @default(0)
-  coinReward  Int        @default(0)
-  unlockedAt  DateTime   @default(now())
-  user        User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  imageUrl    String   @default("")
+  xpReward    Int      @default(0)
+  coinReward  Int      @default(0)
+  unlockedAt  DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, key])
   @@index([userId, unlockedAt])
@@ -238,141 +234,123 @@ model AchievementDefinition {
 }
 
 model BlogPost {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  title       String
-  category    String   @default("")
-  coverImageUrl String @default("")
-  excerpt     String   @default("")
-  content     String
-  readingTime String   @default("1 min")
-  isPublished Boolean  @default(false)
-  publishedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  title         String
+  category      String    @default("")
+  coverImageUrl String    @default("")
+  excerpt       String    @default("")
+  content       String
+  readingTime   String    @default("1 min")
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   @@index([isPublished, publishedAt])
   @@index([createdAt])
 }
 
 model PlayerNotification {
-  id        String     @id @default(cuid())
+  id        String    @id @default(cuid())
   userId    String
   kind      String
   title     String
   message   String
-  link      String     @default("")
-  isRead    Boolean    @default(false)
-  createdAt DateTime   @default(now())
+  link      String    @default("")
+  isRead    Boolean   @default(false)
+  createdAt DateTime  @default(now())
   readAt    DateTime?
-  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
   @@index([userId, isRead, createdAt])
 }
 
 model PlayerDailyMission {
-  id            String     @id @default(cuid())
+  id            String    @id @default(cuid())
   userId        String
   dayToken      String
   kind          String
-  targetCount   Int        @default(1)
-  progressCount Int        @default(0)
-  rewardXp      Int        @default(0)
-  isCompleted   Boolean    @default(false)
+  targetCount   Int       @default(1)
+  progressCount Int       @default(0)
+  rewardXp      Int       @default(0)
+  isCompleted   Boolean   @default(false)
   completedAt   DateTime?
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
-  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, dayToken])
   @@index([dayToken, isCompleted])
 }
 
-// ──────────────────────────────────────────
-// Social: Friendships
-// ──────────────────────────────────────────
 model Friendship {
-  id         String     @id @default(cuid())
+  id         String   @id @default(cuid())
   senderId   String
   receiverId String
-  status     String     @default("pending") // pending | accepted | rejected
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  sender     User @relation("FriendshipSender", fields: [senderId], references: [id], onDelete: Cascade)
-  receiver   User @relation("FriendshipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  receiver   User     @relation("FriendshipReceiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  sender     User     @relation("FriendshipSender", fields: [senderId], references: [id], onDelete: Cascade)
 
   @@unique([senderId, receiverId])
   @@index([receiverId, status])
   @@index([senderId, status])
 }
 
-// ──────────────────────────────────────────
-// Social: Game Comments
-// ──────────────────────────────────────────
 model GameComment {
-  id        String     @id @default(cuid())
+  id        String   @id @default(cuid())
   gameId    String
   userId    String
   content   String
-  isHidden  Boolean    @default(false)
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  game      Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isHidden  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([gameId, createdAt])
   @@index([userId, createdAt])
 }
 
-// ──────────────────────────────────────────
-// Monetization: Coin Transactions
-// ──────────────────────────────────────────
 model CoinTransaction {
-  id        String     @id @default(cuid())
+  id        String   @id @default(cuid())
   userId    String
-  amount    Int        // positive = earned, negative = spent
-  reason    String     // streak_reward, mission_complete, daily_login, purchase, theme_unlock, etc.
-  createdAt DateTime   @default(now())
-  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Int
+  reason    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
 
-// ──────────────────────────────────────────
-// Game Ratings (Stars)
-// ──────────────────────────────────────────
 model GameRating {
-  id        String     @id @default(cuid())
+  id        String   @id @default(cuid())
   gameId    String
   userId    String
-  value     Int        // 1 to 5 stars
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  game      Game       @relation(fields: [gameId], references: [id], onDelete: Cascade)
-  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  value     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  game      Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, gameId]) // Each user can only rate a game once
-  @@index([gameId, value])   // Helpful for stats
+  @@unique([userId, gameId])
+  @@index([gameId, value])
 }
 
-// ──────────────────────────────────────────
-// Rewarded Ad Views (anti-abuse tracking)
-// ──────────────────────────────────────────
 model RewardedAdView {
-  id           String     @id @default(cuid())
+  id           String   @id @default(cuid())
   userId       String
-  rewardType   String     // coins | avatar_unlock | theme_unlock
-  rewardAmount Int        @default(50)
-  createdAt    DateTime   @default(now())
-  user         User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rewardType   String
+  rewardAmount Int      @default(50)
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }
 
-// ──────────────────────────────────────────
-// Category SEO Content (AI-generated)
-// ──────────────────────────────────────────
 model CategoryContent {
   category        String   @id
   h1              String   @default("")
@@ -386,9 +364,6 @@ model CategoryContent {
   updatedAt       DateTime @updatedAt
 }
 
-// ──────────────────────────────────────────
-// Newsletter Subscribers
-// ──────────────────────────────────────────
 model NewsletterSubscriber {
   id           String   @id @default(cuid())
   email        String   @unique
