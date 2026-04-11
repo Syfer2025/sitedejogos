@@ -121,42 +121,48 @@ export default async function AccountPage() {
     redirect("/login?from=/account");
   }
 
+  const profile = await getPlayerProfile(session.user.id);
+
+  if (!profile) {
+    redirect("/login?from=/account");
+  }
+
   let favorites: any[] = [];
   let history: any[] = [];
-  let profile: any = null;
   let categories: any[] = [];
   let gamification: any = null;
   let tasteProfile: any = null;
   let achievementDefinitions: any[] = [];
   let totpDevice = { isEnabled: false };
-  let hasError = false;
 
   try {
-    [favorites, history, profile, categories, gamification, tasteProfile, achievementDefinitions] = await Promise.all([
+    const results = await Promise.allSettled([
       listFavoriteGames(session.user.id, 12),
       listRecentlyPlayed(session.user.id, 12),
-      getPlayerProfile(session.user.id),
       listCategories(),
       getPlayerGamificationOverview(session.user.id),
       getPlayerTasteProfile(session.user.id),
       listAchievementDefinitions(),
     ]);
 
+    if (results[0].status === "fulfilled") favorites = results[0].value;
+    if (results[1].status === "fulfilled") history = results[1].value;
+    if (results[2].status === "fulfilled") categories = results[2].value;
+    if (results[3].status === "fulfilled") gamification = results[3].value;
+    if (results[4].status === "fulfilled") tasteProfile = results[4].value;
+    if (results[5].status === "fulfilled") achievementDefinitions = results[5].value;
+
     try {
-      totpDevice = await prisma.totpDevice.findUnique({
+      const totpResult = await prisma.totpDevice.findUnique({
         where: { userId: session.user.id },
         select: { isEnabled: true },
-      }) ?? { isEnabled: false };
+      });
+      if (totpResult) totpDevice = totpResult;
     } catch {
       // TOTP table might not exist
     }
   } catch (e) {
-    console.error("AccountPage data fetch error:", e);
-    hasError = true;
-  }
-
-  if (!profile) {
-    redirect("/login?from=/account");
+    console.error("AccountPage secondary data fetch error:", e);
   }
 
   const playerUserId = session.user.id;
