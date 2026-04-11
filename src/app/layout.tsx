@@ -18,6 +18,7 @@ import { getPlayerSession, PLAYER_SESSION_COOKIE } from "@/lib/user-auth";
 import { isPlayerPremium } from "@/data/monetizationStore";
 import Script from "next/script";
 import { SITE_CONFIG } from "@/lib/config";
+import { prisma } from "@/lib/prisma";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -86,6 +87,16 @@ export default async function RootLayout({
     playerToken ? getPlayerSession(playerToken) : null,
     getDictionary(initialLocale),
   ]);
+
+  // Fetch Header data on server
+  const headerData = playerSession ? await Promise.all([
+    (await import("@/data/gamificationStore")).getPlayerGamificationOverview(playerSession.user.id).then(g => g?.notifications ?? []),
+    (await import("@/data/playerStore")).listFavoriteGames(playerSession.user.id, 10).then(f => f.map(entry => ({ game: entry.game }))),
+    (await import("@/data/playerStore")).listRecentlyPlayed(playerSession.user.id, 10).then(h => h.map(entry => ({ game: entry.game }))),
+    prisma.gameRating.findMany({ where: { userId: playerSession.user.id }, include: { game: true }, take: 10, orderBy: { updatedAt: 'desc' }})
+  ]) : [[], [], [], []];
+
+  const [notifications, favorites, recentGames, ratedGames] = headerData;
   
   const premium = playerSession ? await isPlayerPremium(playerSession.user.id) : false;
   const adsenseClientId = premium ? undefined : (process.env.NEXT_PUBLIC_ADSENSE_CLIENT_ID || "ca-pub-5055044496746954");
@@ -156,10 +167,10 @@ export default async function RootLayout({
               playerSession={playerSession}
               t={t}
               logoutAction={logoutPlayer}
-              initialNotifications={playerSession ? (await import("@/data/gamificationStore")).getPlayerGamificationOverview(playerSession.user.id).then(g => g?.notifications ?? []) : []}
-              favorites={playerSession ? (await import("@/data/playerStore")).listFavoriteGames(playerSession.user.id, 10).then(f => f.map(entry => ({ game: entry.game }))) : []}
-              recentGames={playerSession ? (await import("@/data/playerStore")).listRecentlyPlayed(playerSession.user.id, 10).then(h => h.map(entry => ({ game: entry.game }))) : []}
-              ratedGames={playerSession ? (await prisma.gameRating.findMany({ where: { userId: playerSession.user.id }, include: { game: true }, take: 10, orderBy: { updatedAt: 'desc' }})) : []}
+              initialNotifications={notifications}
+              favorites={favorites}
+              recentGames={recentGames}
+              ratedGames={ratedGames}
             />
             <GamificationNotifier />
             <main className="flex-1 pb-14 sm:pb-0 overflow-hidden min-h-0 min-w-0">{children}</main>
