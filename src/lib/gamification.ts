@@ -49,11 +49,11 @@ export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
     title: "Primeira Ficha",
     description: "Jogou seu primeiro título diferente.",
     icon: "🥉",
-    imageUrl: "",
+    imageUrl: "/achievements/explorer-bronze.gif",
     criteriaType: "unique_games_played",
     threshold: 1,
-    xpReward: 20,
-    coinReward: 10,
+    xpReward: 10,
+    coinReward: 5,
     isActive: true,
   },
   {
@@ -99,11 +99,11 @@ export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
     title: "Curador Iniciante",
     description: "Salvou seu primeiro jogo nos favoritos.",
     icon: "🥉",
-    imageUrl: "",
+    imageUrl: "/achievements/collector-bronze.gif",
     criteriaType: "favorites_total",
     threshold: 1,
-    xpReward: 20,
-    coinReward: 10,
+    xpReward: 10,
+    coinReward: 5,
     isActive: true,
   },
   {
@@ -175,11 +175,11 @@ export const DEFAULT_ACHIEVEMENT_DEFINITIONS: AchievementDefinitionInput[] = [
     title: "Aquecimento",
     description: "Manteve uma sequência de 3 dias ativos.",
     icon: "🥉",
-    imageUrl: "",
+    imageUrl: "/achievements/streak-bronze.gif",
     criteriaType: "current_streak",
     threshold: 3,
-    xpReward: 30,
-    coinReward: 15,
+    xpReward: 15,
+    coinReward: 10,
     isActive: true,
   },
   {
@@ -370,14 +370,14 @@ export type GamificationEventType =
   | "comment_add";
 
 export const EVENT_XP_REWARDS: Record<GamificationEventType, number> = {
-  register: 100,
-  login: 15,
-  favorite_add: 5,
-  game_play: 10,
-  profile_update: 25,
-  rating_add: 15,
-  ad_reward_view: 25,
-  comment_add: 20,
+  register: 50,
+  login: 5,
+  favorite_add: 2,
+  game_play: 5,
+  profile_update: 10,
+  rating_add: 5,
+  ad_reward_view: 15,
+  comment_add: 10,
 };
 
 export function getLevelFromXp(xp: number) {

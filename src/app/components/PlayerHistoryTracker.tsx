@@ -26,7 +26,20 @@ export function PlayerHistoryTracker({ gameId }: PlayerHistoryTrackerProps) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ gameId }),
-    });
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.newlyUnlocked?.length > 0 || data.rankChanged) {
+        import("@/lib/gamification-events").then(({ triggerGamificationPopups }) => {
+          triggerGamificationPopups({
+            newlyUnlocked: data.newlyUnlocked,
+            rankChanged: data.rankChanged,
+            newRank: data.newRank
+          });
+        });
+      }
+    })
+    .catch(() => {});
   }, [gameId]);
 
   return null;

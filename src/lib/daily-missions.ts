@@ -49,7 +49,7 @@ export function selectDailyMissionTemplate(context: DailyMissionAssignmentContex
     return {
       kind: "favorite_add" as const,
       targetCount: 1,
-      rewardXp: 25,
+      rewardXp: 15,
     };
   }
 
@@ -57,7 +57,7 @@ export function selectDailyMissionTemplate(context: DailyMissionAssignmentContex
     return {
       kind: "profile_update" as const,
       targetCount: 1,
-      rewardXp: 25,
+      rewardXp: 10,
     };
   }
 
@@ -65,7 +65,7 @@ export function selectDailyMissionTemplate(context: DailyMissionAssignmentContex
     return {
       kind: "rating_add" as const,
       targetCount: 1,
-      rewardXp: 25,
+      rewardXp: 15,
     };
   }
 
@@ -73,14 +73,14 @@ export function selectDailyMissionTemplate(context: DailyMissionAssignmentContex
     return {
       kind: "ad_reward_view" as const,
       targetCount: 1,
-      rewardXp: 35,
+      rewardXp: 20,
     };
   }
 
   return {
     kind: "game_play" as const,
-    targetCount: 2,
-    rewardXp: 30,
+    targetCount: 3,
+    rewardXp: 20,
   };
 }
 
@@ -89,7 +89,7 @@ export function selectDailyMissionTemplateFromEvent(event: GamificationEventType
     return {
       kind: "favorite_add" as const,
       targetCount: 1,
-      rewardXp: 25,
+      rewardXp: 15,
     };
   }
 
@@ -97,15 +97,15 @@ export function selectDailyMissionTemplateFromEvent(event: GamificationEventType
     return {
       kind: "profile_update" as const,
       targetCount: 1,
-      rewardXp: 25,
+      rewardXp: 10,
     };
   }
 
   if (event === "game_play") {
     return {
       kind: "game_play" as const,
-      targetCount: 2,
-      rewardXp: 30,
+      targetCount: 3,
+      rewardXp: 20,
     };
   }
 
@@ -113,7 +113,7 @@ export function selectDailyMissionTemplateFromEvent(event: GamificationEventType
     return {
       kind: "rating_add" as const,
       targetCount: 1,
-      rewardXp: 25,
+      rewardXp: 15,
     };
   }
 
@@ -121,7 +121,7 @@ export function selectDailyMissionTemplateFromEvent(event: GamificationEventType
     return {
       kind: "ad_reward_view" as const,
       targetCount: 1,
-      rewardXp: 35,
+      rewardXp: 20,
     };
   }
 

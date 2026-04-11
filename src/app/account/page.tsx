@@ -36,7 +36,7 @@ import { CoinsPanel } from "../components/CoinsPanel";
 import { AchievementCollection } from "../components/HomeAchievementsRail";
 import { ProfileSidebarNav, type ProfileTabKey } from "../components/ProfileSidebarNav";
 import { ActivityFeed } from "../components/ActivityFeed";
-import { TotpSetupFlow } from "../components/TotpSetupFlow";
+import { AccountHeader } from "../components/AccountHeader";
 import { Footer } from "../components/Footer";
 
 type FavoriteEntry = Awaited<ReturnType<typeof listFavoriteGames>>[number];
@@ -189,43 +189,15 @@ export default async function AccountPage() {
         <BackgroundDecorations />
         
         <div className="relative mx-auto max-w-7xl px-4 py-8 lg:px-8 animate-fade-in">
-          {/* Header */}
-          <header className="relative mb-8 overflow-hidden rounded-3xl border border-slate-700/60 bg-[#080c18] shadow-2xl">
-            <div className="h-48 md:h-64 relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#050816] via-[#0e1530] to-indigo-950" />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,rgba(99,102,241,0.35),transparent_65%)]" />
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_80%_50%,rgba(56,189,248,0.15),transparent_60%)]" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#080c18] via-transparent to-transparent" />
-            </div>
-            
-            <div className="px-6 pb-8 md:px-10">
-              <div className="relative -mt-20 flex flex-col items-center gap-6 md:-mt-24 md:flex-row md:items-end">
-                <div
-                     className="h-40 w-40 flex items-center justify-center rounded-full border-4 border-[#080c18] bg-gradient-to-br from-cyan-400 to-purple-600 shadow-2xl text-4xl font-black text-white shrink-0 ring-2 ring-indigo-500/50"
-                     style={profile.avatarUrl ? { backgroundImage: `url("${profile.avatarUrl}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>
-                  {!profile.avatarUrl && playerInitials}
-                </div>
-                
-                <div className="flex-1 text-center md:text-left">
-                  <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
-                    <h1 className="text-3xl font-black text-white md:text-4xl tracking-tight">{profile.displayName}</h1>
-                  </div>
-                  <p className="mt-2 text-sm font-medium text-slate-400">
-                    {profile.email} • {tr(dict, "player.memberSince", { date: memberSince })}
-                  </p>
-                </div>
-
-                <form action={logout} className="shrink-0 mb-2">
-                   <button
-                     type="submit"
-                     className="rounded-xl border border-slate-700 bg-slate-900 px-6 py-2.5 text-xs font-bold text-slate-200 transition-all hover:border-red-500 hover:bg-red-500/10 hover:text-red-300"
-                   >
-                     {tr(dict, "common.logout")}
-                   </button>
-                </form>
-              </div>
-            </div>
-          </header>
+          <AccountHeader 
+            profile={profile}
+            playerInitials={playerInitials}
+            memberSince={memberSince}
+            tr={tr}
+            dict={dict}
+            logoutAction={logout}
+            categories={categories}
+          />
 
           {/* Email Verification Banner */}
           {!session.user.emailVerified && (
@@ -329,36 +301,6 @@ export default async function AccountPage() {
                             <span className="text-[11px] font-black text-white line-clamp-1">{f.game.title}</span>
                           </div>
                         </Link>
-                      ))}
-                    </div>
-                  </TabSectionShell>
-                ),
-                profile: (
-                  <TabSectionShell icon="✏️" title={tr(dict, "player.editProfile")} subtitle={tr(dict, "player.editProfileSubtitle")}>
-                    <AccountProfileForm
-                      initialProfile={{
-                        displayName: profile.displayName,
-                        email: profile.email,
-                        avatarUrl: profile.avatarUrl,
-                        coverUrl: profile.coverUrl,
-                        bio: profile.bio,
-                        preferredCategories: profile.preferredCategories,
-                        unlockedAvatars: profile.unlockedAvatars,
-                        unlockedCovers: profile.unlockedCovers,
-                        coins: profile.coins,
-                      }}
-                      categories={categories}
-                    />
-                  </TabSectionShell>
-                ),
-                notifications: (
-                  <TabSectionShell icon="🔔" title={tr(dict, "player.notifications")} subtitle={tr(dict, "player.notificationsSubtitle")}>
-                    <div className="space-y-4">
-                      {gamification?.notifications.map(n => (
-                        <div key={n.id} className="p-4 rounded-2xl bg-slate-800 border border-slate-700/60 hover:bg-slate-700/50 transition-all hover:border-slate-600 group cursor-default">
-                          <p className="font-bold text-white group-hover:text-cyan-300 transition-colors">{n.title}</p>
-                          <p className="text-xs text-slate-400 mt-1 leading-relaxed">{n.message}</p>
-                        </div>
                       ))}
                     </div>
                   </TabSectionShell>

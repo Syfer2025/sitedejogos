@@ -631,33 +631,66 @@ export function HomeAchievementsRail({
     return null;
   }
 
+  const unlockedItems = items.filter((i) => i.unlocked);
+  const lockedItems = items.filter((i) => !i.unlocked);
+
   return (
-    <section className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-3 animate-fade-in-up">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-fuchsia-300/80 font-bold">🏅 {title}</p>
-          <p className="mt-1 text-xs text-slate-400 leading-relaxed">{subtitle}</p>
+    <section className="space-y-6">
+      {/* Unlocked Achievements Carousel */}
+      {unlockedItems.length > 0 && (
+        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3 animate-fade-in-up">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-amber-300/80 font-bold">✨ Conquistas Desbloqueadas</p>
+              <p className="mt-1 text-xs text-slate-400 leading-relaxed">Seus troféus e marcos alcançados.</p>
+            </div>
+            <span className="rounded-full border border-amber-400/20 bg-amber-400/10 px-2.5 py-1 text-[10px] font-semibold text-amber-100">
+              {unlockedCount}
+            </span>
+          </div>
+
+          <AchievementCollection
+            items={unlockedItems}
+            locale={locale}
+            lockedLabel={lockedLabel}
+            unlockedLabel={unlockedLabel}
+            layout="rail"
+          />
         </div>
-        <span className="rounded-full border border-fuchsia-400/20 bg-fuchsia-400/10 px-2.5 py-1 text-[10px] font-semibold text-fuchsia-100">
-          {unlockedCount}/{items.length}
-        </span>
-      </div>
+      )}
 
-      <AchievementCollection
-        items={items}
-        locale={locale}
-        lockedLabel={lockedLabel}
-        unlockedLabel={unlockedLabel}
-        layout="rail"
-      />
+      {/* Locked Achievements Carousel */}
+      {lockedItems.length > 0 && (
+        <div className="rounded-xl border border-slate-800/60 bg-slate-900/50 p-4 space-y-3 animate-fade-in-up">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-widest text-fuchsia-300/80 font-bold">🎯 Próximos Desafios</p>
+              <p className="mt-1 text-xs text-slate-400 leading-relaxed">O que falta para você dominar o portal.</p>
+            </div>
+            <span className="rounded-full border border-slate-700 bg-slate-800/50 px-2.5 py-1 text-[10px] font-semibold text-slate-300">
+              {lockedItems.length}
+            </span>
+          </div>
 
-      <TrackedLink
-        href={isAuthenticated ? "/account" : "/login?mode=register"}
-        trackingPath={isAuthenticated ? "/home/achievements/account" : "/home/achievements/register"}
-        className="block w-full rounded-lg border border-fuchsia-400/20 bg-fuchsia-400/10 py-2 text-center text-xs font-semibold text-fuchsia-100 transition-all duration-200 hover:border-fuchsia-300/35 hover:bg-fuchsia-400/15"
-      >
-        {isAuthenticated ? accountCtaLabel : guestCtaLabel}
-      </TrackedLink>
+          <AchievementCollection
+            items={lockedItems}
+            locale={locale}
+            lockedLabel={lockedLabel}
+            unlockedLabel={unlockedLabel}
+            layout="rail"
+          />
+        </div>
+      )}
+
+      {!isAuthenticated && (
+        <TrackedLink
+          href="/login?mode=register"
+          trackingPath="/home/achievements/register"
+          className="block w-full rounded-lg border border-fuchsia-400/20 bg-fuchsia-400/10 py-2 text-center text-xs font-semibold text-fuchsia-100 transition-all duration-200 hover:border-fuchsia-300/35 hover:bg-fuchsia-400/15"
+        >
+          {guestCtaLabel}
+        </TrackedLink>
+      )}
     </section>
   );
 }

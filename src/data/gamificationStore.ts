@@ -513,6 +513,22 @@ async function unlockAchievement(userId: string, definition: AchievementDefiniti
     },
   });
 
+  // Automatically add the achievement image to unlocked avatars so the user can use it as profile pic
+  if (definition.imageUrl) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { unlockedAvatars: true }
+    });
+    const currentUnlocked = user?.unlockedAvatars ? user.unlockedAvatars.split(",").filter(Boolean) : [];
+    if (!currentUnlocked.includes(definition.imageUrl)) {
+      currentUnlocked.push(definition.imageUrl);
+      await prisma.user.update({
+        where: { id: userId },
+        data: { unlockedAvatars: currentUnlocked.join(",") }
+      });
+    }
+  }
+
   const titlePrefix = definition.icon ? `${definition.icon} ` : "";
   const coinMessage = definition.coinReward > 0 ? ` e +${definition.coinReward} moedas` : "";
 
@@ -633,35 +649,90 @@ export async function applyGamificationEvent(
   userId: string,
   event: GamificationEventType,
 ) {
+  const { getPlayerLeaderboardPosition } = await import("@/data/playerStore");
+  
+  // 1. Snapshot initial state (for ranking change detection)
+  const prevRank = await getPlayerLeaderboardPosition(userId);
+  const prevLevel = (await prisma.user.findUnique({ where: { id: userId }, select: { level: true } }))?.level ?? 1;
+
   const streakState = await syncDailyEngagement(userId);
   let baseReward = EVENT_XP_REWARDS[event];
   
-  // Apply streak multiplier for login (up to +35 XP bonus, making it 50 Max)
+  // Apply streak multiplier for login
   if (event === "login" && streakState) {
     const activeStreak = streakState.currentStreak;
-    const streakBonus = Math.min(35, (activeStreak - 1) * 5); // +5 per day maxed at 35 (so base 15 + 35 = 50 max)
+    const streakBonus = Math.min(35, (activeStreak - 1) * 5);
     baseReward += streakBonus;
   }
 
-  const shouldGrantBaseXp =
-    event === "login" ? Boolean(streakState?.isNewDay) : baseReward > 0;
-
-  const prevLevel = shouldGrantBaseXp
-    ? (await prisma.user.findUnique({ where: { id: userId }, select: { level: true } }))?.level ?? 1
-    : 0;
-
+  const shouldGrantBaseXp = event === "login" ? Boolean(streakState?.isNewDay) : baseReward > 0;
   const xpResult = shouldGrantBaseXp ? await grantXp(userId, baseReward, event) : null;
 
-  // Level up coin bonus (Nível Alcançado * 10 moedas de bônus)
+  // Level up coin bonus
   if (xpResult && xpResult.level > prevLevel) {
     const levelUpCoins = xpResult.level * 10;
     await addCoins(userId, levelUpCoins, "level_up");
   }
 
-  const unlockedAchievements = await evaluateAchievements(userId);
+  // 2. Evaluate achievements and collect newly unlocked ones
+  const unlockedKeys = await evaluateAchievements(userId);
+  const newlyUnlocked = await prisma.playerAchievement.findMany({
+    where: {
+      userId,
+      key: { in: unlockedKeys }
+    }
+  });
+
   const missionCompleted = await syncDailyMissionProgress(userId, event);
 
-  return getPlayerGamificationOverview(userId);
+  // 3. Detect ranking change for the current player (improvement)
+  const currentRank = await getPlayerLeaderboardPosition(userId);
+  if (currentRank && prevRank && currentRank < prevRank && currentRank <= 100) {
+    await createPlayerNotification({
+      userId,
+      kind: "ranking_up",
+      title: "Subiu no Ranking!",
+      message: `Parabéns! Você subiu para a posição #${currentRank} no ranking global.`,
+      link: "/account"
+    });
+  }
+
+  // 4. Detect displacement of others (demotion)
+  // If current player improved and is now in Top 100, someone might have been pushed down
+  if (currentRank && prevRank && currentRank < prevRank && currentRank <= 100) {
+    // Find the player who was at 'currentRank' before and is now 'currentRank + 1'
+    // This is a simplification, but effective for high-ranking competitive play
+    const displacedUser = await prisma.user.findFirst({
+      where: {
+        id: { not: userId },
+        xp: { lte: xpResult?.xp ?? 0 } // Someone who was potentially passed
+      },
+      orderBy: [
+        { xp: "desc" },
+        { currentStreak: "desc" },
+        { createdAt: "asc" }
+      ],
+      skip: currentRank - 1, // The new position of the displaced person
+      take: 1
+    });
+
+    if (displacedUser && currentRank <= 100) {
+      await createPlayerNotification({
+        userId: displacedUser.id,
+        kind: "ranking_down",
+        title: "Você foi ultrapassado!",
+        message: `${xpResult?.displayName || "Alguém"} acabou de te passar no ranking global. Volte a jogar para retomar sua posição!`,
+        link: "/account"
+      });
+    }
+  }
+
+  return {
+    overview: await getPlayerGamificationOverview(userId),
+    newlyUnlocked: newlyUnlocked.map(mapAchievement),
+    rankChanged: currentRank !== prevRank,
+    newRank: currentRank
+  };
 }
 
 export async function markAllPlayerNotificationsAsRead(userId: string) {

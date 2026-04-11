@@ -228,7 +228,7 @@ export function AccountProfileForm({
           <div className="border-t border-slate-800/60 bg-slate-950/95 p-4 animate-fade-in">
             <p className="text-xs font-semibold text-slate-300 mb-3">Escolha um avatar</p>
             <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
-              {AVATAR_PRESETS.map((preset) => {
+              {AVATAR_PRESETS.filter(p => !p.isPremium || initialProfile.unlockedAvatars?.includes(p.id)).map((preset) => {
                 const active = avatarUrl === preset.url;
                 const isPremium = preset.isPremium ?? false;
                 const price = preset.price ?? 0;
@@ -239,12 +239,8 @@ export function AccountProfileForm({
                     key={preset.id}
                     type="button"
                     onClick={() => {
-                      if (!isUnlocked) {
-                        handleBuyItem("avatar", { id: preset.id, url: preset.url, price });
-                      } else {
                         setAvatarUrl(preset.url);
                         setShowAvatarPicker(false);
-                      }
                     }}
                     className={`relative group rounded-xl border p-1.5 transition-all ${
                       active ? "border-cyan-400/60 bg-cyan-500/10" : "border-slate-800 hover:border-cyan-500/40"
@@ -252,17 +248,10 @@ export function AccountProfileForm({
                     title={preset.label}
                   >
                     <div
-                      className={`h-12 w-full rounded-lg border border-slate-800 bg-slate-900 bg-cover bg-center ${!isUnlocked ? "opacity-30 grayscale" : ""}`}
+                      className={`h-12 w-full rounded-lg border border-slate-800 bg-slate-900 bg-cover bg-center`}
                       style={{ backgroundImage: `url("${preset.url}")` }}
                     />
                     
-                    {!isUnlocked ? (
-                       <div className="absolute inset-0 flex flex-col items-center justify-center pt-1">
-                          <span className="text-[10px] shadow-black drop-shadow-[0_0_2px_rgba(0,0,0,1)]">🔒</span>
-                          <span className="text-[9px] font-bold text-amber-300 drop-shadow-[0_0_2px_rgba(0,0,0,1)]">{price}</span>
-                       </div>
-                    ) : null}
-
                     <span className="mt-1 block text-[9px] text-slate-500 group-hover:text-slate-300">{preset.label}</span>
                   </button>
                 );

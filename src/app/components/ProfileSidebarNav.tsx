@@ -19,8 +19,6 @@ const TABS: TabDef[] = [
   { key: "social", label: "Social", icon: "👥", colorClass: "text-cyan-400" },
   { key: "mission", label: "Missão", icon: "🎯", colorClass: "text-emerald-400" },
   { key: "library", label: "Biblioteca", icon: "📚", colorClass: "text-pink-400" },
-  { key: "profile", label: "Perfil", icon: "✏️", colorClass: "text-violet-400" },
-  { key: "notifications", label: "Avisos", icon: "🔔", count: 21, colorClass: "text-yellow-400" },
   { key: "security", label: "Segurança", icon: "🔒", colorClass: "text-red-400" },
 ];
 
