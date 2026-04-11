@@ -29,6 +29,7 @@ function mapAchievement(achievement: {
   icon: string;
   imageUrl: string;
   xpReward: number;
+  coinReward: number;
   unlockedAt: Date;
 }) {
   return {
@@ -39,6 +40,7 @@ function mapAchievement(achievement: {
     icon: achievement.icon,
     imageUrl: achievement.imageUrl,
     xpReward: achievement.xpReward,
+    coinReward: achievement.coinReward,
     unlockedAt: achievement.unlockedAt.toISOString(),
   };
 }
@@ -684,6 +686,28 @@ export async function applyGamificationEvent(
   });
 
   const missionCompleted = await syncDailyMissionProgress(userId, event);
+
+  // Create a game_play notification (throttled: max once per day)
+  if (event === "game_play") {
+    const todayNotification = await prisma.playerNotification.findFirst({
+      where: {
+        userId,
+        kind: "game_play",
+        createdAt: {
+          gte: new Date(new Date().setHours(0, 0, 0, 0)),
+        },
+      },
+    });
+    if (!todayNotification) {
+      await createPlayerNotification({
+        userId,
+        kind: "game_play",
+        title: "Jogo registrado! 🎮",
+        message: "Sua partida foi contabilizada. Continue jogando para ganhar XP e desbloquear conquistas!",
+        link: "/games",
+      });
+    }
+  }
 
   // 3. Detect ranking change for the current player (improvement)
   const currentRank = await getPlayerLeaderboardPosition(userId);

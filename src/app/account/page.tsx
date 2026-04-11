@@ -264,15 +264,54 @@ export default async function AccountPage() {
                 mission: (
                   <TabSectionShell icon="🎯" title={tr(dict, "player.journey")} subtitle={tr(dict, "player.journeySubtitle")}>
                     <div className="space-y-8">
-                      <div className="rounded-2xl bg-slate-800 border border-slate-700/60 p-6 shadow-inner">
-                        <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-xl font-black text-white">{dailyMissionCard?.title}</h3>
-                          <span className="rounded-lg bg-emerald-500/15 px-3 py-1 text-sm font-black text-emerald-400 border border-emerald-500/20">+{gamification?.dailyMission?.rewardXp} XP</span>
+                      <div className={`relative rounded-2xl border p-6 shadow-inner transition-all duration-500 ${
+                        gamification?.dailyMission && !gamification.dailyMission.isCompleted && currentMissionProgressPercent > 0
+                          ? "bg-slate-800/80 border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.15)]"
+                          : "bg-slate-800 border border-slate-700/60"
+                      }`}>
+                        {/* Glow effect when in progress */}
+                        {gamification?.dailyMission && !gamification.dailyMission.isCompleted && currentMissionProgressPercent > 0 && (
+                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-emerald-500/5 via-teal-500/10 to-emerald-500/5 blur-xl pointer-events-none" />
+                        )}
+                        <div className="relative">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-xl font-black text-white">{dailyMissionCard?.title}</h3>
+                            <span className={`rounded-lg px-3 py-1 text-sm font-black border ${
+                              gamification?.dailyMission?.isCompleted
+                                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/20"
+                                : currentMissionProgressPercent > 0
+                                ? "bg-amber-500/15 text-amber-400 border-amber-500/20 animate-pulse"
+                                : "bg-slate-500/15 text-slate-400 border-slate-500/20"
+                            }`}>
+                              {gamification?.dailyMission?.isCompleted
+                                ? "✅ Completa"
+                                : `${currentMissionProgressPercent}%`}
+                              {" "}· +{gamification?.dailyMission?.rewardXp} XP
+                            </span>
+                          </div>
+                          <div className="h-3 rounded-full bg-slate-950 overflow-hidden border border-slate-700 mb-6 relative">
+                            {/* Glow behind the bar when in progress */}
+                            {gamification?.dailyMission && !gamification.dailyMission.isCompleted && currentMissionProgressPercent > 0 && (
+                              <div className="absolute inset-0 rounded-full bg-emerald-400/20 blur-md" />
+                            )}
+                            <div className={`h-full transition-all duration-700 rounded-full relative ${
+                              gamification?.dailyMission?.isCompleted
+                                ? "bg-gradient-to-r from-emerald-400 to-green-300"
+                                : currentMissionProgressPercent > 0
+                                ? "bg-gradient-to-r from-emerald-500 to-teal-400 animate-progress-glow"
+                                : "bg-gradient-to-r from-slate-600 to-slate-500"
+                            }`} style={{ width: `${currentMissionProgressPercent}%` }} />
+                          </div>
+                          <Link href={dailyMissionCard?.href ?? "#"} className={`inline-block rounded-xl px-8 py-3 text-sm font-black text-white shadow-lg transition-all hover:scale-[1.02] uppercase ${
+                            gamification?.dailyMission?.isCompleted
+                              ? "bg-slate-600 cursor-default"
+                              : "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20"
+                          }`}>
+                            {gamification?.dailyMission?.isCompleted
+                              ? "✅ Missão concluída!"
+                              : tr(dict, "player.startMission")}
+                          </Link>
                         </div>
-                        <div className="h-3 rounded-full bg-slate-950 overflow-hidden border border-slate-700 mb-6">
-                          <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 transition-all duration-700 animate-progress-glow rounded-full" style={{ width: `${currentMissionProgressPercent}%` }} />
-                        </div>
-                        <Link href={dailyMissionCard?.href ?? "#"} className="inline-block rounded-xl bg-emerald-600 px-8 py-3 text-sm font-black text-white hover:bg-emerald-500 shadow-lg shadow-emerald-600/20 transition-all hover:scale-[1.02] uppercase">{tr(dict, "player.startMission")}</Link>
                       </div>
 
                       {achievementItems.length > 0 && (

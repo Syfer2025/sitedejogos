@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { useTranslate } from "./LocaleContext";
 import { TrackedLink } from "./TrackedLink";
+import { markNotificationsAsRead } from "../actions/gamification";
 
 type HeaderProps = {
   playerSession: any;
@@ -28,6 +29,7 @@ export function Header({
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isHeartOpen, setIsHeartOpen] = useState(false);
   const [heartTab, setHeartTab] = useState<"favorites" | "recent" | "rated">("favorites");
+  const [optimisticRead, setOptimisticRead] = useState(false);
   
   const notificationsRef = useRef<HTMLDivElement>(null);
   const heartRef = useRef<HTMLDivElement>(null);
@@ -112,11 +114,11 @@ export function Header({
                       >
                         Recentes
                       </button>
-                      <button 
+                      <button
                         onClick={() => setHeartTab("rated")}
                         className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all ${heartTab === "rated" ? "bg-amber-500/20 text-amber-300" : "text-slate-500 hover:bg-slate-800"}`}
                       >
-                        Curtidos
+                        Avaliados
                       </button>
                     </div>
                     
@@ -169,7 +171,7 @@ export function Header({
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                   </svg>
-                  {initialNotifications.some((n: any) => !n.isRead) && (
+                  {(!optimisticRead && initialNotifications.some((n: any) => !n.isRead)) && (
                     <span className="absolute top-2 right-2 flex h-2 w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
                       <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
@@ -181,12 +183,22 @@ export function Header({
                   <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-slate-700 bg-slate-950/95 p-1 shadow-2xl backdrop-blur-xl animate-fade-in-up">
                     <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800">
                       <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Notificações</span>
-                      <button className="text-[9px] text-cyan-400 hover:text-cyan-300">Marcar todas como lidas</button>
+                      <form action={markNotificationsAsRead} onSubmit={() => {
+                        // Optimistically update UI
+                        setOptimisticRead(true);
+                      }}>
+                        <button
+                          type="submit"
+                          className="text-[9px] text-cyan-400 hover:text-cyan-300"
+                        >
+                          Marcar todas como lidas
+                        </button>
+                      </form>
                     </div>
                     <div className="max-h-80 overflow-y-auto scrollbar-thin">
                       {initialNotifications.length > 0 ? (
                         initialNotifications.map((n: any) => (
-                          <div key={n.id} className={`p-4 border-b border-slate-800/50 hover:bg-white/5 transition-all ${!n.isRead ? "bg-cyan-500/5" : ""}`}>
+                          <div key={n.id} className={`p-4 border-b border-slate-800/50 hover:bg-white/5 transition-all ${!optimisticRead && !n.isRead ? "bg-cyan-500/5" : ""}`}>
                             <p className="text-xs font-bold text-slate-100 mb-1">{n.title}</p>
                             <p className="text-[11px] text-slate-400 leading-relaxed">{n.message}</p>
                             <p className="text-[9px] text-slate-600 mt-2">{new Date(n.createdAt).toLocaleDateString()}</p>

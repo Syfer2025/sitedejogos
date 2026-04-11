@@ -14,7 +14,7 @@ const SEEN_ACHIEVEMENTS_EVENT = "arcade:achievements:seen-updated";
 
 export type AchievementShowcaseItem = Pick<
   AchievementDefinitionRecord,
-  "id" | "key" | "title" | "description" | "icon" | "imageUrl" | "xpReward" | "criteriaType" | "threshold"
+  "id" | "key" | "title" | "description" | "icon" | "imageUrl" | "xpReward" | "coinReward" | "criteriaType" | "threshold"
 > & {
   unlocked: boolean;
   currentValue: number;
