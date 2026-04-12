@@ -15,33 +15,6 @@ type Mode = "login" | "register";
 /* ── Password Strength ── */
 type StrengthLevel = 0 | 1 | 2 | 3 | 4;
 
-function calcPasswordStrength(pw: string): {
-  level: StrengthLevel;
-  label: string;
-  color: string;
-  checks: { label: string; passed: boolean }[];
-} {
-  const checks = [
-    { label: t("auth.passwordRequirements.min8", {}, "Mínimo 8 caracteres"), passed: pw.length >= 8 },
-    { label: t("auth.passwordRequirements.uppercase", {}, "Letra maiúscula"), passed: /[A-Z]/.test(pw) },
-    { label: t("auth.passwordRequirements.lowercase", {}, "Letra minúscula"), passed: /[a-z]/.test(pw) },
-    { label: t("auth.passwordRequirements.number", {}, "Número"), passed: /\d/.test(pw) },
-    { label: t("auth.passwordRequirements.special", {}, "Caractere especial (!@#$...)"), passed: /[^A-Za-z0-9]/.test(pw) },
-  ];
-
-  const passed = checks.filter((c) => c.passed).length;
-  const map: Record<number, { level: StrengthLevel; label: string; color: string }> = {
-    0: { level: 0, label: "", color: "transparent" },
-    1: { level: 1, label: t("auth.strength.veryWeak", {}, "Muito fraca"), color: "#ef4444" },
-    2: { level: 2, label: t("auth.strength.weak", {}, "Fraca"), color: "#f97316" },
-    3: { level: 3, label: t("auth.strength.good", {}, "Boa"), color: "#eab308" },
-    4: { level: 4, label: t("auth.strength.strong", {}, "Forte"), color: "#22c55e" },
-    5: { level: 4, label: t("auth.strength.excellent", {}, "Excelente"), color: "#06b6d4" },
-  };
-
-  return { ...map[passed], checks };
-}
-
 /* ── Social Icons ── */
 function GoogleIcon() {
   return (
