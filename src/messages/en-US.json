@@ -166,7 +166,19 @@
     "mission": "Mission",
     "profile": "Profile",
     "saveError": "Failed to save profile.",
-    "processingPurchase": "Processing purchase..."
+    "processingPurchase": "Processing purchase...",
+    "missionComplete": "✅ Complete",
+    "missionCompleted": "✅ Mission completed!"
+  },
+  "account": {
+    "verifyEmail": "Verify your email",
+    "verifyEmailDesc": "Confirm your email address to activate all features.",
+    "resendEmail": "Resend email",
+    "security": "Security",
+    "securitySubtitle": "Manage your account security",
+    "emailVerification": "Email verification",
+    "verified": "Verified",
+    "notVerified": "Not verified"
   },
   "game": {
     "views": "views",

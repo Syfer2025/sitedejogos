@@ -232,8 +232,8 @@ export default async function AccountPage() {
               <div className="flex items-center gap-3">
                 <span className="text-xl">✉️</span>
                 <div>
-                  <p className="text-sm font-semibold text-amber-200">Verifique seu email</p>
-                  <p className="text-xs text-amber-300/70">Confirme seu endereço de email para ativar todas as funcionalidades.</p>
+                  <p className="text-sm font-semibold text-amber-200">{tr(dict, "account.verifyEmail", {}, "Verifique seu email")}</p>
+                  <p className="text-xs text-amber-300/70">{tr(dict, "account.verifyEmailDesc", {}, "Confirme seu endereço de email para ativar todas as funcionalidades.")}</p>
                 </div>
               </div>
               <form action="/api/auth/user/resend-verification" method="POST">
@@ -241,7 +241,7 @@ export default async function AccountPage() {
                   type="submit"
                   className="shrink-0 rounded-lg border border-amber-400/40 bg-amber-400/10 px-4 py-2 text-xs font-semibold text-amber-200 transition-colors hover:bg-amber-400/20"
                 >
-                  Reenviar email
+                  {tr(dict, "account.resendEmail", {}, "Reenviar email")}
                 </button>
               </form>
             </div>
@@ -296,7 +296,7 @@ export default async function AccountPage() {
                                 : "bg-slate-500/15 text-slate-400 border-slate-500/20"
                             }`}>
                               {gamification?.dailyMission?.isCompleted
-                                ? "✅ Completa"
+                                ? tr(dict, "player.missionComplete", {}, "✅ Completa")
                                 : `${currentMissionProgressPercent}%`}
                               {" "}· +{gamification?.dailyMission?.rewardXp} XP
                             </span>
@@ -320,7 +320,7 @@ export default async function AccountPage() {
                               : "bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/20"
                           }`}>
                             {gamification?.dailyMission?.isCompleted
-                              ? "✅ Missão concluída!"
+                              ? tr(dict, "player.missionCompleted", {}, "✅ Missão concluída!")
                               : tr(dict, "player.startMission")}
                           </Link>
                         </div>
@@ -371,11 +371,11 @@ export default async function AccountPage() {
                   </TabSectionShell>
                 ),
                 security: (
-                  <TabSectionShell icon="🔒" title="Segurança" subtitle="Gerencie a segurança da sua conta">
+                  <TabSectionShell icon="🔒" title={tr(dict, "account.security", {}, "Segurança")} subtitle={tr(dict, "account.securitySubtitle", {}, "Gerencie a segurança da sua conta")}>
                     <div className="space-y-6">
                       <div className="flex items-center justify-between rounded-xl border border-slate-700 bg-slate-900/50 p-4">
                         <div>
-                          <h3 className="text-sm font-semibold text-slate-200">Verificação de email</h3>
+                          <h3 className="text-sm font-semibold text-slate-200">{tr(dict, "account.emailVerification", {}, "Verificação de email")}</h3>
                           <p className="text-xs text-slate-400 mt-0.5">{profile.email}</p>
                         </div>
                         <span className={`rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
@@ -383,7 +383,7 @@ export default async function AccountPage() {
                             ? "bg-emerald-500/20 text-emerald-300"
                             : "bg-amber-500/20 text-amber-300"
                         }`}>
-                          {session.user.emailVerified ? "Verificado" : "Não verificado"}
+                          {session.user.emailVerified ? tr(dict, "account.verified", {}, "Verificado") : tr(dict, "account.notVerified", {}, "Não verificado")}
                         </span>
                       </div>
 

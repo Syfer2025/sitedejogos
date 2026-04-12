@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAdBlock } from "./AdBlockDetector";
+import { useTranslate } from "./LocaleContext";
 
 const HARD_COUNTDOWN = 30;
 const DAILY_LIMIT = 3;
@@ -18,6 +19,7 @@ export function AntiAdBlockWall({
   /** Called when user is allowed to play (countdown finished) */
   onAllow: () => void;
 }) {
+  const t = useTranslate();
   const { level, gamesPlayedToday, canPlay, registerGamePlay } = useAdBlock();
   const [countdown, setCountdown] = useState(HARD_COUNTDOWN);
   const [allowed, setAllowed] = useState(false);
@@ -48,25 +50,22 @@ export function AntiAdBlockWall({
       <div className="aab-wall">
         <div className="aab-wall-content">
           <span className="aab-wall-emoji">🚫</span>
-          <h2 className="aab-wall-title">Limite diário atingido</h2>
+          <h2 className="aab-wall-title">{t("adblock.wall.limit_title", {}, "Limite diário atingido")}</h2>
           <p className="aab-wall-text">
-            Com o bloqueador de anúncios ativo, o limite é de{" "}
-            <strong>{DAILY_LIMIT} jogos por dia</strong>. Você já jogou{" "}
-            {gamesPlayedToday} hoje.
+            {t("adblock.wall.limit_text", { limit: DAILY_LIMIT }, `Com o bloqueador de anúncios ativo, o limite é de ${DAILY_LIMIT} jogos por dia`)} Você já jogou {gamesPlayedToday} hoje.
           </p>
 
           <div className="aab-wall-options">
             <div className="aab-wall-option">
               <p className="aab-wall-option-desc">
-                Desative seu bloqueador de anúncios e recarregue a página para
-                jogar sem limites.
+                {t("adblock.wall.limit_option_text", {}, "Desative seu bloqueador de anúncios e recarregue a página para jogar sem limites.")}
               </p>
               <button
                 type="button"
                 onClick={() => window.location.reload()}
                 className="aab-wall-btn-reload"
               >
-                🔄 Já desativei, recarregar
+                {t("adblock.wall.btn_reload", {}, "🔄 Já desativei, recarregar")}
               </button>
             </div>
           </div>
@@ -81,12 +80,12 @@ export function AntiAdBlockWall({
       <div className="aab-wall">
         <div className="aab-wall-content">
           <span className="aab-wall-emoji">⏳</span>
-          <h2 className="aab-wall-title">Aguarde para jogar</h2>
+          <h2 className="aab-wall-title">{t("adblock.wall.wait_title", {}, "Aguarde para jogar")}</h2>
           <p className="aab-wall-text">
-            Bloqueador de anúncios detectado. Aguarde a contagem para jogar.
+            {t("adblock.wall.wait_text", {}, "Bloqueador de anúncios detectado. Aguarde a contagem para jogar.")}
             <br />
             <span className="aab-wall-remaining">
-              Restam <strong>{remaining}</strong> jogo{remaining !== 1 ? "s" : ""} hoje com ad blocker
+              {t("adblock.wall.remaining", { remaining }, `Restam ${remaining} jogo${remaining !== 1 ? "s" : ""} hoje com ad blocker`)}
             </span>
           </p>
 

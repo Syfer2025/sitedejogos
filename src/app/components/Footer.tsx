@@ -90,14 +90,14 @@ export function Footer() {
               target="_blank"
               className="text-slate-500 hover:text-white transition-colors"
             >
-              Facebook
+              {t("common.footer.facebook", {}, "Facebook")}
             </Link>
             <a
               href={`https://twitter.com/${SITE_CONFIG.twitterHandle.replace("@", "")}`}
               target="_blank"
               className="text-slate-500 hover:text-white transition-colors"
             >
-              Twitter
+              {t("common.footer.twitter", {}, "Twitter")}
             </a>
           </div>
         </div>

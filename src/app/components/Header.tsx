@@ -102,23 +102,23 @@ export function Header({
                 {isHeartOpen && (
                   <div className="absolute right-0 mt-2 w-72 rounded-2xl border border-slate-700 bg-slate-950/95 p-1 shadow-2xl backdrop-blur-xl">
                     <div className="flex p-1 gap-1 border-b border-slate-800 mb-1">
-                      <button 
+                      <button
                         onClick={() => setHeartTab("favorites")}
                         className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all ${heartTab === "favorites" ? "bg-pink-500/20 text-pink-300" : "text-slate-500 hover:bg-slate-800"}`}
                       >
-                        Favoritos
+                        {t("header.favorites", {}, "Favoritos")}
                       </button>
-                      <button 
+                      <button
                         onClick={() => setHeartTab("recent")}
                         className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all ${heartTab === "recent" ? "bg-cyan-500/20 text-cyan-300" : "text-slate-500 hover:bg-slate-800"}`}
                       >
-                        Recentes
+                        {t("header.recent", {}, "Recentes")}
                       </button>
                       <button
                         onClick={() => setHeartTab("rated")}
                         className={`flex-1 py-1.5 text-[10px] font-bold uppercase tracking-wider rounded-lg transition-all ${heartTab === "rated" ? "bg-amber-500/20 text-amber-300" : "text-slate-500 hover:bg-slate-800"}`}
                       >
-                        Avaliados
+                        {t("header.rated", {}, "Avaliados")}
                       </button>
                     </div>
                     
@@ -131,7 +131,7 @@ export function Header({
                               <span className="text-xs font-medium text-slate-200 group-hover:text-pink-300 truncate">{f.game.title}</span>
                             </Link>
                           ))
-                        ) : <p className="text-[10px] text-slate-500 text-center py-4">Nenhum favorito ainda.</p>
+                        ) : <p className="text-[10px] text-slate-500 text-center py-4">{t("header.noFavorites", {}, "Nenhum favorito ainda.")}</p>
                       )}
                       {heartTab === "recent" && (
                         recentGames.length > 0 ? (
@@ -141,7 +141,7 @@ export function Header({
                               <span className="text-xs font-medium text-slate-200 group-hover:text-cyan-300 truncate">{g.game.title}</span>
                             </Link>
                           ))
-                        ) : <p className="text-[10px] text-slate-500 text-center py-4">Nenhum jogo recente.</p>
+                        ) : <p className="text-[10px] text-slate-500 text-center py-4">{t("header.noRecent", {}, "Nenhum jogo recente.")}</p>
                       )}
                       {heartTab === "rated" && (
                         ratedGames.length > 0 ? (
@@ -154,7 +154,7 @@ export function Header({
                               </div>
                             </Link>
                           ))
-                        ) : <p className="text-[10px] text-slate-500 text-center py-4">Nenhuma avaliação feita.</p>
+                        ) : <p className="text-[10px] text-slate-500 text-center py-4">{t("header.noRated", {}, "Nenhuma avaliação feita.")}</p>
                       )}
                     </div>
                   </div>
@@ -182,7 +182,7 @@ export function Header({
                 {isNotificationsOpen && (
                   <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-slate-700 bg-slate-950/95 p-1 shadow-2xl backdrop-blur-xl animate-fade-in-up">
                     <div className="flex items-center justify-between px-4 py-2 border-b border-slate-800">
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Notificações</span>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{t("header.notifications", {}, "Notificações")}</span>
                       <form action={markNotificationsAsRead} onSubmit={() => {
                         // Optimistically update UI
                         setOptimisticRead(true);
@@ -191,7 +191,7 @@ export function Header({
                           type="submit"
                           className="text-[9px] text-cyan-400 hover:text-cyan-300"
                         >
-                          Marcar todas como lidas
+                          {t("header.markAllRead", {}, "Marcar todas como lidas")}
                         </button>
                       </form>
                     </div>
@@ -209,7 +209,7 @@ export function Header({
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" className="h-12 w-12 mb-2">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
                           </svg>
-                          <p className="text-xs">Tudo limpo por aqui</p>
+                          <p className="text-xs">{t("header.allClear", {}, "Tudo limpo por aqui")}</p>
                         </div>
                       )}
                     </div>

@@ -166,7 +166,19 @@
     "mission": "Missão",
     "profile": "Perfil",
     "saveError": "Falha ao salvar o perfil.",
-    "processingPurchase": "Processando compra..."
+    "processingPurchase": "Processando compra...",
+    "missionComplete": "✅ Completa",
+    "missionCompleted": "✅ Missão concluída!"
+  },
+  "account": {
+    "verifyEmail": "Verifique seu email",
+    "verifyEmailDesc": "Confirme seu endereço de email para ativar todas as funcionalidades.",
+    "resendEmail": "Reenviar email",
+    "security": "Segurança",
+    "securitySubtitle": "Gerencie a segurança da sua conta",
+    "emailVerification": "Verificação de email",
+    "verified": "Verificado",
+    "notVerified": "Não verificado"
   },
   "game": {
     "views": "visualizações",

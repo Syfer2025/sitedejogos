@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAdBlock } from "./AdBlockDetector";
+import { useTranslate } from "./LocaleContext";
 
 const COUNTDOWN_SECONDS = 15;
 
@@ -11,6 +12,7 @@ const COUNTDOWN_SECONDS = 15;
  * User must wait 15 seconds before they can dismiss and play.
  */
 export function AntiAdBlockModal() {
+  const t = useTranslate();
   const { detected, level, dismiss, dismissed } = useAdBlock();
   const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
   const [canClose, setCanClose] = useState(false);
@@ -37,21 +39,19 @@ export function AntiAdBlockModal() {
       <div className="aab-modal">
         <div className="aab-modal-header">
           <span className="aab-modal-emoji">⏳</span>
-          <h2 className="aab-modal-title">Bloqueador de anúncios detectado</h2>
+          <h2 className="aab-modal-title">{t("adblock.modal.title", {}, "Bloqueador de anúncios detectado")}</h2>
         </div>
 
         <p className="aab-modal-text">
-          Os anúncios mantêm o Gasty Games gratuito para todos. Enquanto o
-          bloqueador estiver ativo, você precisará aguardar um momento antes
-          de jogar.
+          {t("adblock.modal.text", {}, "Os anúncios mantêm o Gasty Games gratuito para todos. Enquanto o bloqueador estiver ativo, você precisará aguardar um momento antes de jogar.")}
         </p>
 
         <div className="aab-modal-benefits">
-          <p className="aab-modal-benefits-title">Desative o ad blocker e ganhe:</p>
+          <p className="aab-modal-benefits-title">{t("adblock.modal.benefits_title", {}, "Desative o ad blocker e ganhe:")}</p>
           <ul className="aab-modal-benefits-list">
-            <li>🎮 Acesso instantâneo a todos os jogos</li>
-            <li>⚡ Sem contagem regressiva</li>
-            <li>💚 Você apoia o portal gratuitamente</li>
+            <li>{t("adblock.modal.benefit_access", {}, "🎮 Acesso instantâneo a todos os jogos")}</li>
+            <li>{t("adblock.modal.benefit_countdown", {}, "⚡ Sem contagem regressiva")}</li>
+            <li>{t("adblock.modal.benefit_support", {}, "💚 Você apoia o portal gratuitamente")}</li>
           </ul>
         </div>
 
@@ -66,11 +66,11 @@ export function AntiAdBlockModal() {
         <div className="aab-modal-footer">
           {canClose ? (
             <button type="button" onClick={dismiss} className="aab-modal-continue">
-              Continuar para o jogo →
+              {t("adblock.modal.btn_continue", {}, "Continuar para o jogo →")}
             </button>
           ) : (
             <span className="aab-modal-countdown">
-              Aguarde {countdown}s...
+              {t("adblock.modal.countdown", { seconds: countdown }, `Aguarde ${countdown}s...`)}
             </span>
           )}
 
