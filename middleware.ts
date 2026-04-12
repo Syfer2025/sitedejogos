@@ -1,17 +1,27 @@
-import createMiddleware from "next-intl/middleware";
-import { routing } from "./src/i18n/routing";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default createMiddleware(routing);
+// Middleware simplificado - apenas detecta locale do cookie
+export default async function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+  
+  // Verificar se o cookie de locale existe
+  const localeCookie = request.cookies.get("arcade_locale");
+  
+  if (!localeCookie && request.nextUrl.pathname !== "/") {
+    // Definir locale padrão se não existir cookie
+    response.cookies.set("arcade_locale", "pt-BR", {
+      maxAge: 365 * 24 * 60 * 60,
+      path: "/",
+      sameSite: "lax",
+    });
+  }
+  
+  return response;
+}
 
 export const config = {
-  // Match only internationalized pathnames
   matcher: [
-    // Habilitar em todas as rotas exceto:
-    // - api (API routes)
-    // - _next/static (static files)
-    // - _next/image (image optimization files)
-    // - favicon.ico
-    // - arquivos públicos (sw.js, manifest.json, etc)
     "/((?!api|_next/static|_next/image|favicon.ico|sw\\.js|manifest\\.json|.*\\..*).*)",
   ],
 };
