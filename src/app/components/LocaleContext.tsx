@@ -1,6 +1,10 @@
 "use client";
-import { createContext, useContext, useEffect, useState, useSyncExternalStore, useMemo } from "react";
 
+import {
+  NextIntlClientProvider,
+  useTranslations as useNextIntlTranslations,
+} from "next-intl";
+import { ReactNode, createContext, useContext, useEffect, useState } from "react";
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
@@ -9,7 +13,7 @@ import {
   type Locale,
 } from "@/lib/locale";
 
-// Static import map — Turbopack cannot resolve template-literal dynamic imports
+// Static import map para compatibilidade
 const clientDictionaryLoaders: Record<string, () => Promise<{ default: any }>> = {
   "en-US": () => import("@/messages/en-US.json"),
   "zh-CN": () => import("@/messages/zh-CN.json"),
@@ -38,8 +42,6 @@ const clientDictionaryLoaders: Record<string, () => Promise<{ default: any }>> =
   "bn-BD": () => import("@/messages/bn-BD.json"),
 };
 
-const LOCALE_EVENT_NAME = "arcade-locale-change";
-
 type LocaleContextValue = {
   locale: Locale;
   setLocale: (next: Locale) => void;
@@ -50,56 +52,38 @@ type LocaleContextValue = {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 function readStoredLocale(fallback: Locale) {
-  if (typeof window === "undefined") {
-    return fallback;
-  }
-
+  if (typeof window === "undefined") return fallback;
   const saved = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-  return saved && SUPPORTED_LOCALES.includes(saved as Locale)
-    ? (saved as Locale)
-    : fallback;
-}
-
-function subscribe(callback: () => void) {
-  if (typeof window === "undefined") {
-    return () => undefined;
-  }
-
-  const handleChange = () => callback();
-
-  window.addEventListener("storage", handleChange);
-  window.addEventListener(LOCALE_EVENT_NAME, handleChange);
-
-  return () => {
-    window.removeEventListener("storage", handleChange);
-    window.removeEventListener(LOCALE_EVENT_NAME, handleChange);
-  };
+  return saved && SUPPORTED_LOCALES.includes(saved as Locale) ? (saved as Locale) : fallback;
 }
 
 export function LocaleProvider({
   children,
   initialLocale = DEFAULT_LOCALE,
+  messages,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   initialLocale?: Locale;
+  messages?: any;
 }) {
-  const locale = useSyncExternalStore(
-    subscribe,
-    () => readStoredLocale(initialLocale),
-    () => initialLocale
-  );
+  const locale = readStoredLocale(initialLocale);
+  const [dictionary, setDictionary] = useState<any>(messages || null);
 
-  const [dictionary, setDictionary] = useState<any>(null);
-
+  // Carregar dicionário para compatibilidade com código antigo
   useEffect(() => {
+    if (messages) {
+      setDictionary(messages);
+      return;
+    }
+    
     const loader = clientDictionaryLoaders[locale] ?? clientDictionaryLoaders["en-US"];
     loader()
       .then((mod) => setDictionary(mod.default))
       .catch((err) => {
         console.error("Failed to load client dictionary", err);
-        clientDictionaryLoaders["pt-BR"]().then(mod => setDictionary(mod.default));
+        clientDictionaryLoaders["pt-BR"]().then((mod) => setDictionary(mod.default));
       });
-  }, [locale]);
+  }, [locale, messages]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -109,47 +93,49 @@ export function LocaleProvider({
   }, [locale]);
 
   function setLocale(next: Locale) {
-    if (typeof window === "undefined") {
-      return;
-    }
-
+    if (typeof window === "undefined") return;
     window.localStorage.setItem(LOCALE_STORAGE_KEY, next);
     document.cookie = `${LOCALE_COOKIE_NAME}=${encodeURIComponent(next)}; path=/; max-age=31536000; samesite=lax`;
-    window.dispatchEvent(new Event(LOCALE_EVENT_NAME));
+    window.location.reload();
   }
 
-  const t = useMemo(() => {
-    return (key: string, variables?: Record<string, string | number>, fallback?: string) => {
-      if (!dictionary) return fallback ?? key;
-      
-      const keys = key.split(".");
-      let result = dictionary;
-      
-      for (const k of keys) {
-        if (result && typeof result === "object" && k in result) {
-          result = result[k];
-        } else {
-          result = fallback ?? key;
-          break;
+  // Função t compatível com sistema antigo (sem RegExp!)
+  const t = (key: string, variables?: Record<string, string | number>, fallback?: string) => {
+    if (!dictionary) return fallback ?? key;
+
+    const keys = key.split(".");
+    let result: any = dictionary;
+
+    for (const k of keys) {
+      if (result && typeof result === "object" && k in result) {
+        result = result[k];
+      } else {
+        result = fallback ?? key;
+        break;
+      }
+    }
+
+    let text = typeof result === "string" ? result : (fallback ?? key);
+
+    // Substituição otimizada sem RegExp
+    if (variables) {
+      Object.entries(variables).forEach(([k, v]) => {
+        const placeholder = `{${k}}`;
+        while (text.includes(placeholder)) {
+          text = text.replace(placeholder, String(v));
         }
-      }
-      
-      let text = typeof result === "string" ? result : (fallback ?? key);
+      });
+    }
 
-      if (variables) {
-        Object.entries(variables).forEach(([k, v]) => {
-          text = text.replace(new RegExp(`\\{${k}\\}`, "g"), String(v));
-        });
-      }
-
-      return text;
-    };
-  }, [dictionary]);
+    return text;
+  };
 
   return (
-    <LocaleContext.Provider value={{ locale, setLocale, dictionary, t }}>
-      {children}
-    </LocaleContext.Provider>
+    <NextIntlClientProvider locale={locale} messages={dictionary || {}}>
+      <LocaleContext.Provider value={{ locale, setLocale, dictionary, t }}>
+        {children}
+      </LocaleContext.Provider>
+    </NextIntlClientProvider>
   );
 }
 
