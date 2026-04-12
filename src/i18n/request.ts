@@ -1,11 +1,20 @@
 import { getRequestConfig } from "next-intl/server";
+import { cookies } from "next/headers";
 import { routing } from "./routing";
+import { LOCALE_COOKIE_NAME, resolveLocale } from "@/lib/locale";
 
 export default getRequestConfig(async ({ requestLocale }) => {
-  // Tipicamente isso vem do cookie ou do Accept-Language header
+  // Primeiro tenta o requestLocale (do middleware/headers)
   let locale = await requestLocale;
 
-  // Se não tiver locale, usa o default
+  // Se não tiver, tenta o cookie
+  if (!locale) {
+    const cookieStore = await cookies();
+    const cookieValue = cookieStore.get(LOCALE_COOKIE_NAME)?.value;
+    locale = resolveLocale(cookieValue);
+  }
+
+  // Se ainda não tiver, usa o default
   if (!locale) {
     locale = routing.defaultLocale;
   }
