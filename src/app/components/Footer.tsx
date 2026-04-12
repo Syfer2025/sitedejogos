@@ -1,12 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useTranslate } from "./LocaleContext";
 import { SITE_CONFIG } from "@/lib/config";
 import { NewsletterForm } from "./NewsletterForm";
 
 export function Footer() {
-  const t = useTranslations();
+  const t = useTranslate();
 
   return (
     <footer className="mt-auto border-t border-slate-800/60 bg-slate-950 px-4 py-12 md:px-6">
