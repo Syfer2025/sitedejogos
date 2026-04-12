@@ -22,21 +22,21 @@ function calcPasswordStrength(pw: string): {
   checks: { label: string; passed: boolean }[];
 } {
   const checks = [
-    { label: "Mínimo 8 caracteres", passed: pw.length >= 8 },
-    { label: "Letra maiúscula", passed: /[A-Z]/.test(pw) },
-    { label: "Letra minúscula", passed: /[a-z]/.test(pw) },
-    { label: "Número", passed: /\d/.test(pw) },
-    { label: "Caractere especial (!@#$...)", passed: /[^A-Za-z0-9]/.test(pw) },
+    { label: t("auth.passwordRequirements.min8", {}, "Mínimo 8 caracteres"), passed: pw.length >= 8 },
+    { label: t("auth.passwordRequirements.uppercase", {}, "Letra maiúscula"), passed: /[A-Z]/.test(pw) },
+    { label: t("auth.passwordRequirements.lowercase", {}, "Letra minúscula"), passed: /[a-z]/.test(pw) },
+    { label: t("auth.passwordRequirements.number", {}, "Número"), passed: /\d/.test(pw) },
+    { label: t("auth.passwordRequirements.special", {}, "Caractere especial (!@#$...)"), passed: /[^A-Za-z0-9]/.test(pw) },
   ];
 
   const passed = checks.filter((c) => c.passed).length;
   const map: Record<number, { level: StrengthLevel; label: string; color: string }> = {
     0: { level: 0, label: "", color: "transparent" },
-    1: { level: 1, label: "Muito fraca", color: "#ef4444" },
-    2: { level: 2, label: "Fraca", color: "#f97316" },
-    3: { level: 3, label: "Boa", color: "#eab308" },
-    4: { level: 4, label: "Forte", color: "#22c55e" },
-    5: { level: 4, label: "Excelente", color: "#06b6d4" },
+    1: { level: 1, label: t("auth.strength.veryWeak", {}, "Muito fraca"), color: "#ef4444" },
+    2: { level: 2, label: t("auth.strength.weak", {}, "Fraca"), color: "#f97316" },
+    3: { level: 3, label: t("auth.strength.good", {}, "Boa"), color: "#eab308" },
+    4: { level: 4, label: t("auth.strength.strong", {}, "Forte"), color: "#22c55e" },
+    5: { level: 4, label: t("auth.strength.excellent", {}, "Excelente"), color: "#06b6d4" },
   };
 
   return { ...map[passed], checks };
@@ -93,7 +93,31 @@ export default function LoginPage() {
 
   const redirectTo = searchParams.get("from") || "/account";
 
-  const strength = useMemo(() => calcPasswordStrength(password), [password]);
+  const t = useTranslate();
+  const isRegister = mode === "register";
+
+  // Mover cálculo de força para dentro do componente para ter acesso ao `t()`
+  const strength = useMemo(() => {
+    const checks = [
+      { label: t("auth.passwordRequirements.min8", {}, "Mínimo 8 caracteres"), passed: password.length >= 8 },
+      { label: t("auth.passwordRequirements.uppercase", {}, "Letra maiúscula"), passed: /[A-Z]/.test(password) },
+      { label: t("auth.passwordRequirements.lowercase", {}, "Letra minúscula"), passed: /[a-z]/.test(password) },
+      { label: t("auth.passwordRequirements.number", {}, "Número"), passed: /\d/.test(password) },
+      { label: t("auth.passwordRequirements.special", {}, "Caractere especial (!@#$...)"), passed: /[^A-Za-z0-9]/.test(password) },
+    ];
+
+    const passed = checks.filter((c) => c.passed).length;
+    const map: Record<number, { level: StrengthLevel; label: string; color: string }> = {
+      0: { level: 0, label: "", color: "transparent" },
+      1: { level: 1, label: t("auth.strength.veryWeak", {}, "Muito fraca"), color: "#ef4444" },
+      2: { level: 2, label: t("auth.strength.weak", {}, "Fraca"), color: "#f97316" },
+      3: { level: 3, label: t("auth.strength.good", {}, "Boa"), color: "#eab308" },
+      4: { level: 4, label: t("auth.strength.strong", {}, "Forte"), color: "#22c55e" },
+      5: { level: 4, label: t("auth.strength.excellent", {}, "Excelente"), color: "#06b6d4" },
+    };
+
+    return { ...map[passed], checks };
+  }, [password, t]);
 
   useEffect(() => {
     setMode(resolvedMode);
@@ -125,14 +149,14 @@ export default function LoginPage() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data.message || "Código inválido.");
+        setError(data.message || t("auth.totp.invalidCode", {}, "Código inválido."));
         setVerifying2fa(false);
         return;
       }
 
       window.location.href = redirectTo;
     } catch {
-      setError("Erro inesperado. Tente novamente.");
+      setError(t("auth.totp.unexpectedError", {}, "Erro inesperado. Tente novamente."));
       setVerifying2fa(false);
     }
   }
@@ -143,7 +167,7 @@ export default function LoginPage() {
       setError(null);
       await signIn(provider.toLowerCase(), { callbackUrl: redirectTo });
     } catch {
-      setError(`Erro ao iniciar login com ${provider}.`);
+      setError(t("auth.socialLoginError", {}, "Erro ao iniciar login com {provider}.").replace("{provider}", provider));
       setLoading(false);
     }
   }
@@ -155,19 +179,19 @@ export default function LoginPage() {
     // Registration validations
     if (mode === "register") {
       if (password.length < 8) {
-        setError("A senha deve ter no mínimo 8 caracteres.");
+        setError(t("auth.passwordMin8Error", {}, "A senha deve ter no mínimo 8 caracteres."));
         return;
       }
       if (strength.level < 3) {
-        setError("A senha é fraca demais. Atenda aos requisitos mínimos.");
+        setError(t("auth.weakPasswordError", {}, "A senha é fraca demais. Atenda aos requisitos mínimos."));
         return;
       }
       if (password !== confirmPassword) {
-        setError("As senhas não coincidem.");
+        setError(t("auth.passwordsDontMatch", {}, "As senhas não coincidem."));
         return;
       }
       if (!acceptedTerms) {
-        setError("Você precisa aceitar os termos para criar uma conta.");
+        setError(t("auth.termsNotAccepted", {}, "Você precisa aceitar os termos para criar uma conta."));
         return;
       }
     }
@@ -185,7 +209,7 @@ export default function LoginPage() {
         const data = await response.json().catch(() => ({}));
 
         if (!response.ok) {
-          setError(data.message || "Email ou senha inválidos.");
+          setError(data.message || t("auth.invalidCredentials", {}, "Email ou senha inválidos."));
           setLoading(false);
           return;
         }
@@ -218,7 +242,7 @@ export default function LoginPage() {
       const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        setError(data.message || "Não foi possível concluir o cadastro.");
+        setError(data.message || t("auth.registerFailed", {}, "Não foi possível concluir o cadastro."));
         setLoading(false);
         return;
       }
@@ -226,13 +250,10 @@ export default function LoginPage() {
       // O endpoint de registro já configura o cookie `PLAYER_SESSION_COOKIE` na resposta.
       window.location.href = redirectTo;
     } catch {
-      setError("Falha inesperada. Tente novamente.");
+      setError(t("auth.unexpectedError", {}, "Falha inesperada. Tente novamente."));
       setLoading(false);
     }
   }
-
-  const t = useTranslate();
-  const isRegister = mode === "register";
 
   // ── 2FA Verification Screen ──
   if (pending2fa) {
@@ -244,17 +265,17 @@ export default function LoginPage() {
               <span className="text-lg font-bold text-white">N</span>
             </div>
             <h1 className="mt-3 text-lg font-semibold tracking-tight text-slate-50">
-              Verificação em duas etapas
+              {t("auth.2fa.title", {}, "Verificação em duas etapas")}
             </h1>
             <p className="mt-1 text-xs text-slate-400">
-              Insira o código do seu app autenticador ou um código de backup.
+              {t("auth.2fa.subtitle", {}, "Insira o código do seu app autenticador ou um código de backup.")}
             </p>
           </div>
 
           <div className="space-y-4">
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-300">
-                Código de verificação
+                {t("auth.2fa.codeLabel", {}, "Código de verificação")}
               </label>
               <input
                 type="text"
@@ -278,7 +299,7 @@ export default function LoginPage() {
               disabled={verifying2fa || !totpCode}
               className="w-full inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.5)] transition-all"
             >
-              {verifying2fa ? "Verificando..." : "Verificar"}
+              {verifying2fa ? t("common.verifying", {}, "Verificando...") : t("common.verify", {}, "Verificar")}
             </button>
 
             <button
@@ -291,7 +312,7 @@ export default function LoginPage() {
               }}
               className="w-full text-center text-xs text-slate-400 hover:text-slate-300"
             >
-              Voltar ao login
+              {t("auth.2fa.backToLogin", {}, "Voltar ao login")}
             </button>
           </div>
         </div>
@@ -387,7 +408,7 @@ export default function LoginPage() {
             {isRegister && (
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-300">
-                  Nome de exibição
+                  {t("auth.displayName", {}, "Nome de exibição")}
                 </label>
                 <input
                   type="text"
@@ -402,7 +423,7 @@ export default function LoginPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-300">
-                Email
+                {t("auth.email", {}, "Email")}
               </label>
               <input
                 type="email"
@@ -417,7 +438,7 @@ export default function LoginPage() {
 
             <div>
               <label className="mb-1 block text-xs font-medium text-slate-300">
-                Senha
+                {t("auth.password", {}, "Senha")}
               </label>
               <div className="relative">
                 <input
@@ -427,7 +448,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full rounded-lg bg-slate-950 border border-slate-800 px-3 py-2 pr-10 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-400/60 focus:border-cyan-400/50"
-                  placeholder={isRegister ? "Mínimo 8 caracteres" : "Sua senha"}
+                  placeholder={isRegister ? t("auth.passwordMin8", {}, "Mínimo 8 caracteres") : t("auth.yourPassword", {}, "Sua senha")}
                 />
                 <button
                   type="button"
@@ -495,7 +516,7 @@ export default function LoginPage() {
             {isRegister && (
               <div>
                 <label className="mb-1 block text-xs font-medium text-slate-300">
-                  Confirmar senha
+                  {t("auth.confirmPassword", {}, "Confirmar senha")}
                 </label>
                 <input
                   type={showPassword ? "text" : "password"}
@@ -510,10 +531,10 @@ export default function LoginPage() {
                       ? "border-emerald-500/60"
                       : "border-slate-800"
                   }`}
-                  placeholder="Repita a senha"
+                  placeholder={t("auth.repeatPassword", {}, "Repita a senha")}
                 />
                 {confirmPassword.length > 0 && confirmPassword !== password && (
-                  <p className="mt-1 text-[10px] text-red-400">As senhas não coincidem</p>
+                  <p className="mt-1 text-[10px] text-red-400">{t("auth.passwordsDontMatch", {}, "As senhas não coincidem")}</p>
                 )}
               </div>
             )}
@@ -528,13 +549,13 @@ export default function LoginPage() {
                   className="mt-0.5 h-4 w-4 rounded border-slate-700 bg-slate-950 text-cyan-400 focus:ring-cyan-400/50 accent-cyan-400 shrink-0"
                 />
                 <span className="text-[11px] text-slate-400 leading-relaxed">
-                  Tenho 13 anos (ou idade mínima aplicável) ou mais e aceito os{" "}
+                  {t("auth.termsAcceptText", {}, "Tenho 13 anos (ou idade mínima aplicável) ou mais e aceito os")}{" "}
                   <Link href="/termos" className="text-cyan-300 hover:text-cyan-200 underline underline-offset-2">
-                    Termos e Condições
+                    {t("auth.termsAndConditions", {}, "Termos e Condições")}
                   </Link>{" "}
-                  e a{" "}
+                  {t("auth.andThe", {}, "e a")}{" "}
                   <Link href="/privacidade" className="text-cyan-300 hover:text-cyan-200 underline underline-offset-2">
-                    Política de Privacidade
+                    {t("auth.privacyPolicy", {}, "Política de Privacidade")}
                   </Link>
                   .
                 </span>
@@ -555,24 +576,24 @@ export default function LoginPage() {
               className="w-full mt-1 inline-flex items-center justify-center rounded-lg bg-gradient-to-r from-cyan-400 to-cyan-500 hover:from-cyan-300 hover:to-cyan-400 disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-[0_0_22px_rgba(34,211,238,0.5)] transition-all active:scale-[0.98]"
             >
               {loading
-                ? "Processando..."
+                ? t("common.processing", {}, "Processando...")
                 : isRegister
-                ? "Criar conta e entrar"
-                : "Entrar na conta"}
+                ? t("auth.createAndEnter", {}, "Criar conta e entrar")
+                : t("auth.enterAccount", {}, "Entrar na conta")}
             </button>
           </form>
 
           {/* ── Footer ── */}
           <p className="mt-4 text-center text-[10px] text-slate-500">
             {isRegister
-              ? "Já tem conta? "
-              : "Não tem conta? "}
+              ? t("auth.alreadyHaveAccount", {}, "Já tem conta? ")
+              : t("auth.dontHaveAccount", {}, "Não tem conta? ")}
             <button
               type="button"
               onClick={() => updateMode(isRegister ? "login" : "register")}
               className="text-cyan-300 hover:text-cyan-200 font-medium"
             >
-              {isRegister ? "Faça login" : "Crie agora"}
+              {isRegister ? t("common.login", {}, "Faça login") : t("auth.createNow", {}, "Crie agora")}
             </button>
           </p>
         </div>
